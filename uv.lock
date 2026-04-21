@@ -41,12 +41,23 @@ source = { virtual = "." }
 dependencies = [
     { name = "django" },
     { name = "django-environ" },
+    { name = "pytils" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "django", specifier = ">=6.0.4" },
     { name = "django-environ", specifier = ">=0.13.0" },
+    { name = "pytils", specifier = ">=0.4.4" },
+]
+
+[[package]]
+name = "pytils"
+version = "0.4.4"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/28/c8/e9b179c624ed0ed6f3c0c61ca47556e90e2a484021362bcf1d0dded233b6/pytils-0.4.4.tar.gz", hash = "sha256:9992a96caad57daa211584df1da4fd825f11e836d3ed93011785f1d02ab6f0ca", size = 109208, upload-time = "2025-07-29T07:17:37.92Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/fc/9e/e60c212698a34aa5c694824bc8963dce70bf38894cbede38c06d78471d1a/pytils-0.4.4-py3-none-any.whl", hash = "sha256:e54c16465a5fdb65d414e2da8045e6cc6de79889acda6143dcef2e1e86a1a840", size = 34194, upload-time = "2025-07-29T07:17:36.227Z" },
 ]
 
 [[package]]
