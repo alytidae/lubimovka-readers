@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.utils.text import slugify
+from django.urls import reverse
 
 class Competition(models.Model):
     class Status(models.TextChoices):
@@ -34,6 +35,9 @@ class Competition(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.date.year})"
+
+    def get_absolute_url(self):
+        return reverse("competitions:detail", kwargs={"slug": self.slug})
 
 
 class CompetitionRole(models.Model):
