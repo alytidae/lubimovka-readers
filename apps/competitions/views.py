@@ -9,7 +9,7 @@ class CompetitionCreateView(LoginRequiredMixin, UserPassesTestMixin, SuccessMess
     model = Competition
     template_name = "competition_create.html"
     form_class = CompetitionCreationForm
-    success_message = "\u2705 %(title) was created successfully" 
+    success_message = "\u2705 %(title)s was created successfully" 
 
     def get_success_url(self):
         return self.object.get_absolute_url()
@@ -21,7 +21,7 @@ class CompetitionUpdateView(LoginRequiredMixin, UserPassesTestMixin, SuccessMess
     model = Competition
     template_name = "competition_update.html"
     form_class = CompetitionChangeForm
-    success_message = "\u2705 %(title) was updated successfully"
+    success_message = "\u2705 %(title)s was updated successfully"
 
     def get_success_url(self):
         return self.object.get_absolute_url()
