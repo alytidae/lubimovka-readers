@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}{{ competition.title }} - Lubimovka Readers{% endblock title %}
+
+{% block content %}
+    <h1>{{ competition.title }}</h1>
+    <p>Date: {{ competition.date }}</p>
+    <p>Status: {{ competition.get_status_display }}</p>
+    
+    {% if competition.google_sheet_url %}
+        <p><a href="{{ competition.google_sheet_url }}" target="_blank">Google Sheet</a></p>
+    {% endif %}
+{% endblock content %}

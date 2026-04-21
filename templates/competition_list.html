@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Competitions - Lubimovka Readers{% endblock title %}
+
+{% block content %}
+    <h1>Competitions</h1>
+    <ul>
+        {% for competition in competitions %}
+            <li>
+                <a href="{{ competition.get_absolute_url }}">{{ competition.title }} ({{ competition.date.year }})</a>
+                - {{ competition.get_status_display }}
+            </li>
+        {% empty %}
+            <li>No competitions found.</li>
+        {% endfor %}
+    </ul>
+{% endblock content %}
