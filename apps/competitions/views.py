@@ -3,11 +3,12 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView, ListView, DetailView
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from .models import Competition
+from .mixins import CompetitionContextMixin
 from .forms import CompetitionCreationForm, CompetitionChangeForm 
 
 class CompetitionCreateView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, CreateView):
     model = Competition
-    template_name = "competition_create.html"
+    template_name = "create_update.html"
     form_class = CompetitionCreationForm
     success_message = "\u2705 %(title)s was created successfully" 
 
@@ -19,7 +20,7 @@ class CompetitionCreateView(LoginRequiredMixin, UserPassesTestMixin, SuccessMess
 
 class CompetitionUpdateView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, UpdateView):
     model = Competition
-    template_name = "competition_update.html"
+    template_name = "create_update.html"
     form_class = CompetitionChangeForm
     success_message = "\u2705 %(title)s was updated successfully"
 
@@ -48,7 +49,7 @@ class CompetitionListView(LoginRequiredMixin, ListView):
             
         return Competition.objects.filter(roles__user=user).distinct()
 
-class CompetitionDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+class CompetitionDetailView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, DetailView):
     model = Competition
     template_name = "competition_detail.html"
     context_object_name = "competition"

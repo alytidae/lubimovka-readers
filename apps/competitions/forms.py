@@ -26,10 +26,7 @@ class CompetitionChangeForm(forms.ModelForm):
             'date', 
             'status',
             'are_phase1_reviews_visible',
-            'are_phase2_reviews_visible',
-            'google_sheet_url', 
-            'play_title_sheet_column_name', 
-            'play_link_sheet_column_name'
+            'are_phase2_reviews_visible'
         )
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),

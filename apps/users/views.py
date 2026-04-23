@@ -8,7 +8,7 @@ from apps.competitions.mixins import CompetitionContextMixin
 
 class UserCreateView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, SuccessMessageMixin, CreateView):
     model = User
-    template_name = "user_create.html"
+    template_name = "create_update.html"
     form_class = CustomUserCreationForm
     success_message = "\u2705 %(email)s was created successfully"
 
@@ -49,7 +49,7 @@ class UserCreateView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContext
 
 class UserUpdateView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, SuccessMessageMixin, UpdateView):
     model = User
-    template_name = "user_update.html"
+    template_name = "create_update.html"
     form_class = CustomUserChangeForm
     success_message = "\u2705 %(email)s was updated successfully"
 
