@@ -3,11 +3,70 @@
 {% block title %}{{ competition.title }} - Lubimovka Readers{% endblock title %}
 
 {% block content %}
-    <h1>{{ competition.title }}</h1>
-    <p>Date: {{ competition.date }}</p>
-    <p>Status: {{ competition.get_status_display }}</p>
-    
-    {% if competition.google_sheet_url %}
-        <p><a href="{{ competition.google_sheet_url }}" target="_blank">Google Sheet</a></p>
+    <nav aria-label="breadcrumb">
+      <ul>
+        <li><a href="{% url 'competitions:list' %}">Competitions</a></li>
+        <li>{{ competition.title }}</li>
+      </ul>
+    </nav>
+
+    <hgroup>
+        <h1>{{ competition.title }}</h1>
+        <p>Current Phase: <strong>{{ competition.get_status_display }}</strong></p>
+    </hgroup>
+
+    {% if is_reader %}
+        <div class="grid">
+            <article>
+                <header>My Tasks & Reviews</header>
+                <p>Read your assigned plays, submit reviews, and rate the texts.</p>
+                <a href="#" role="button">Start Reading</a>
+            </article>
+
+            <article>
+                <header>My Progress</header>
+                <p>Track your reading statistics, completed tasks, and personal metrics.</p>
+                <a href="#" role="button">View Stats</a>
+            </article>
+        </div>
     {% endif %}
+
+    {% if is_moderator or is_admin %}
+        <div class="grid">
+            <article>
+                <header>Global Plays Database</header>
+                <p>Access all submitted plays, manage assignments, and view global ratings.</p>
+                <a href="#" role="button">Open Database</a>
+            </article>
+
+            <article>
+                <header>Team Management</header>
+                <p>Invite readers, manage roles, and monitor team activity.</p>
+                <a href="{% url 'users:list' competition.slug %}" role="button">Manage Team</a>
+            </article>
+
+            <article>
+                <header>Deep Analytics</header>
+                <p>Analyze scoring trends, reader performance, and overall competition metrics.</p>
+                <a href="#" role="button">View Analytics</a>
+            </article>
+        </div>
+    {% endif %}
+
+    {% if is_admin %}
+        <div class="grid">
+            <article>
+                <header>Settings</header>
+                <p>Configure phase deadlines, update guidelines, and manage integrations.</p>
+                <a href="{% url 'competitions:update' competition.slug %}" role="button">Edit Settings</a>
+            </article>
+
+            <article>
+                <header>Data Export</header>
+                <p>Generate and download full database backups in CSV or spreadsheet formats.</p>
+                <a href="#" role="button">Export Data</a>
+            </article>
+        </div>
+    {% endif %}
+
 {% endblock content %}

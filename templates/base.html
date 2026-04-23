@@ -4,20 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Lubimovka Readers{% endblock title %}</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.green.min.css">
     
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.slate.min.css">
+    <style>
+        nav details.dropdown {
+            display: inline-block;
+        }
+    </style>
+
+    <script>
+        const savedTheme = localStorage.getItem('pico-theme');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        }
+    </script>
 </head>
 <body>
-    <header>
+    <header class="container">
         {% include "includes/navbar.html" %}
     </header>
 
-    <main>
+    <main class="container">
         {% if messages %}
             {% for message in messages %}
                 <article>
-                  <header>New message</header>
-                  {{message}}
+                    <header>Notification</header>
+                    {{ message }}
                 </article>
             {% endfor %}
         {% endif %}
@@ -26,8 +39,24 @@
         {% endblock content %}
     </main>
 
-    <footer>
+    <footer class="container">
         {% include "includes/footer.html" %}
     </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeSwitcher = document.getElementById('theme-switcher');
+            if (themeSwitcher) {
+                themeSwitcher.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const htmlElement = document.documentElement;
+                    const currentTheme = htmlElement.getAttribute('data-theme') || 'dark';
+                    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                    htmlElement.setAttribute('data-theme', newTheme);
+                    localStorage.setItem('pico-theme', newTheme);
+                });
+            }
+        });
+    </script>
 </body>
 </html>

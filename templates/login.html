@@ -3,17 +3,15 @@
 {% block title %}Login - Lubimovka Readers{% endblock title %}
 
 {% block content %}
-    <h1>Login</h1>
-    <form method="post">
-        {% csrf_token %}
-        <label>
-            Email
-            <input type="email" name="username" required>
-        </label>
-        <label>
-            Password
-            <input type="password" name="password" required>
-        </label>
-        <button type="submit">Login</button>
-    </form>
+    <article style="max-width: 500px; margin: 0 auto;">
+        <header>
+            <h2 style="margin-bottom: 0;">Sign In</h2>
+        </header>
+        
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Login</button>
+        </form>
+    </article>
 {% endblock content %}

@@ -1,0 +1,27 @@
+<nav>
+    <ul>
+        <li><strong><a href="{% url 'competitions:list' %}" class="contrast">Lubimovka Readers</a></strong></li>
+    </ul>
+    <ul>
+        {% if user.is_authenticated %}
+            <li>
+                <details class="dropdown">
+                    <summary class="outline secondary">{{ user.email }}</summary>
+                    <ul dir="rtl">
+                        <li>
+                            <a href="#" id="theme-switcher" class="secondary">Switch Theme</a>
+                        </li>
+                        <li>
+                            <form action="{% url 'logout' %}" method="post" style="margin-bottom: 0;">
+                                {% csrf_token %}
+                                <button type="submit" class="outline contrast">Logout</button>
+                            </form>
+                        </li>
+                    </ul>
+                </details>
+            </li>
+        {% else %}
+            <li><a href="{% url 'login' %}">Login</a></li>
+        {% endif %}
+    </ul>
+</nav>

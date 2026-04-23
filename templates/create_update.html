@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if object %}Update{% else %}Create{% endif %} - Lubimovka Readers
+{% endblock title %}
+
+{% block content %}
+    <article>
+        <header>
+            <h2>{% if object %}Update Record{% else %}Create Record{% endif %}</h2>
+        </header>
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            
+            <footer>
+                <button type="submit">Submit</button>
+                <a href="javascript:history.back()" role="button" class="outline secondary">Cancel</a>
+            </footer>
+        </form>
+    </article>
+{% endblock content %}

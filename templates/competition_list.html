@@ -3,15 +3,47 @@
 {% block title %}Competitions - Lubimovka Readers{% endblock title %}
 
 {% block content %}
-    <h1>Competitions</h1>
-    <ul>
+    <hgroup>
+        <h1>Welcome, {{ user.first_name|default:user.email }}!</h1>
+        <p>Below are the competitions you have access to.</p>
+    </hgroup>
+
+    <div>
         {% for competition in competitions %}
-            <li>
-                <a href="{{ competition.get_absolute_url }}">{{ competition.title }} ({{ competition.date.year }})</a>
-                - {{ competition.get_status_display }}
-            </li>
+            <div>
+                <article>
+                    <header>
+                        <strong>{{ competition.title }}</strong>
+                    </header>
+                    
+                    <div class="grid">
+                        <div>
+                            <small>Current Phase:</small><br>
+                            {{ competition.get_status_display }}
+                        </div>
+                        <div>
+                            <small>Your Role:</small><br>
+                            {% if user.is_superuser %}
+                                Administrator
+                            {% else %}
+                                {% for role in user.competition_roles.all %}
+                                    {% if role.competition == competition %}
+                                        {{ role.get_role_display }}
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <footer>
+                        <a href="{{ competition.get_absolute_url }}" role="button" class="outline">Open Competition</a>
+                    </footer>
+                </article>
+            </div>
         {% empty %}
-            <li>No competitions found.</li>
+            <article>
+                <p>You don't have access to any competitions yet.</p>
+            </article>
         {% endfor %}
-    </ul>
+    </div>
 {% endblock content %}
