@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
+from apps.competitions.models import CompetitionRole
 
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -28,6 +29,12 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
+
+    def get_role(self, competition):
+        if self.is_superuser:
+            return 'admin'
+        
+        return CompetitionRole.objects.filter(user=self, competition=competition).first().role
 
     def __str__(self):
         return f"{self.first_name} {self.email}"

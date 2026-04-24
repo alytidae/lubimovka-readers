@@ -15,14 +15,14 @@ class CustomUserCreationForm(UserCreationForm):
         model = User
         fields = ('email', 'telegram_username', 'first_name', 'last_name', 'role')
 
-        def __init__(self, *args, **kwargs):
-            self.creator_role = kwargs.pop('creator_role', 'reader')
-            super().__init__(*args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        self.creator_role = kwargs.pop('creator_role', 'reader')
+        super().__init__(*args, **kwargs)
 
-            if self.creator_role == 'moderator':
-                self.fields['role'].choices = [('reader', 'Reader')]
+        if self.creator_role == 'moderator':
+            self.fields['role'].choices = [('reader', 'Reader')]
 
-class CustomUserChangeForm(UserChangeForm):
+class CustomUserChangeForm(forms.ModelForm):
     ROLE_CHOICES = (
         ('reader', 'Reader'),
         ('moderator', 'Moderator'),
@@ -33,7 +33,7 @@ class CustomUserChangeForm(UserChangeForm):
 
     class Meta:
         model = User
-        fields = ('email', 'telegram_username', 'first_name', 'last_name', 'role')
+        fields = ('email', 'telegram_username', 'first_name', 'last_name', 'role', 'is_active')
 
     def __init__(self, *args, **kwargs):
         self.editor_role = kwargs.pop('editor_role', 'reader')

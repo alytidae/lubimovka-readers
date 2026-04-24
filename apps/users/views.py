@@ -1,10 +1,12 @@
 from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import render
+from django.urls import reverse
 from django.views.generic import CreateView, UpdateView, ListView, DetailView
 from .models import User
 from .forms import CustomUserCreationForm, CustomUserChangeForm
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from apps.competitions.mixins import CompetitionContextMixin
+from apps.competitions.models import CompetitionRole
 
 class UserCreateView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, SuccessMessageMixin, CreateView):
     model = User
@@ -15,6 +17,9 @@ class UserCreateView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContext
     def test_func(self):
         competition = self.get_competition()
         
+        if self.request.user.is_superuser:
+            return True
+
         return self.request.user.competition_roles.filter(
             competition=competition,
             role__in=['admin', 'moderator']
@@ -112,22 +117,16 @@ class UserUpdateView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContext
 
         return False
 
-    def test_func(self):
-        competition = self.get_competition()
-         
-        return self.request.user.competition_roles.filter(
-            competition=competition,
-            role__in=['admin', 'moderator']
-        ).exists()
-
 class UserDetailView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, DetailView):
     model = User
     template_name = "user_detail.html"
 
-
     def test_func(self):
         competition = self.get_competition()
-         
+
+        if self.request.user.is_superuser:
+            return True
+
         if self.request.user == self.object:
             if self.object.competition_roles.filter(competition=competition).exists():
                 return True
@@ -141,6 +140,16 @@ class UserListView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMi
     model = User
     template_name = "user_list.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        competition = self.get_competition()
+
+        for user in context['object_list']:
+            user.role = user.get_role(competition)
+
+        return context
+
     def get_queryset(self):
         competition = self.get_competition()
 
@@ -149,6 +158,9 @@ class UserListView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMi
     def test_func(self):
         competition = self.get_competition()
          
+        if self.request.user.is_superuser:
+            return True
+
         return self.request.user.competition_roles.filter(
             competition=competition,
             role__in=['admin', 'moderator']

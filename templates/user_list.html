@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Team Management - {{ current_competition.title }} - Lubimovka Readers{% endblock title %}
+
+{% block content %}
+    <nav aria-label="breadcrumb">
+      <ul>
+        <li><a href="{% url 'competitions:list' %}">Competitions</a></li>
+        <li><a href="{% url 'competitions:detail' current_competition.slug %}">{{ current_competition.title }}</a></li>
+        <li>Team Management</li>
+      </ul>
+    </nav>
+
+    <hgroup>
+        <h1>Team Management</h1>
+        <p>Manage readers, moderators, and track overall progress for <strong>{{ current_competition.title }}</strong></p>
+    </hgroup>
+
+    <nav>
+	<ul></ul>
+        <ul>
+            <li><a href="{% url 'users:create' current_competition.slug %}" role="button">Add Member</a></li>
+        </ul>
+    </nav>
+
+    <article>
+        <header>Active Team Members</header>
+        
+        <figure>
+            <table class="striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Email</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Telegram</th>
+                        <th scope="col">Role</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in object_list %}
+                        <tr>
+
+			    <td><a href="{% url 'users:detail' current_competition.slug user.id %}">{{ user.email }}</a></li>
+			    <td>{{ user.first_name }} {{ user.last_name }}</td>
+			    <td>{{ user.telegram_username }}</td>
+			    <td>{{ user.role|capfirst }}</td>
+                            <td>
+				{% if user.is_active %}
+				    ✅ Active
+				{% else %}
+				    ❌ Disabled
+				{% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'users:update' current_competition.slug user.id %}"><small>Edit</small></a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5">
+                                No team members found for this competition.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </figure>
+    </article>
+{% endblock content %}
