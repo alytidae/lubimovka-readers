@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}{{ object.get_full_name|default:object.email }} - Profile - Lubimovka Readers{% endblock title %}
+
+{% block content %}
+    <nav aria-label="breadcrumb">
+      <ul>
+        <li><a href="{% url 'competitions:list' %}">Competitions</a></li>
+        <li><a href="{% url 'competitions:detail' current_competition.slug %}">{{ current_competition.title }}</a></li>
+    	{% if object.role != "reader" %}
+	    <li><a href="{% url 'users:list' current_competition.slug %}">Team Management</a></li>
+	{% endif %}
+        <li>{{ object.first_name|default:"User Profile" }}</li>
+      </ul>
+    </nav>
+
+    <hgroup>
+        <h1>{{ object.get_full_name|default:object.email }}</h1>
+        <p>Profile & Statistics</p>
+    </hgroup>
+
+    {% if object.role != "reader" %}
+    <nav>
+        <ul></ul>
+        <ul>
+            <li><a href="{% url 'users:update' current_competition.slug object.pk %}" role="button" class="secondary outline">Edit Profile</a></li>
+        </ul>
+    </nav>
+    {% endif %}
+
+    <div class="grid">
+        <article>
+            <header>Personal Information</header>
+            <ul>
+                <li><strong>Email:</strong> <a href="mailto:{{ object.email }}">{{ object.email }}</a></li>
+                
+                <li>
+                    <strong>Telegram:</strong> 
+                    {% if object.telegram_username %}
+                        <a href="https://t.me/{{ object.telegram_username }}" target="_blank" rel="noopener noreferrer">@{{ object.telegram_username }}</a>
+                    {% else %}
+                        <em>Not provided</em>
+                    {% endif %}
+                </li>
+                
+                <li><strong>First Name:</strong> {{ object.first_name|default:"-" }}</li>
+                <li><strong>Last Name:</strong> {{ object.last_name|default:"-" }}</li>
+            </ul>
+        </article>
+
+	{% if object.role == "reader" %}
+        <article>
+            <header>Reading Statistics</header>
+            
+            <p><em>This module is currently under development. Data will be available soon.</em></p>
+            
+            <p><strong>Total Assigned Plays:</strong> <span aria-busy="true"></span></p>
+            <p><strong>Completed Reviews:</strong> <span aria-busy="true"></span></p>
+            <p><strong>Average Score Given:</strong> <span aria-busy="true"></span></p>
+            
+            <figure>
+                <progress value="0" max="100"></progress>
+                <figcaption><small>Overall progress indicator</small></figcaption>
+            </figure>
+        </article>
+	{% endif %}
+
+    </div>
+{% endblock content %}

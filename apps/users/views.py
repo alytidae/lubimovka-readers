@@ -121,14 +121,22 @@ class UserDetailView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContext
     model = User
     template_name = "user_detail.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        competition = self.get_competition()
+        context['object'].role = self.get_object().get_role(competition)
+
+        return context
+
     def test_func(self):
         competition = self.get_competition()
 
         if self.request.user.is_superuser:
             return True
 
-        if self.request.user == self.object:
-            if self.object.competition_roles.filter(competition=competition).exists():
+        if self.request.user == self.get_object():
+            if self.get_object().competition_roles.filter(competition=competition).exists():
                 return True
 
         return self.request.user.competition_roles.filter(
