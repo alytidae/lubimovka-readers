@@ -1,0 +1,28 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: lubimovka_db
+    restart: unless-stopped
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${DB_NAME:-lubimovka_db}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+
+  web:
+    build: .
+    container_name: lubimovka_web
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:

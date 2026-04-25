@@ -27,8 +27,8 @@ class UserCreateView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContext
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-
-         if self.request.user.is_superuser:
+        
+        if self.request.user.is_superuser:
             kwargs['creator_role'] = 'admin'       
         else:
             competition = self.get_competition()
