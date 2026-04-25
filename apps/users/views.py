@@ -144,7 +144,7 @@ class UserDetailView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContext
             role__in=['admin', 'moderator']
         ).exists()
 
-class UserListView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, ListView):
+class UserListView(LoginRequiredMixin, CompetitionContextMixin, ListView):
     model = User
     template_name = "user_list.html"
 
@@ -152,24 +152,26 @@ class UserListView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMi
         context = super().get_context_data(**kwargs)
         
         competition = self.get_competition()
+        current_user_role = self.request.user.get_role(competition)
+
+        visible_users = []
 
         for user in context['object_list']:
             user.role = user.get_role(competition)
+            
+            if current_user_role == "reader":
+                if user.role in ['moderator'] and user.is_active:
+                    visible_users.append(user)
+            else:
+                visible_users.append(user)
 
+        context['object_list'] = visible_users
+        context['user'] = self.request.user
+        context['user'].role = current_user_role
+        
         return context
 
     def get_queryset(self):
         competition = self.get_competition()
 
         return User.objects.filter(competition_roles__competition=competition).distinct()
-
-    def test_func(self):
-        competition = self.get_competition()
-         
-        if self.request.user.is_superuser:
-            return True
-
-        return self.request.user.competition_roles.filter(
-            competition=competition,
-            role__in=['admin', 'moderator']
-        ).exists()

@@ -7,9 +7,9 @@
       <ul>
         <li><a href="{% url 'competitions:list' %}">Competitions</a></li>
         <li><a href="{% url 'competitions:detail' current_competition.slug %}">{{ current_competition.title }}</a></li>
-    	{% if object.role != "reader" %}
-	    <li><a href="{% url 'users:list' current_competition.slug %}">Team Management</a></li>
-	{% endif %}
+        {% if object.role != "reader"%}
+        <li><a href="{% url 'users:list' current_competition.slug %}">Team Management</a></li>
+        {% endif %}
         <li>{{ object.first_name|default:"User Profile" }}</li>
       </ul>
     </nav>
