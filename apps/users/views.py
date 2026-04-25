@@ -27,9 +27,12 @@ class UserCreateView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContext
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        
-        competition = self.get_competition()
-        creator_role_record = self.request.user.competition_roles.filter(competition=competition).first()
+
+         if self.request.user.is_superuser:
+            kwargs['creator_role'] = 'admin'       
+        else:
+            competition = self.get_competition()
+            creator_role_record = self.request.user.competition_roles.filter(competition=competition).first()
         
         if creator_role_record:
             kwargs['creator_role'] = creator_role_record.role
@@ -144,9 +147,18 @@ class UserDetailView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContext
             role__in=['admin', 'moderator']
         ).exists()
 
-class UserListView(LoginRequiredMixin, CompetitionContextMixin, ListView):
+class UserListView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, ListView):
     model = User
     template_name = "user_list.html"
+
+    def test_func(self):
+        competition = self.get_competition()
+        user = self.request.user
+        
+        if user.is_superuser:
+            return True
+            
+        return user.competition_roles.filter(competition=competition).exists()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

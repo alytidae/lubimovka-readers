@@ -34,7 +34,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         if self.is_superuser:
             return 'admin'
         
-        return CompetitionRole.objects.filter(user=self, competition=competition).first().role
+        role_record = CompetitionRole.objects.filter(user=self, competition=competition).first()
+        return role_record.role if role_record else None
 
     def __str__(self):
         return f"{self.first_name} {self.email}"
