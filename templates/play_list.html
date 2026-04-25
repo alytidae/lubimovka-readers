@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Plays - {{ current_competition.title }} - Lubimovka Readers{% endblock title %}
+
+{% block content %}
+    <nav aria-label="breadcrumb">
+      <ul>
+        <li><a href="{% url 'competitions:list' %}">Competitions</a></li>
+        <li><a href="{% url 'competitions:detail' current_competition.slug %}">{{ current_competition.title }}</a></li>
+        <li>Plays</li>
+      </ul>
+    </nav>
+
+    <hgroup>
+        <h1>Plays</h1>
+        <p>Review submitted plays for <strong>{{ current_competition.title }}</strong></p>
+    </hgroup>
+
+    <article>
+        <header>Play Database</header>
+
+        <figure>
+            <table class="striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Title</th>
+                        <th scope="col">Author</th>
+                        <th scope="col">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for play in object_list %}
+                        <tr>
+                            <td><a href="{% url 'plays:detail' current_competition.slug play.pk %}">{{ play.title }}</a></td>
+                            <td>{{ play.author_first_name }} {{ play.author_last_name }}</td>
+                            <td>
+                                {% if play.is_active %}
+                                    ✅ Active
+                                {% else %}
+                                    ❌ Inactive
+                                {% endif %}
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4">
+                                No plays found for this competition.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </figure>
+    </article>
+{% endblock content %}

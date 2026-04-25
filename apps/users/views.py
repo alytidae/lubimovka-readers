@@ -27,16 +27,19 @@ class UserCreateView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContext
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        
+
         if self.request.user.is_superuser:
-            kwargs['creator_role'] = 'admin'       
-        else:
-            competition = self.get_competition()
-            creator_role_record = self.request.user.competition_roles.filter(competition=competition).first()
-        
+            kwargs["creator_role"] = "admin"
+            return kwargs
+
+        competition = self.get_competition()
+        creator_role_record = self.request.user.competition_roles.filter(
+            competition=competition
+        ).first()
+
         if creator_role_record:
-            kwargs['creator_role'] = creator_role_record.role
-            
+            kwargs["creator_role"] = creator_role_record.role
+
         return kwargs
 
     def form_valid(self, form):

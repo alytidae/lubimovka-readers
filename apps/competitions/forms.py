@@ -9,7 +9,10 @@ class CompetitionCreationForm(forms.ModelForm):
             'date', 
             'google_sheet_url', 
             'play_title_sheet_column_name', 
-            'play_link_sheet_column_name'
+            'play_url_sheet_column_name',
+            'play_author_email_sheet_column_name',
+            'play_author_name_sheet_column_name',
+            'play_author_date_of_birth_sheet_column_name'
         )
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),

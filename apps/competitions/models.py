@@ -16,8 +16,12 @@ class Competition(models.Model):
     slug = models.SlugField(max_length=255, unique=True, blank=True)
 
     google_sheet_url = models.URLField(max_length=500, blank=True)
-    play_title_sheet_column_name = models.CharField(max_length=50, blank=True)
-    play_link_sheet_column_name = models.CharField(max_length=50, blank=True)
+
+    play_title_sheet_column_name = models.CharField(max_length=100)
+    play_url_sheet_column_name = models.CharField(max_length=100)
+    play_author_email_sheet_column_name = models.CharField(max_length=100)
+    play_author_name_sheet_column_name = models.CharField(max_length=100)
+    play_author_date_of_birth_sheet_column_name = models.CharField(max_length=100, blank=True)
 
     status = models.CharField(
         max_length=20, 

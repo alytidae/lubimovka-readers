@@ -41,7 +41,7 @@
             <article>
                 <header>Global Plays Database</header>
                 <p>Access all submitted plays, manage assignments, and view global ratings.</p>
-                <a href="#" role="button">Open Database</a>
+                <a href="{% url 'plays:list' current_competition.slug %}" role="button">Open Database</a>
             </article>
 
             <article>
