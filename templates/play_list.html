@@ -16,6 +16,20 @@
         <p>Review submitted plays for <strong>{{ current_competition.title }}</strong></p>
     </hgroup>
 
+    {% if is_admin or is_moderator %}
+    <nav>
+        <ul></ul>
+        <ul>
+            <li>
+                <form method="post" action="{% url 'competitions:sync' current_competition.slug %}" style="margin-bottom: 0;">
+                    {% csrf_token %}
+                    <button type="submit" class="outline">Sync with Google Sheets</button>
+                </form>
+            </li>
+        </ul>
+    </nav>
+    {% endif %}
+
     <article>
         <header>Play Database</header>
 

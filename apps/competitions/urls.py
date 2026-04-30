@@ -8,4 +8,5 @@ urlpatterns = [
     path('competitions/create/', views.CompetitionCreateView.as_view(), name='create'),
     path('<slug:slug>/update/', views.CompetitionUpdateView.as_view(), name='update'),
     path('<slug:slug>/', views.CompetitionDetailView.as_view(), name='detail'),
+    path('<slug:competition_slug>/sync/', views.CompetitionSyncView.as_view(), name='sync'),
 ]

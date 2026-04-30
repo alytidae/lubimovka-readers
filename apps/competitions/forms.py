@@ -11,8 +11,9 @@ class CompetitionCreationForm(forms.ModelForm):
             'play_title_sheet_column_name', 
             'play_url_sheet_column_name',
             'play_author_email_sheet_column_name',
-            'play_author_name_sheet_column_name',
-            'play_author_date_of_birth_sheet_column_name'
+            'play_author_first_name_sheet_column_name',
+            'play_author_last_name_sheet_column_name',
+            'play_author_year_of_birth_sheet_column_name'
         )
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),

@@ -20,8 +20,9 @@ class Competition(models.Model):
     play_title_sheet_column_name = models.CharField(max_length=100)
     play_url_sheet_column_name = models.CharField(max_length=100)
     play_author_email_sheet_column_name = models.CharField(max_length=100)
-    play_author_name_sheet_column_name = models.CharField(max_length=100)
-    play_author_date_of_birth_sheet_column_name = models.CharField(max_length=100, blank=True)
+    play_author_first_name_sheet_column_name = models.CharField(max_length=100)
+    play_author_last_name_sheet_column_name = models.CharField(max_length=100, null=True, blank=True)
+    play_author_year_of_birth_sheet_column_name = models.CharField(max_length=100, null=True, blank=True)
 
     status = models.CharField(
         max_length=20, 

@@ -14,7 +14,7 @@ class Play(models.Model):
     author_email = models.EmailField(unique=True, null=False, blank=False)
     author_first_name = models.CharField(max_length=255)
     author_last_name = models.CharField(max_length=255, null=True, blank=True)
-    author_date_of_birth = models.DateField(null=True, blank=True)
+    author_year_of_birth = models.CharField(max_length=10, null=True, blank=True)
 
     is_active = models.BooleanField(default=False)
  
