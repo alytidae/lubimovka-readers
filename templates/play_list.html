@@ -45,8 +45,15 @@
                 <tbody>
                     {% for play in object_list %}
                         <tr>
-                            <td><a href="{% url 'plays:detail' current_competition.slug play.pk %}">{{ play.title }}</a></td>
-                            <td>{{ play.author_first_name }} {{ play.author_last_name }}</td>
+                            <td>
+                                <a href="{% url 'plays:detail' current_competition.slug play.pk %}">{{ play.title }}</a>
+                            </td>
+                            <td>
+                                {{ play.author_first_name }} {{ play.author_last_name }}
+                                {% if play.is_author_over_35 %}
+                                    <mark style="font-size: 0.7em">35+</mark>
+                                {% endif %}
+                            </td>
                             <td>
                                 {% if play.is_active %}
                                     ✅ Active

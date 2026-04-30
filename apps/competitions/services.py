@@ -35,8 +35,12 @@ def sync_plays_from_google_sheet(competition):
         first_name = row.get(competition.play_author_first_name_sheet_column_name, '')
         last_name = row.get(competition.play_author_last_name_sheet_column_name, '')
 
-        year = row.get(competition.play_author_year_of_birth_sheet_column_name, '')
-        year = re.split(r"[. ]", str(year))[-1]
+        year_raw = row.get(competition.play_author_year_of_birth_sheet_column_name, '')
+        year_str = re.split(r"[. /]", str(year_raw))[-1]
+        try:
+            year = int(year_str)
+        except (ValueError, TypeError):
+            year = None
 
         Play.objects.update_or_create(
             competition=competition,

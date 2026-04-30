@@ -30,6 +30,7 @@ class PlayDetailView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContext
 class PlayListView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, ListView):
     model = Play
     template_name = "play_list.html"
+    ordering = ['is_active', 'author_email']
 
     def test_func(self):
         competition = self.get_competition()
@@ -37,7 +38,7 @@ class PlayListView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMi
         if self.request.user.is_superuser:
             return True
 
-        if self.request.user.competition_roles.filter(competition=competition).exists():
+        if self.request.user.get_role(competition) in ["admin", "moderator"]:
             return True
 
     def get_context_data(self, **kwargs):
@@ -48,7 +49,8 @@ class PlayListView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMi
     def get_queryset(self):
         competition = self.get_competition()
 
-        return Play.objects.filter(competition=competition).distinct()
+        qs = super().get_queryset()
+        return qs.filter(competition=competition).distinct()
 
 class PlayActivateView(LoginRequiredMixin, UserPassesTestMixin, View):
     def post(self, request, *args, **kwargs):
@@ -64,6 +66,33 @@ class PlayActivateView(LoginRequiredMixin, UserPassesTestMixin, View):
             messages.success(request, f"✅ {play.title} was activated successfully")
         else:
             messages.info(request, f"{play.title} is already active")
+
+        return redirect(play.get_absolute_url())
+
+    def test_func(self):
+        competition = get_object_or_404(Competition, slug=self.kwargs["competition_slug"])
+        if self.request.user.is_superuser:
+            return True
+
+        if self.request.user.get_role(competition) in ["admin", "moderator"]:
+            return True
+
+        return False 
+
+class PlayDeactivateView(LoginRequiredMixin, UserPassesTestMixin, View):
+    def post(self, request, *args, **kwargs):
+        play = get_object_or_404(
+            Play,
+            pk=kwargs["pk"],
+            competition__slug=kwargs["competition_slug"]
+        )
+
+        if play.is_active:
+            play.is_active = False
+            play.save(update_fields=["is_active"])
+            messages.success(request, f"✅ {play.title} was deactivated successfully")
+        else:
+            messages.info(request, f"{play.title} is already not active")
 
         return redirect(play.get_absolute_url())
 

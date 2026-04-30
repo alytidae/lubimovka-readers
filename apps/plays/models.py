@@ -1,4 +1,5 @@
 from django.db import models
+from datetime import date
 from apps.competitions.models import Competition
 from django.urls import reverse
 
@@ -14,9 +15,18 @@ class Play(models.Model):
     author_email = models.EmailField(unique=True, null=False, blank=False)
     author_first_name = models.CharField(max_length=255)
     author_last_name = models.CharField(max_length=255, null=True, blank=True)
-    author_year_of_birth = models.CharField(max_length=10, null=True, blank=True)
+    author_year_of_birth = models.PositiveSmallIntegerField(null=True, blank=True)
 
     is_active = models.BooleanField(default=False)
+
+    @property
+    def is_author_over_35(self):
+        if not self.author_year_of_birth:
+            return False
+            
+        current_year = date.today().year
+        age = current_year - self.author_year_of_birth         
+        return age > 35
  
     def get_absolute_url(self):
         return reverse("plays:detail", kwargs={"competition_slug": self.competition.slug, "pk": self.pk})

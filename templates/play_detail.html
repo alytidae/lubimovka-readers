@@ -2,7 +2,6 @@
 
 {% block title %}{{ object.title }} - {{ current_competition.title }} - Lubimovka Readers{% endblock title %}
 
-
 {% block content %}
     <dialog id="activate-dialog">
         <article>
@@ -10,18 +9,38 @@
                 <button type="button" aria-label="Close" rel="prev" onclick="document.getElementById('activate-dialog').close()"></button>
                 <p><strong>Confirm activation</strong></p>
             </header>
-
             <p>
-                Please confirm that all play data is correct.
-                This action is irreversible.
+                Please confirm that all play data is correct. 
+                Once activated, the play will be visible to all readers.
             </p>
-
             <form method="post" action="{% url 'plays:activate' current_competition.slug object.pk %}">
                 {% csrf_token %}
-
                 <footer>
                     <button type="submit">
                         Yes, activate play
+                    </button>
+                </footer>
+            </form>
+        </article>
+    </dialog>
+
+    <dialog id="deactivate-dialog">
+        <article>
+            <header>
+                <button type="button" aria-label="Close" rel="prev" onclick="document.getElementById('deactivate-dialog').close()"></button>
+                <p><strong>Confirm deactivation</strong></p>
+            </header>
+            <p>
+                Are you sure you want to deactivate this play? 
+            </p>
+            <p>
+                <strong>Note:</strong> It will immediately disappear from the competition list and readers will lose access to it. However, the play will not be deleted, and all existing votes and reviews will be preserved safely in the database.
+            </p>
+            <form method="post" action="{% url 'plays:deactivate' current_competition.slug object.pk %}">
+                {% csrf_token %}
+                <footer>
+                    <button type="submit" class="secondary">
+                        Yes, deactivate play
                     </button>
                 </footer>
             </form>
@@ -45,7 +64,6 @@
     <div class="grid">
         <article>
             <header>Play Information</header>
-
             <ul>
                 <li><strong>Title:</strong> {{ object.title }}</li>
                 <li><strong>Author:</strong> {{ object.author_first_name }} {{ object.author_last_name }}</li>
@@ -71,28 +89,33 @@
 
         <article>
             <header>Actions</header>
-            {% if not object.is_active and is_moderator %}
-                <p>This play is currently inactive. Check the data before activating it.</p>
-
-                <button type="button" onclick="document.getElementById('activate-dialog').showModal()">
-                    Activate Play
-                </button>
-
+            
+            {% if is_moderator %}
+                {% if not object.is_active %}
+                    <p>This play is currently inactive. Check the data before activating it.</p>
+                    <button type="button" onclick="document.getElementById('activate-dialog').showModal()">
+                        Activate Play
+                    </button>
+                {% else %}
+                    <p>This play is active and visible to readers in the competition.</p>
+                    <button type="button" class="secondary" onclick="document.getElementById('deactivate-dialog').showModal()">
+                        Deactivate Play
+                    </button>
+                {% endif %}
             {% else %}
                 <p>No available actions.</p>
             {% endif %}
+            
         </article>
     </div>
 
 <script>
-    const dialog = document.getElementById('activate-dialog');
-
-    dialog.addEventListener('click', function(event) {
-        if (event.target === dialog) {
-            dialog.close();
-        }
+    document.querySelectorAll('dialog').forEach(dialog => {
+        dialog.addEventListener('click', function(event) {
+            if (event.target === dialog) {
+                dialog.close();
+            }
+        });
     });
 </script>
 {% endblock content %}
-
-
