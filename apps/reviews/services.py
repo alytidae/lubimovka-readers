@@ -13,6 +13,11 @@ VERDICTS_REQUIRED_FOR_FINAL_DECISION = 2
 
 
 @dataclass
+class Result:
+    success: bool
+    message: str
+
+@dataclass
 class AssignmentResult:
     success: bool
     message: str
@@ -32,7 +37,7 @@ def assign_play(reader, competition):
     if active_count >= MAX_ACTIVE_REVIEWS_PER_READER:
         return AssignmentResult(
             success=False,
-            message="You’ve reached your limit of active plays to review. Please finish one of your current plays first."
+            message="\u2705 You’ve reached your limit of active plays to review. Please finish one of your current plays first."
         )
     
     if competition.status == Competition.Status.PHASE_1:
@@ -115,25 +120,66 @@ def assign_play(reader, competition):
 
     return AssignmentResult(
         success=True,
-        message="A new play has been assigned to you.",
+        message="\u2705 A new play has been assigned to you.",
         play=selected_play
     )
 
-
 def mark_public(review):
-    pass
+    if not review.is_hidden_by_moderator:
+        return Result(success=False, message="This review is already public.")
+    
+    review.is_hidden_by_moderator = False
+    review.save(update_fields=['is_hidden_by_moderator'])
+    
+    return Result(success=True, message="\u2705 Review is now visible to others.")
 
 def mark_hidden(review):
-    pass
+    if review.is_hidden_by_moderator:
+        return Result(success=False, message="This review is already hidden.")
+    
+    review.is_hidden_by_moderator = True
+    review.save(update_fields=['is_hidden_by_moderator'])
+    
+    return Result(success=True, message="\u2705 Review has been hidden by moderator.")
 
 def mark_obsolete(review):
-    pass
+    if review.is_obsolete:
+        return Result(success=False, message="This review is already marked as obsolete.")
+    
+    review.is_obsolete = True
+    review.save(update_fields=['is_obsolete'])
+    
+    return Result(success=True, message="\u2705 Review marked as obsolete. The play is back in the pool.")
 
 def restore(review):
-    pass
+    if not review.is_obsolete:
+        return Result(success=False, message="This review is already active.")
+    
+    review.is_obsolete = False
+    review.save(update_fields=['is_obsolete'])
+    
+    return Result(success=True, message="\u2705 Review has been successfully restored.")
 
 def save_draft(review, verdict, comment):
-    pass
+    review.verdict = verdict
+    review.comment = comment
+    review.status = Review.Status.DRAFT
+
+    review.save(update_fields=['verdict', 'comment', 'status'])
+
+    return Result(success=True, message="\u2705 Your draft review has been saved successfully")
 
 def submit(review, verdict, comment):
-    pass
+    if review.status == Review.Status.SUBMITTED:
+        return Result(success=False, message="This review has already been submitted.")
+
+    if not comment or str(comment).strip() == "" or verdict is None:
+        return Result(success=False, message="Verdict and comment are mandatory for submission")
+    
+    review.verdict = verdict
+    review.comment = comment
+    review.status = Review.Status.SUBMITTED
+
+    review.save(update_fields=['verdict', 'comment', 'status'])
+
+    return Result(success=True, message="\u2705 Your final review has been submitted successfully")

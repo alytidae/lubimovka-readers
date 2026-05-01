@@ -20,7 +20,7 @@
             <article>
                 <header>My Tasks & Reviews</header>
                 <p>Read your assigned plays, submit reviews, and rate the texts.</p>
-                <a href="#" role="button">Start Reading</a>
+                <a href="{% url 'plays:list' current_competition.slug %}" role="button">Open Plays Dashboard</a>
             </article>
 
             <article>
@@ -28,7 +28,8 @@
                 <p>Track your reading statistics, completed tasks, and personal metrics.</p>
                 <a href="{% url 'users:detail' current_competition.slug user.id %}" role="button">View Stats</a>
             </article>
-	    <article>
+        
+            <article>
                 <header>Contact Moderators</header>
                 <p>If you feel stuck or need guidance during the reading process, our moderators are here to help.</p>
                 <a href="{% url 'users:list' current_competition.slug %}" role="button">View Moderators</a>

@@ -27,4 +27,5 @@ urlpatterns = [
     path('', include('apps.competitions.urls', namespace='competitions')),
     path('<slug:competition_slug>/users/', include('apps.users.urls', namespace='users')),
     path('<slug:competition_slug>/plays/', include('apps.plays.urls', namespace='plays')),
+    path('<slug:competition_slug>/reviews/', include('apps.reviews.urls', namespace='reviews')),
 ]

@@ -12,23 +12,32 @@
     </nav>
 
     <hgroup>
-        <h1>Plays</h1>
+        <h1>Plays Dashboard</h1>
         <p>Review submitted plays for <strong>{{ current_competition.title }}</strong></p>
     </hgroup>
 
-    {% if is_admin or is_moderator %}
     <nav>
         <ul></ul>
         <ul>
+            {% if is_moderator %}
             <li>
                 <form method="post" action="{% url 'competitions:sync' current_competition.slug %}" style="margin-bottom: 0;">
                     {% csrf_token %}
                     <button type="submit" class="outline">Sync with Google Sheets</button>
                 </form>
             </li>
+            {% endif %}
+            
+            {% if is_reader %}
+            <li>
+                <form method="post" action="{% url 'reviews:request_play' current_competition.slug %}" style="margin-bottom: 0;">
+                    {% csrf_token %}
+                    <button type="submit">Request New Play</button>
+                </form>
+            </li>
+            {% endif %}
         </ul>
     </nav>
-    {% endif %}
 
     <article>
         <header>Play Database</header>
@@ -38,8 +47,12 @@
                 <thead>
                     <tr>
                         <th scope="col">Title</th>
-                        <th scope="col">Author</th>
-                        <th scope="col">Status</th>
+                        {% if not is_reader %}
+                            <th scope="col">Author</th>
+                            <th scope="col">Status</th>
+                        {% else %}
+                            <th scope="col">Review Status</th>
+                        {% endif %}
                     </tr>
                 </thead>
                 <tbody>
@@ -48,27 +61,30 @@
                             <td>
                                 <a href="{% url 'plays:detail' current_competition.slug play.pk %}">{{ play.title }}</a>
                             </td>
-                            <td>
-                                {{ play.author_first_name }} {{ play.author_last_name }}
-                                {% if play.is_author_over_35 %}
-                                    <mark style="font-size: 0.7em">35+</mark>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if play.is_active %}
-                                    ✅ Active
-                                {% else %}
-                                    ❌ Inactive
-                                {% endif %}
-                            </td>
-                            <td>
-                            </td>
+                            
+                            {% if not is_reader %}
+                                <td>
+                                    {{ play.author_first_name }} {{ play.author_last_name }}
+                                    {% if play.is_author_over_35 %}
+                                        <mark style="font-size: 0.7em">35+</mark>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if play.is_active %}✅ Active{% else %}❌ Inactive{% endif %}
+                                </td>
+                            {% else %}
+                                <td>
+                                    {% for review in play.reviews.all %}
+                                        {% if review.reader == user %}
+                                            <ins>{{ review.get_status_display }}</ins>
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                            {% endif %}
                         </tr>
                     {% empty %}
                         <tr>
-                            <td colspan="4">
-                                No plays found for this competition.
-                            </td>
+                            <td colspan="3">No plays found for this competition.</td>
                         </tr>
                     {% endfor %}
                 </tbody>
