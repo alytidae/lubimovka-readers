@@ -46,10 +46,10 @@ class PlayDetailView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContext
             filters = Q(reader=user)
             
             if competition.are_phase1_reviews_visible:
-                filters |= Q(phase=Review.Phase.PHASE_1, is_hidden_by_moderator=False)
+                filters |= Q(phase=Review.Phase.PHASE_1, is_hidden=False)
                 
             if competition.are_phase2_reviews_visible:
-                filters |= Q(phase=Review.Phase.PHASE_2, is_hidden_by_moderator=False)
+                filters |= Q(phase=Review.Phase.PHASE_2, is_hidden=False)
                 
             visible_reviews = base_reviews_qs.filter(filters).distinct()
 

@@ -53,8 +53,8 @@
                 
                 {% if not is_reader %}
                     <li><strong>Author:</strong> {{ object.author_first_name }} {{ object.author_last_name }}</li>
-                    {% if object.author_date_of_birth %}
-                        <li><strong>Author Date of Birth:</strong> {{ object.author_date_of_birth }}</li>
+                    {% if object.author_year_of_birth %}
+                        <li><strong>Author Date of Birth:</strong> {{ object.author_year_of_birth }}</li>
                     {% endif %}
                     <li>
                         <strong>Status:</strong>
@@ -132,7 +132,7 @@
                         <div class="grid">
                             <form method="post" action="{% url 'reviews:mark_hidden' current_competition.slug review.id %}" style="margin-bottom: 0;">
                                 {% csrf_token %}
-                                <button type="submit" class="secondary outline">{% if review.is_hidden_by_moderator %}Show{% else %}Hide{% endif %}</button>
+                                <button type="submit" class="secondary outline">{% if review.is_hidden %}Show{% else %}Hide{% endif %}</button>
                             </form>
                             <form method="post" action="{% url 'reviews:mark_obsolete' current_competition.slug review.id %}" style="margin-bottom: 0;">
                                 {% csrf_token %}

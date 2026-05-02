@@ -45,8 +45,8 @@ def sync_plays_from_google_sheet(competition):
         Play.objects.update_or_create(
             competition=competition,
             author_email=email,
+            title=title,
             defaults={
-                'title': title,
                 'url': url,
                 'author_first_name': first_name,
                 'author_last_name': last_name,

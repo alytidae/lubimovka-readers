@@ -26,6 +26,7 @@ class ReviewRequestPlayView(LoginRequiredMixin, UserPassesTestMixin, Competition
 
         if self.request.user.get_role(competition) in ["reader"]:
             return True
+        return False
 
 class ReviewSaveDraftView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, View):
     def post(self, request, *args, **kwargs):
@@ -66,6 +67,7 @@ class ReviewSaveDraftView(LoginRequiredMixin, UserPassesTestMixin, CompetitionCo
 
         if has_access and self.request.user.get_role(competition) in ["reader"]:
             return True
+        return False
 
 class ReviewSubmitView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, View):
     def post(self, request, *args, **kwargs):
@@ -106,6 +108,7 @@ class ReviewSubmitView(LoginRequiredMixin, UserPassesTestMixin, CompetitionConte
 
         if has_access and self.request.user.get_role(competition) in ["reader"]:
             return True
+        return False
 
 class ReviewMarkPublicView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, View):
     def post(self, request, *args, **kwargs):
@@ -128,6 +131,7 @@ class ReviewMarkPublicView(LoginRequiredMixin, UserPassesTestMixin, CompetitionC
 
         if self.request.user.get_role(competition) in ["moderator", "admin"]:
             return True
+        return False
 
 
 class ReviewMarkHiddenView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, View):
@@ -148,6 +152,7 @@ class ReviewMarkHiddenView(LoginRequiredMixin, UserPassesTestMixin, CompetitionC
 
         if self.request.user.is_superuser:
             return True
+        return False
 
         if self.request.user.get_role(competition) in ["moderator", "admin"]:
             return True
@@ -173,6 +178,7 @@ class ReviewMarkObsoleteView(LoginRequiredMixin, UserPassesTestMixin, Competitio
 
         if self.request.user.get_role(competition) in ["moderator", "admin"]:
             return True
+        return False
 
 class ReviewRestoreView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, View):
     def post(self, request, *args, **kwargs):
@@ -195,4 +201,5 @@ class ReviewRestoreView(LoginRequiredMixin, UserPassesTestMixin, CompetitionCont
 
         if self.request.user.get_role(competition) in ["moderator", "admin"]:
             return True
+        return False
 

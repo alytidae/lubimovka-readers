@@ -12,7 +12,7 @@ class Play(models.Model):
 
     title = models.CharField(max_length=255)
     url = models.URLField(max_length=500)
-    author_email = models.EmailField(unique=True, null=False, blank=False)
+    author_email = models.EmailField(null=False, blank=False)
     author_first_name = models.CharField(max_length=255)
     author_last_name = models.CharField(max_length=255, null=True, blank=True)
     author_year_of_birth = models.PositiveSmallIntegerField(null=True, blank=True)
@@ -30,3 +30,11 @@ class Play(models.Model):
  
     def get_absolute_url(self):
         return reverse("plays:detail", kwargs={"competition_slug": self.competition.slug, "pk": self.pk})
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['competition', 'author_email', 'title'],
+                name='unique_play_per_author_per_competition'
+            )
+        ]

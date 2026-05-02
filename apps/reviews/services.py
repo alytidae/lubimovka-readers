@@ -125,20 +125,20 @@ def assign_play(reader, competition):
     )
 
 def mark_public(review):
-    if not review.is_hidden_by_moderator:
+    if not review.is_hidden:
         return Result(success=False, message="This review is already public.")
     
-    review.is_hidden_by_moderator = False
-    review.save(update_fields=['is_hidden_by_moderator'])
+    review.is_hidden = False
+    review.save(update_fields=['is_hidden'])
     
     return Result(success=True, message="\u2705 Review is now visible to others.")
 
 def mark_hidden(review):
-    if review.is_hidden_by_moderator:
+    if review.is_hidden:
         return Result(success=False, message="This review is already hidden.")
     
-    review.is_hidden_by_moderator = True
-    review.save(update_fields=['is_hidden_by_moderator'])
+    review.is_hidden = True
+    review.save(update_fields=['is_hidden'])
     
     return Result(success=True, message="\u2705 Review has been hidden by moderator.")
 
