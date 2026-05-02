@@ -20,7 +20,7 @@
     <nav>
         <ul></ul>
         <ul>
-            <li><a href="{% url 'users:create' current_competition.slug %}" role="button">Add Member</a></li>
+            <li><button type="button" onclick="document.getElementById('invite-dialog').showModal()">Add Member</button></li>
         </ul>
     </nav>
 
@@ -115,4 +115,41 @@
         </figure>
     </article>
     {% endif %}
+    <dialog id="invite-dialog">
+        <article>
+            <header>
+                <button type="button" aria-label="Close" rel="prev" onclick="document.getElementById('invite-dialog').close()"></button>
+                <p><strong>Invite Member</strong></p>
+            </header>
+            <p>Enter the email and role. If the user is already registered, they will be added automatically. Otherwise, you will be redirected to create their profile.</p>
+            <form method="post" action="{% url 'users:invite' current_competition.slug %}">
+                {% csrf_token %}
+                <label for="invite_email">Email address</label>
+                <input type="email" id="invite_email" name="email" required>
+            
+                <label for="invite_role">Role</label>
+                <select id="invite_role" name="role" required>
+                    <option value="reader" selected>Reader</option>
+                    {% if user.role == "admin" or user.is_superuser %}
+                        <option value="moderator">Moderator</option>
+                        <option value="admin">Admin</option>
+                    {% endif %}
+                </select>
+                <footer>
+                    <button type="submit">Continue</button>
+                    <button type="button" class="secondary outline" onclick="document.getElementById('invite-dialog').close()">Cancel</button>
+                </footer>
+            </form>
+        </article>
+    </dialog>
+
+    <script>
+        document.querySelectorAll('dialog').forEach(dialog => {
+            dialog.addEventListener('click', function(event) {
+                if (event.target === dialog) {
+                    dialog.close();
+                }
+            });
+        });
+    </script>
 {% endblock content %}

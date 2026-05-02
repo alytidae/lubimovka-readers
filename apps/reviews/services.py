@@ -86,8 +86,8 @@ def assign_play(reader, competition):
         active_reviews_count__lt=MAX_REVIEWS_PER_PLAY,
         has_reviewed_by_current_reader = False
     ).exclude(
-        Q(approval_verdicts_count=VERDICTS_REQUIRED_FOR_FINAL_DECISION) |
-        Q(rejected_verdicts_count=VERDICTS_REQUIRED_FOR_FINAL_DECISION)
+        Q(approval_verdicts_count__gte=VERDICTS_REQUIRED_FOR_FINAL_DECISION) |
+        Q(rejected_verdicts_count__gte=VERDICTS_REQUIRED_FOR_FINAL_DECISION)
     ).values_list("id", flat=True))
 
     random.shuffle(available_play_ids)

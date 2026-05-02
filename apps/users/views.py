@@ -1,3 +1,6 @@
+from django.http import HttpResponseRedirect
+from django.utils.http import urlencode
+from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import render
 from django.urls import reverse
@@ -7,6 +10,8 @@ from .forms import CustomUserChangeForm, CustomUserAddForm
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from apps.competitions.mixins import CompetitionContextMixin
 from apps.competitions.models import CompetitionRole
+from django.views import View
+from django.shortcuts import redirect
 
 
 class UserCreateView(
@@ -31,6 +36,12 @@ class UserCreateView(
         return self.request.user.competition_roles.filter(
             competition=competition, role__in=["admin", "moderator"], is_active=True
         ).exists()
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['email'] = self.request.GET.get('email', '')
+        initial['role'] = self.request.GET.get('role', 'reader')
+        return initial
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -245,3 +256,41 @@ class UserListView(
         return User.objects.filter(
             competition_roles__competition=competition
         ).distinct()
+
+class UserInviteView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, View):
+    def post(self, request, *args, **kwargs):
+        competition = self.get_competition()
+        email = request.POST.get('email')
+        role = request.POST.get('role')
+
+        if not email or not role:
+            messages.error(request, "Email and role are required.")
+            return redirect('users:list', competition_slug=competition.slug)
+
+        email = User.objects.normalize_email(email).lower()
+
+        user = User.objects.filter(email=email).first()
+
+        if user:
+            CompetitionRole.objects.update_or_create(
+                user=user,
+                competition=competition,
+                defaults={
+                    'role': role,
+                    'is_active': True
+                }
+            )
+            messages.success(request, f"✅ User {email} has been automatically added to this competition.")
+            return redirect('users:list', competition_slug=competition.slug)
+        else:
+            base_url = reverse('users:create', kwargs={'competition_slug': competition.slug})
+            query_string = urlencode({'email': email, 'role': role})
+            return HttpResponseRedirect(f"{base_url}?{query_string}")
+
+    def test_func(self):
+        competition = self.get_competition()
+        if self.request.user.is_superuser:
+            return True
+        return self.request.user.competition_roles.filter(
+            competition=competition, role__in=["admin", "moderator"], is_active=True
+        ).exists()

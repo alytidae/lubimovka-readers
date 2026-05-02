@@ -13,14 +13,14 @@ class CustomUserAddForm(forms.ModelForm):
     
     password = forms.CharField(
         label='Password',
-        required=False, 
+        required=True,
         widget=forms.PasswordInput, 
-        help_text="Required for new users. Leave blank if the user already exists in the system."
+        help_text="Required for new users."
     )
     
     password_confirm = forms.CharField(
         label='Password confirmation',
-        required=False,
+        required=True,
         widget=forms.PasswordInput,
         help_text="Enter the same password as before, for verification."
     )
@@ -36,44 +36,28 @@ class CustomUserAddForm(forms.ModelForm):
         if self.creator_role == 'moderator':
             self.fields['role'].choices = [('reader', 'Reader')]
 
-    def validate_unique(self):
-        exclude = self._get_validation_exclusions()
-        
-        if 'email' not in exclude:
-            exclude.add('email') 
-        
-        try:
-            self.instance.validate_unique(exclude=exclude)
-        except forms.ValidationError as e:
-            self._update_errors(e)
-
     def clean(self):
         cleaned_data = super().clean()
         email = cleaned_data.get('email')
         password = cleaned_data.get('password')
         password_confirm = cleaned_data.get('password_confirm')
         
-        if email:
-            user_exists = User.objects.filter(email=email).exists()
+        if email and User.objects.filter(email=email).exists():
+            self.add_error('email', "A user with this email already exists. Use the invite form instead.")
             
-            if not user_exists:
-                if not password:
-                    self.add_error('password', "Password is required for new users.")
-                elif password != password_confirm:
-                    self.add_error('password_confirm', "The two password fields didn't match.")
+        if password and password_confirm and password != password_confirm:
+            self.add_error('password_confirm', "The two password fields didn't match.")
         
         return cleaned_data
 
     def save(self, commit=True):
-        email = self.cleaned_data.get('email')
-        user = User.objects.filter(email=email).first()
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data.get('password'))
         
-        if not user:
-            user = super().save(commit=False)
-            user.set_password(self.cleaned_data.get('password'))
-            if commit:
-                user.save()
+        user.email = User.objects.normalize_email(user.email).lower()
         
+        if commit:
+            user.save()
         return user
 
 class CustomUserChangeForm(forms.ModelForm):

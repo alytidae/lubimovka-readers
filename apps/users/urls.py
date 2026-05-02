@@ -4,6 +4,7 @@ from . import views
 app_name = 'users'
 
 urlpatterns = [
+    path('invite/', views.UserInviteView.as_view(), name='invite'),
     path('create/', views.UserCreateView.as_view(), name='create'),
     path('update/<int:pk>/', views.UserUpdateView.as_view(), name='update'),
     path('list/', views.UserListView.as_view(), name='list'),
