@@ -40,7 +40,9 @@ class CompetitionUpdateView(LoginRequiredMixin, UserPassesTestMixin, SuccessMess
             return True
 
         return user.competition_roles.filter(
-            competition=self.get_object(), is_active=True
+            competition=self.get_object(), 
+            role__in=["admin"],
+            is_active=True
         ).exists()
 
 

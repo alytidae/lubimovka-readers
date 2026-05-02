@@ -65,6 +65,17 @@ class PlayDetailView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContext
 
         return context
 
+    def get_queryset(self):
+        competition = self.get_competition()
+        user = self.request.user
+
+        qs = super().get_queryset().filter(competition=competition)
+
+        if user.is_superuser or user.get_role(competition) in ["admin", "moderator"]:
+            return qs
+
+        return qs.filter(reviews__reader=user, reviews__is_obsolete=False).distinct()
+
 
 class PlayListView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, ListView):
     model = Play
