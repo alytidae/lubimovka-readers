@@ -100,10 +100,19 @@ def assign_play(reader, competition):
 
     selected_play = None
     for play_id in available_play_ids:
-        selected_play = Play.objects.select_for_update(skip_locked=True).filter(id=play_id).first()
+        play = Play.objects.select_for_update(skip_locked=True).filter(id=play_id).first()
         
-        if selected_play:
-            break  
+        if play:
+            current_active_reviews = play.reviews.filter(
+                is_obsolete=False, 
+                phase=current_phase
+            ).count()
+            
+            if current_active_reviews < MAX_REVIEWS_PER_PLAY:
+                selected_play = play
+                break
+            else:
+                continue
 
     if not selected_play:
         return AssignmentResult(
