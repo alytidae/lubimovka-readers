@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.views.generic import CreateView, UpdateView, ListView, DetailView
 from .models import User
-from .forms import CustomUserCreationForm, CustomUserChangeForm
+from .forms import CustomUserChangeForm, CustomUserAddForm
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from apps.competitions.mixins import CompetitionContextMixin
 from apps.competitions.models import CompetitionRole
@@ -18,8 +18,9 @@ class UserCreateView(
 ):
     model = User
     template_name = "create_update.html"
-    form_class = CustomUserCreationForm
-    success_message = "\u2705 %(email)s was created successfully"
+    
+    form_class = CustomUserAddForm 
+    success_message = "\u2705 %(email)s was processed successfully"
 
     def test_func(self):
         competition = self.get_competition()
@@ -53,8 +54,13 @@ class UserCreateView(
 
         selected_role = form.cleaned_data.get("role")
 
-        CompetitionRole.objects.create(
-            user=self.object, competition=self.get_competition(), role=selected_role
+        CompetitionRole.objects.update_or_create(
+            user=self.object, 
+            competition=self.get_competition(), 
+            defaults={
+                'role': selected_role,
+                'is_active': True
+            }
         )
 
         return response
@@ -64,7 +70,6 @@ class UserCreateView(
             "users:create",
             kwargs={"competition_slug": self.kwargs.get("competition_slug")},
         )
-
 
 class UserUpdateView(
     LoginRequiredMixin,

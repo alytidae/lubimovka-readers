@@ -19,7 +19,11 @@ class CompetitionContextMixin:
         is_moderator = False
         is_reader = False
 
-        user_role = user.competition_roles.filter(competition=competition).first()
+        user_role = user.competition_roles.filter(
+            competition=competition, 
+            is_active=True
+        ).first()
+
         if user_role:
             if user_role.role == 'admin':
                 is_admin = True

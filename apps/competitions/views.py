@@ -54,7 +54,7 @@ class CompetitionListView(LoginRequiredMixin, ListView):
         if user.is_superuser:
             return Competition.objects.all()
 
-        return Competition.objects.filter(roles__user=user).distinct()
+        return Competition.objects.filter(roles__user=user, roles__is_active=True).distinct()
 
 
 class CompetitionDetailView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, DetailView):
