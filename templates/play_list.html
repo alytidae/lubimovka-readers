@@ -28,7 +28,7 @@
             </li>
             {% endif %}
             
-            {% if is_reader %}
+            {% if is_reader and current_competition.status == 'phase_1' %}
             <li>
                 <form method="post" action="{% url 'reviews:request_play' current_competition.slug %}" style="margin-bottom: 0;">
                     {% csrf_token %}

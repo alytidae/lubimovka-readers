@@ -65,6 +65,8 @@ class CompetitionRole(models.Model):
     )
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
 
+    is_active = models.BooleanField(default=True)
+
     class Meta:
         unique_together = ('competition', 'user')
 

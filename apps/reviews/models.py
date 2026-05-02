@@ -25,7 +25,7 @@ class Review(models.Model):
     is_obsolete = models.BooleanField(default=False)
 
     class Meta:
-        unique_together = ('play', 'reader', 'phase', 'is_obsolete')
+        unique_together = ('play', 'reader', 'phase')
     
     def __str__(self):
         return f"{self.play.title} - {self.reader.email} ({self.phase})"

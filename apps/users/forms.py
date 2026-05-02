@@ -30,18 +30,21 @@ class CustomUserChangeForm(forms.ModelForm):
     )
 
     role = forms.ChoiceField(choices=ROLE_CHOICES, required=True)
+    role_is_active = forms.BooleanField(required=False, label='Active in this competition')
 
     class Meta:
         model = User
-        fields = ('email', 'telegram_username', 'first_name', 'last_name', 'role', 'is_active')
+        fields = ('email', 'telegram_username', 'first_name', 'last_name', 'role')
 
     def __init__(self, *args, **kwargs):
         self.editor_role = kwargs.pop('editor_role', 'reader')
         current_role = kwargs.pop('current_role', 'reader')
+        current_role_is_active = kwargs.pop('current_role_is_active', True)
         
         super().__init__(*args, **kwargs)
 
         self.fields['role'].initial = current_role
+        self.fields['role_is_active'].initial = current_role_is_active
 
         if self.editor_role == 'moderator':
             self.fields['role'].choices = [('reader', 'Reader')]

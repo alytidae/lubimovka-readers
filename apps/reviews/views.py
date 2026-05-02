@@ -80,7 +80,6 @@ class ReviewSubmitView(LoginRequiredMixin, UserPassesTestMixin, CompetitionConte
                     play__competition__slug=kwargs["competition_slug"],
                     reader=request.user,
                 )
-                .exclude(status=Review.Status.SUBMITTED)
         )
 
         form = ReviewUpdateForm(request.POST, instance=review)
@@ -152,10 +151,10 @@ class ReviewMarkHiddenView(LoginRequiredMixin, UserPassesTestMixin, CompetitionC
 
         if self.request.user.is_superuser:
             return True
-        return False
 
         if self.request.user.get_role(competition) in ["moderator", "admin"]:
             return True
+        return False
 
 class ReviewMarkObsoleteView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, View):
     def post(self, request, *args, **kwargs):

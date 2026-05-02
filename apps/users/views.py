@@ -8,7 +8,14 @@ from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from apps.competitions.mixins import CompetitionContextMixin
 from apps.competitions.models import CompetitionRole
 
-class UserCreateView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, SuccessMessageMixin, CreateView):
+
+class UserCreateView(
+    LoginRequiredMixin,
+    UserPassesTestMixin,
+    CompetitionContextMixin,
+    SuccessMessageMixin,
+    CreateView,
+):
     model = User
     template_name = "create_update.html"
     form_class = CustomUserCreationForm
@@ -16,13 +23,12 @@ class UserCreateView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContext
 
     def test_func(self):
         competition = self.get_competition()
-        
+
         if self.request.user.is_superuser:
             return True
 
         return self.request.user.competition_roles.filter(
-            competition=competition,
-            role__in=['admin', 'moderator']
+            competition=competition, role__in=["admin", "moderator"], is_active=True
         ).exists()
 
     def get_form_kwargs(self):
@@ -44,21 +50,29 @@ class UserCreateView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContext
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        
-        selected_role = form.cleaned_data.get('role')
-        
+
+        selected_role = form.cleaned_data.get("role")
+
         CompetitionRole.objects.create(
-            user=self.object,
-            competition=self.get_competition(),
-            role=selected_role
+            user=self.object, competition=self.get_competition(), role=selected_role
         )
-        
+
         return response
 
     def get_success_url(self):
-        return reverse('users:create', kwargs={'competition_slug': self.kwargs.get('competition_slug')})
+        return reverse(
+            "users:create",
+            kwargs={"competition_slug": self.kwargs.get("competition_slug")},
+        )
 
-class UserUpdateView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, SuccessMessageMixin, UpdateView):
+
+class UserUpdateView(
+    LoginRequiredMixin,
+    UserPassesTestMixin,
+    CompetitionContextMixin,
+    SuccessMessageMixin,
+    UpdateView,
+):
     model = User
     template_name = "create_update.html"
     form_class = CustomUserChangeForm
@@ -67,71 +81,95 @@ class UserUpdateView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContext
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         competition = self.get_competition()
-        
-        editor_role_record = self.request.user.competition_roles.filter(competition=competition).first()
+
+        editor_role_record = self.request.user.competition_roles.filter(
+            competition=competition
+        ).first()
         if editor_role_record:
-            kwargs['editor_role'] = editor_role_record.role
-            
-        target_role_record = self.object.competition_roles.filter(competition=competition).first()
+            kwargs["editor_role"] = editor_role_record.role
+
+        target_role_record = self.object.competition_roles.filter(
+            competition=competition
+        ).first()
         if target_role_record:
-            kwargs['current_role'] = target_role_record.role
-            
+            kwargs["current_role"] = target_role_record.role
+            kwargs["current_role_is_active"] = target_role_record.is_active
+
         return kwargs
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        
-        selected_role = form.cleaned_data.get('role')
+
+        selected_role = form.cleaned_data.get("role")
+        selected_is_active = form.cleaned_data.get("role_is_active", True)
         competition = self.get_competition()
-        
-        target_role_record = self.object.competition_roles.filter(competition=competition).first()
-        
-        if target_role_record and target_role_record.role != selected_role:
+
+        target_role_record = self.object.competition_roles.filter(
+            competition=competition
+        ).first()
+
+        if target_role_record:
             target_role_record.role = selected_role
+            target_role_record.is_active = selected_is_active
             target_role_record.save()
-            
+
         return response
 
     def get_success_url(self):
-        return reverse('users:update', kwargs={'pk': self.object.pk, 'competition_slug': self.kwargs.get('competition_slug')})
+        return reverse(
+            "users:update",
+            kwargs={
+                "pk": self.object.pk,
+                "competition_slug": self.kwargs.get("competition_slug"),
+            },
+        )
 
     def test_func(self):
         competition = self.get_competition()
         editor = self.request.user
-        target_user = self.get_object() 
+        target_user = self.get_object()
 
         if editor.is_superuser:
             return True
 
-        editor_role_record = editor.competition_roles.filter(competition=competition).first()
-        target_role_record = target_user.competition_roles.filter(competition=competition).first()
+        editor_role_record = editor.competition_roles.filter(
+            competition=competition, is_active=True
+        ).first()
+        target_role_record = target_user.competition_roles.filter(
+            competition=competition
+        ).first()
 
         if not editor_role_record:
             return False
 
         editor_role = editor_role_record.role
 
-        if editor_role == 'admin':
+        if editor_role == "admin":
             return True
 
-        if editor_role == 'moderator':
-            is_editing_self = (editor == target_user)
-            is_editing_reader = (target_role_record and target_role_record.role == 'reader')
-            
+        if editor_role == "moderator":
+            is_editing_self = editor == target_user
+            is_editing_reader = (
+                target_role_record and target_role_record.role == "reader"
+            )
+
             if is_editing_self or is_editing_reader:
                 return True
 
         return False
 
-class UserDetailView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, DetailView):
+
+class UserDetailView(
+    LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, DetailView
+):
     model = User
     template_name = "user_detail.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
+
         competition = self.get_competition()
-        context['object'].role = self.get_object().get_role(competition)
+        context["object"].role = self.get_object().get_role(competition)
 
         return context
 
@@ -142,51 +180,63 @@ class UserDetailView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContext
             return True
 
         if self.request.user == self.get_object():
-            if self.get_object().competition_roles.filter(competition=competition).exists():
+            if (
+                self.get_object()
+                .competition_roles.filter(competition=competition, is_active=True)
+                .exists()
+            ):
                 return True
 
         return self.request.user.competition_roles.filter(
-            competition=competition,
-            role__in=['admin', 'moderator']
+            competition=competition, role__in=["admin", "moderator"], is_active=True
         ).exists()
 
-class UserListView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, ListView):
+
+class UserListView(
+    LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, ListView
+):
     model = User
     template_name = "user_list.html"
 
     def test_func(self):
         competition = self.get_competition()
         user = self.request.user
-        
+
         if user.is_superuser:
             return True
-            
-        return user.competition_roles.filter(competition=competition).exists()
+
+        return user.competition_roles.filter(
+            competition=competition, is_active=True
+        ).exists()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
+
         competition = self.get_competition()
         current_user_role = self.request.user.get_role(competition)
 
         visible_users = []
 
-        for user in context['object_list']:
+        for user in context["object_list"]:
+            role_record = user.competition_roles.filter(competition=competition).first()
             user.role = user.get_role(competition)
-            
+            user.role_is_active = role_record.is_active if role_record else False
+
             if current_user_role == "reader":
-                if user.role in ['moderator'] and user.is_active:
+                if user.role in ["moderator"] and user.is_active:
                     visible_users.append(user)
             else:
                 visible_users.append(user)
 
-        context['object_list'] = visible_users
-        context['user'] = self.request.user
-        context['user'].role = current_user_role
-        
+        context["object_list"] = visible_users
+        context["user"] = self.request.user
+        context["user"].role = current_user_role
+
         return context
 
     def get_queryset(self):
         competition = self.get_competition()
 
-        return User.objects.filter(competition_roles__competition=competition).distinct()
+        return User.objects.filter(
+            competition_roles__competition=competition
+        ).distinct()

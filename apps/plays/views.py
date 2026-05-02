@@ -11,6 +11,7 @@ from django.db.models import Q
 from apps.reviews.models import Review
 from django.contrib import messages
 
+
 class PlayDetailView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, DetailView):
     model = Play
     template_name = "play_detail.html"
@@ -21,9 +22,11 @@ class PlayDetailView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContext
         if self.request.user.is_superuser:
             return True
 
-        if self.request.user.competition_roles.filter(competition=competition).exists():
+        if self.request.user.competition_roles.filter(
+            competition=competition, is_active=True
+        ).exists():
             return True
-            
+
         return False
 
     def get_context_data(self, **kwargs):
@@ -31,43 +34,42 @@ class PlayDetailView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContext
         play = self.object
         competition = self.get_competition()
         user = self.request.user
-        
+
         base_reviews_qs = Review.objects.filter(
-            play=play,
-            status=Review.Status.SUBMITTED,
-            is_obsolete=False
-        ).select_related('reader')
+            play=play, status=Review.Status.SUBMITTED, is_obsolete=False
+        ).select_related("reader")
 
         visible_reviews = []
 
-        if user.is_superuser or user.get_role(competition) in ['admin', 'moderator']:
+        if user.is_superuser or user.get_role(competition) in ["admin", "moderator"]:
             visible_reviews = base_reviews_qs.all()
         else:
             filters = Q(reader=user)
-            
+
             if competition.are_phase1_reviews_visible:
                 filters |= Q(phase=Review.Phase.PHASE_1, is_hidden=False)
-                
+
             if competition.are_phase2_reviews_visible:
                 filters |= Q(phase=Review.Phase.PHASE_2, is_hidden=False)
-                
+
             visible_reviews = base_reviews_qs.filter(filters).distinct()
 
-        context['reviews'] = visible_reviews
-        
-        context['my_active_review'] = Review.objects.filter(
-            play=play, 
-            reader=user, 
+        context["reviews"] = visible_reviews
+
+        context["my_active_review"] = Review.objects.filter(
+            play=play,
+            reader=user,
             status__in=[Review.Status.ASSIGNED, Review.Status.DRAFT],
-            is_obsolete=False
+            is_obsolete=False,
         ).first()
 
         return context
 
+
 class PlayListView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, ListView):
     model = Play
     template_name = "play_list.html"
-    ordering = ['is_active', 'author_email']
+    ordering = ["is_active", "author_email"]
 
     def test_func(self):
         competition = self.get_competition()
@@ -75,9 +77,11 @@ class PlayListView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMi
         if self.request.user.is_superuser:
             return True
 
-        if self.request.user.competition_roles.filter(competition=competition).exists():
+        if self.request.user.competition_roles.filter(
+            competition=competition, is_active=True
+        ).exists():
             return True
-            
+
         return False
 
     def get_context_data(self, **kwargs):
@@ -92,18 +96,14 @@ class PlayListView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMi
 
         if user.is_superuser or user.get_role(competition) in ["admin", "moderator"]:
             return qs
-            
-        return qs.filter(
-            reviews__reader=user, 
-            reviews__is_obsolete=False
-        ).distinct()
+
+        return qs.filter(reviews__reader=user, reviews__is_obsolete=False).distinct()
+
 
 class PlayActivateView(LoginRequiredMixin, UserPassesTestMixin, View):
     def post(self, request, *args, **kwargs):
         play = get_object_or_404(
-            Play,
-            pk=kwargs["pk"],
-            competition__slug=kwargs["competition_slug"]
+            Play, pk=kwargs["pk"], competition__slug=kwargs["competition_slug"]
         )
 
         if not play.is_active:
@@ -116,21 +116,22 @@ class PlayActivateView(LoginRequiredMixin, UserPassesTestMixin, View):
         return redirect(play.get_absolute_url())
 
     def test_func(self):
-        competition = get_object_or_404(Competition, slug=self.kwargs["competition_slug"])
+        competition = get_object_or_404(
+            Competition, slug=self.kwargs["competition_slug"]
+        )
         if self.request.user.is_superuser:
             return True
 
         if self.request.user.get_role(competition) in ["admin", "moderator"]:
             return True
 
-        return False 
+        return False
+
 
 class PlayDeactivateView(LoginRequiredMixin, UserPassesTestMixin, View):
     def post(self, request, *args, **kwargs):
         play = get_object_or_404(
-            Play,
-            pk=kwargs["pk"],
-            competition__slug=kwargs["competition_slug"]
+            Play, pk=kwargs["pk"], competition__slug=kwargs["competition_slug"]
         )
 
         if play.is_active:
@@ -143,11 +144,13 @@ class PlayDeactivateView(LoginRequiredMixin, UserPassesTestMixin, View):
         return redirect(play.get_absolute_url())
 
     def test_func(self):
-        competition = get_object_or_404(Competition, slug=self.kwargs["competition_slug"])
+        competition = get_object_or_404(
+            Competition, slug=self.kwargs["competition_slug"]
+        )
         if self.request.user.is_superuser:
             return True
 
         if self.request.user.get_role(competition) in ["admin", "moderator"]:
             return True
 
-        return False 
+        return False
