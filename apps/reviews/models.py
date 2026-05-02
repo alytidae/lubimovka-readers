@@ -24,6 +24,9 @@ class Review(models.Model):
     is_hidden = models.BooleanField(default=False)
     is_obsolete = models.BooleanField(default=False)
 
+    created_at = models.DateTimeField(auto_now_add=True)
+    submitted_at = models.DateTimeField(null=True, blank=True)
+
     class Meta:
         unique_together = ('play', 'reader', 'phase')
     

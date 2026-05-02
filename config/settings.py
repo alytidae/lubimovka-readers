@@ -118,7 +118,8 @@ AUTH_USER_MODEL = 'users.User'
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Paris' 
+USE_TZ = True
 
 USE_I18N = True
 

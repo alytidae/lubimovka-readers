@@ -5,7 +5,10 @@ from dataclasses import dataclass
 from typing import Optional
 from .models import Review
 from django.db import transaction
-from django.db.models import Count, Q, Exists, OuterRef
+from django.utils import timezone
+from django.db.models import Count, Q, Avg, F, ExpressionWrapper, fields, Exists, OuterRef, Min, Max
+from datetime import timedelta
+from apps.users.models import User
 
 MAX_ACTIVE_REVIEWS_PER_READER = 3
 MAX_REVIEWS_PER_PLAY = 3
@@ -188,7 +191,8 @@ def submit(review, verdict, comment):
     review.verdict = verdict
     review.comment = comment
     review.status = Review.Status.SUBMITTED
+    review.submitted_at = timezone.now()
 
-    review.save(update_fields=['verdict', 'comment', 'status'])
+    review.save(update_fields=['verdict', 'comment', 'status', 'submitted_at'])
 
     return Result(success=True, message="\u2705 Your final review has been submitted successfully")
