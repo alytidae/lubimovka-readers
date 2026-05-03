@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics Dashboard - {{ current_competition.title }} - Lubimovka Readers{% endblock title %}
+
+{% block content %}
+    <nav aria-label="breadcrumb">
+      <ul>
+        <li><a href="{% url 'competitions:list' %}">Competitions</a></li>
+        <li><a href="{% url 'competitions:detail' current_competition.slug %}">{{ current_competition.title }}</a></li>
+        <li>Analytics Dashboard</li>
+      </ul>
+    </nav>
+
+    <hgroup>
+        <h1>Analytics Dashboard</h1>
+        <p>Real-time metrics, progress tracking, and team performance.</p>
+    </hgroup>
+
+    <nav style="margin-bottom: var(--spacing);">
+        <ul>
+            <li>
+                <a href="?phase=all" role="button" class="{% if selected_phase != 'all' %}outline secondary{% endif %}">
+                    Overall
+                </a>
+            </li>
+            <li>
+                <a href="?phase=phase_1" role="button" class="{% if selected_phase != 'phase_1' %}outline secondary{% endif %}">
+                    Phase 1
+                </a>
+            </li>
+            <li>
+                <a href="?phase=phase_2" role="button" class="{% if selected_phase != 'phase_2' %}outline secondary{% endif %}">
+                    Phase 2
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="grid">
+        <article>
+            <header>Progress & ETA</header>
+            <label for="progress-bar">Completion: {{ progress_percent }}%</label>
+            <progress id="progress-bar" value="{{ progress_percent }}" max="100"></progress>
+            <ul>
+                <li><strong>Current Velocity:</strong> {{ velocity_per_day }} reviews/day (last 7 days)</li>
+                <li><strong>Estimated Time Left:</strong> {% if eta_days %}{{ eta_days }} days{% else %}<mark>N/A</mark> (Need more data){% endif %}</li>
+            </ul>
+        </article>
+
+        <article>
+            <header>Yes/No Funnel</header>
+            <p>Overall decision distribution for submitted reviews.</p>
+            <ul>
+                <li>✅ <strong>Pass to next stage:</strong> {{ total_yes }}</li>
+                <li>❌ <strong>Rejected:</strong> {{ total_no }}</li>
+            </ul>
+        </article>
+    </div>
+
+    <div class="grid">
+        <article>
+            <header>Pending Actions</header>
+            {% if selected_phase == 'phase_1' %}
+                <p><small>Displays reviews that have been assigned but remain unsubmitted for the longest time.</small></p>
+                <ul>
+                    {% for review in pending_actions %}
+                        <li>
+                            <a href="{% url 'plays:detail' current_competition.slug review.play.pk %}">{{ review.play.title }}</a><br>
+                            <small>Assigned to <strong>{{ review.reader.email }}</strong> ({{ review.created_at|timesince }} ago)</small>
+                        </li>
+                    {% empty %}
+                        <li>No pending actions required.</li>
+                    {% endfor %}
+                </ul>
+            {% elif selected_phase == 'phase_2' %}
+                <p><small>Highlights readers with the lowest number of submitted reviews compared to the rest of the team.</small></p>
+                <ul>
+                    {% for lagger in pending_actions %}
+                        <li>
+                            <a href="{% url 'users:detail' current_competition.slug lagger.id %}">{{ lagger.email }}</a><br>
+                            <small>Submitted only <strong>{{ lagger.submitted_reviews }}</strong> reviews.</small>
+                        </li>
+                    {% empty %}
+                        <li>Team reading pace is perfectly balanced.</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p><em>Please select a specific Phase tab to view pending actions.</em></p>
+            {% endif %}
+        </article>
+
+        <article>
+            <header>Controversial Plays</header>
+            <p><small>Lists plays that have received a mix of both 'Yes' (✅) and 'No' (❌) verdicts. These texts divide the readers and may require a tie-breaking vote.</small></p>
+            <ul>
+                {% for play in controversial_plays|slice:":10" %}
+                    <li>
+                        <a href="{% url 'plays:detail' current_competition.slug play.pk %}">{{ play.title }}</a><br>
+                        <small>✅ Yes: {{ play.yes_votes }} | ❌ No: {{ play.no_votes }}</small>
+                    </li>
+                {% empty %}
+                    <li>No controversial plays yet.</li>
+                {% endfor %}
+            </ul>
+        </article>
+    </div>
+
+    <article>
+        <header>Reader Leaderboard</header>
+        <figure>
+            <table class="striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Reader</th>
+                        <th scope="col">Avg Reading Speed</th>
+                        <th scope="col">Submitted Reviews</th>
+                        <th scope="col">Pending (Drafts/Assigned)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reader in top_readers %}
+                        <tr>
+                            <td><a href="{% url 'users:detail' current_competition.slug reader.id %}">{{ reader.get_full_name|default:reader.email }}</a></td>
+                            <td>{{ reader.speed_str }}</td>
+                            <td>
+                                <strong>{{ reader.submitted_reviews }}</strong>
+                                <small>({{ reader.submitted_yes }} ✅ / {{ reader.submitted_no }} ❌)</small>
+                            </td>
+                            <td>{{ reader.active_reviews }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4">No readers found for this filter.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </figure>
+    </article>
+
+    <article>
+        <header>Plays Overview</header>
+        <figure>
+            <table class="striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Play Title</th>
+                        <th scope="col">Current Status</th>
+                        
+                        {% if selected_phase == 'all' or selected_phase == 'phase_1' %}
+                            <th scope="col">Phase 1 (Yes)</th>
+                            <th scope="col">Phase 1 (No)</th>
+                        {% endif %}
+                        
+                        {% if selected_phase == 'all' or selected_phase == 'phase_2' %}
+                            <th scope="col">Phase 2 (Yes)</th>
+                            <th scope="col">Phase 2 (No)</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for play in plays_overview %}
+                        <tr>
+                            <td><a href="{% url 'plays:detail' current_competition.slug play.pk %}">{{ play.title }}</a></td>
+                            <td>{{ play.current_status }}</td>
+                            
+                            {% if selected_phase == 'all' or selected_phase == 'phase_1' %}
+                                <td>{{ play.phase_1_yes }}</td>
+                                <td>{{ play.phase_1_no }}</td>
+                            {% endif %}
+
+                            {% if selected_phase == 'all' or selected_phase == 'phase_2' %}
+                                <td>{{ play.phase_2_yes }}</td>
+                                <td>{{ play.phase_2_no }}</td>
+                            {% endif %}
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6">No plays active.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </figure>
+    </article>
+
+{% endblock content %}

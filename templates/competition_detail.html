@@ -54,7 +54,7 @@
             <article>
                 <header>Deep Analytics</header>
                 <p>Analyze scoring trends, reader performance, and overall competition metrics.</p>
-                <a href="#" role="button">View Analytics</a>
+                <a href="{% url 'competitions:analytics' competition.slug %}" role="button">View Analytics</a>
             </article>
         </div>
     {% endif %}
