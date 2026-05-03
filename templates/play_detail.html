@@ -17,6 +17,20 @@
         </article>
     </dialog>
 
+    <dialog id="deactivate-dialog">
+        <article>
+            <header>
+                <button type="button" aria-label="Close" rel="prev" onclick="document.getElementById('deactivate-dialog').close()"></button>
+                <p><strong>Confirm deactivation</strong></p>
+            </header>
+            <p>Are you sure you want to deactivate this play? It will no longer be visible to readers.</p>
+            <form method="post" action="{% url 'plays:deactivate' current_competition.slug object.pk %}">
+                {% csrf_token %}
+                <footer><button type="submit" class="secondary">Yes, deactivate play</button></footer>
+            </form>
+        </article>
+    </dialog>
+
     <dialog id="submit-review-confirmation">
         <article>
             <header>
