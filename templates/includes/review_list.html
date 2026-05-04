@@ -1,0 +1,76 @@
+<dialog id="toggle-visibility-dialog">
+    <article>
+        <header>
+            <button type="button" aria-label="Close" rel="prev" onclick="document.getElementById('toggle-visibility-dialog').close()"></button>
+            <p><strong>Visibility Toggle</strong></p>
+        </header>
+        <p>Are you sure you want to change the visibility of this review? Hidden reviews will only be visible to moderators.</p>
+        <form id="toggle-visibility-form" method="post" action="">
+            {% csrf_token %}
+            <footer>
+                <button type="button" class="secondary outline" onclick="document.getElementById('toggle-visibility-dialog').close()">Cancel</button>
+                <button type="submit">Confirm Visibility Change</button>
+            </footer>
+        </form>
+    </article>
+</dialog>
+
+<dialog id="revote-review-dialog">
+    <article>
+        <header>
+            <button type="button" aria-label="Close" rel="prev" onclick="document.getElementById('revote-review-dialog').close()"></button>
+            <p><strong>Revote (Mark Obsolete)</strong></p>
+        </header>
+        <p>Are you sure you want to mark this review as obsolete? The play will be returned to the pool for another reader to evaluate. This action cannot be easily undone.</p>
+        <form id="revote-review-form" method="post" action="">
+            {% csrf_token %}
+            <footer>
+                <button type="button" class="secondary outline" onclick="document.getElementById('revote-review-dialog').close()">Cancel</button>
+                <button type="submit" class="contrast">Yes, mark for revote</button>
+            </footer>
+        </form>
+    </article>
+</dialog>
+
+{% for review in reviews %}
+    <details>
+        <summary>
+            <strong>
+                {% if show_play_title %}
+                    <a href="{% url 'plays:detail' current_competition.slug review.play.pk %}">{{ review.play.title }}</a>
+                {% else %}
+                    {% if is_moderator %}{{ review.reader.get_full_name|default:review.reader.email }}{% else %}Reader Review{% endif %}
+                {% endif %}
+            </strong> 
+            - {{ review.get_phase_display }}
+            - Verdict: {% if review.verdict %}✅ Yes{% elif review.verdict is False %}❌ No{% else %}Pending{% endif %}
+            {% if review.is_hidden %} (Hidden){% endif %}
+        </summary>
+        
+        <p>{{ review.comment|linebreaks|default:"<small><em>No comment provided.</em></small>" }}</p>
+        
+        {% if is_moderator %}
+            <footer>
+                <div class="grid">
+                    <button type="button" class="secondary outline" onclick="openVisibilityModal('{% if review.is_hidden %}{% url 'reviews:mark_public' current_competition.slug review.id %}{% else %}{% url 'reviews:mark_hidden' current_competition.slug review.id %}{% endif %}')">
+                        {% if review.is_hidden %}Show Review{% else %}Hide Review{% endif %}
+                    </button>
+                    <button type="button" class="contrast outline" onclick="openRevoteModal('{% url 'reviews:mark_obsolete' current_competition.slug review.id %}')">Revote</button>
+                </div>
+            </footer>
+        {% endif %}
+    </details>
+{% empty %}
+    <p>No reviews available yet.</p>
+{% endfor %}
+
+<script>
+    function openVisibilityModal(url) {
+        document.getElementById('toggle-visibility-form').action = url;
+        document.getElementById('toggle-visibility-dialog').showModal();
+    }
+    function openRevoteModal(url) {
+        document.getElementById('revote-review-form').action = url;
+        document.getElementById('revote-review-dialog').showModal();
+    }
+</script>

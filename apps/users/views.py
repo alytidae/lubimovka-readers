@@ -11,6 +11,8 @@ from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from apps.competitions.mixins import CompetitionContextMixin
 from apps.competitions.models import CompetitionRole
 from django.views import View
+from django.db.models import Avg, F
+from apps.reviews.models import Review
 from django.shortcuts import redirect
 
 
@@ -183,9 +185,41 @@ class UserDetailView(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
         competition = self.get_competition()
-        context["object"].role = self.get_object().get_role(competition)
+        user_obj = self.get_object()
+        
+        context["object"].role = user_obj.get_role(competition)
+
+        reviews_qs = Review.objects.filter(
+            reader=user_obj, 
+            play__competition=competition,
+            is_obsolete=False
+        ).select_related('play', 'reader')
+
+        submitted_qs = reviews_qs.filter(status=Review.Status.SUBMITTED)
+        active_qs = reviews_qs.filter(status__in=[Review.Status.ASSIGNED, Review.Status.DRAFT])
+
+        context['reviews'] = reviews_qs.order_by('-created_at')
+        
+        submitted_count = submitted_qs.count()
+        active_count = active_qs.count()
+        context['submitted_count'] = submitted_count
+        context['active_count'] = active_count
+        context['yes_count'] = submitted_qs.filter(verdict=True).count()
+        context['no_count'] = submitted_qs.filter(verdict=False).count()
+        context['total_assigned'] = submitted_count + active_count
+
+        speed_aggregate = submitted_qs.aggregate(
+            avg_time=Avg(F('submitted_at') - F('created_at'))
+        )
+        
+        avg_time = speed_aggregate['avg_time']
+        if avg_time:
+            days = avg_time.days
+            hours = avg_time.seconds // 3600
+            context['avg_reading_speed'] = f"{days}d {hours}h" if days > 0 else f"{hours}h"
+        else:
+            context['avg_reading_speed'] = "-"
 
         return context
 
@@ -206,7 +240,6 @@ class UserDetailView(
         return self.request.user.competition_roles.filter(
             competition=competition, role__in=["admin", "moderator"], is_active=True
         ).exists()
-
 
 class UserListView(
     LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, ListView

@@ -132,33 +132,7 @@
 
     <article>
         <header>Reviews & Feedback</header>
-        {% for review in reviews %}
-            <details>
-                <summary>
-                    <strong>{% if is_moderator %}{{ review.reader.get_full_name|default:review.reader.email }}{% else %}Reader Review{% endif %}</strong> 
-                    - {{ review.get_phase_display }}
-                    - Verdict: {% if review.verdict %}✅ Yes{% elif review.verdict is False %}❌ No{% else %}⏳ Pending{% endif %}
-                </summary>
-                <p>{{ review.comment|linebreaks }}</p>
-                
-                {% if is_moderator %}
-                    <footer>
-                        <div class="grid">
-                            <form method="post" action="{% url 'reviews:mark_hidden' current_competition.slug review.id %}" style="margin-bottom: 0;">
-                                {% csrf_token %}
-                                <button type="submit" class="secondary outline">{% if review.is_hidden %}Show{% else %}Hide{% endif %}</button>
-                            </form>
-                            <form method="post" action="{% url 'reviews:mark_obsolete' current_competition.slug review.id %}" style="margin-bottom: 0;">
-                                {% csrf_token %}
-                                <button type="submit" class="contrast outline">Revote</button>
-                            </form>
-                        </div>
-                    </footer>
-                {% endif %}
-            </details>
-        {% empty %}
-            <p>No public reviews available for this play yet.</p>
-        {% endfor %}
+        {% include "includes/review_list.html" with show_play_title=False reviews=reviews %}
     </article>
 
 <script>

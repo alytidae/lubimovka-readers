@@ -48,22 +48,32 @@
             </ul>
         </article>
 
-	{% if object.role == "reader" %}
+        {% if object.role == "reader" %}
         <article>
             <header>Reading Statistics</header>
             
-            <p><em>This module is currently under development. Data will be available soon.</em></p>
-            
-            <p><strong>Total Assigned Plays:</strong> <span aria-busy="true"></span></p>
-            <p><strong>Completed Reviews:</strong> <span aria-busy="true"></span></p>
-            <p><strong>Average Score Given:</strong> <span aria-busy="true"></span></p>
+            <p><strong>Total Assigned Plays:</strong> {{ total_assigned }}</p>
+            <p><strong>Completed Reviews:</strong> {{ submitted_count }} <small>({{ yes_count }} ✅ / {{ no_count }} ❌)</small></p>
+            <p><strong>Pending (Drafts/Assigned):</strong> {{ active_count }}</p>
+            <p><strong>Average Reading Speed:</strong> {{ avg_reading_speed }}</p>
             
             <figure>
-                <progress value="0" max="100"></progress>
-                <figcaption><small>Overall progress indicator</small></figcaption>
+                {% if total_assigned > 0 %}
+                    <progress value="{{ submitted_count }}" max="{{ total_assigned }}"></progress>
+                    <figcaption><small>Completed {{ submitted_count }} out of {{ total_assigned }} assigned plays.</small></figcaption>
+                {% else %}
+                    <progress value="0" max="100"></progress>
+                    <figcaption><small>No plays assigned yet.</small></figcaption>
+                {% endif %}
             </figure>
         </article>
-	{% endif %}
-
+        {% endif %}
     </div>
+
+    {% if object.role == "reader" or is_moderator %}
+    <article>
+        <header>User Reviews & Feedback</header>
+        {% include "includes/review_list.html" with show_play_title=True reviews=reviews %}
+    </article>
+    {% endif %}
 {% endblock content %}
