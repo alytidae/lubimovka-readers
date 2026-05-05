@@ -18,7 +18,9 @@ from apps.users.models import User
 from apps.plays.models import Play
 from apps.reviews.models import Review
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-
+import openpyxl
+from django.http import HttpResponse
+from django.views import View
 
 class CompetitionCreateView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, CreateView):
     model = Competition
@@ -246,3 +248,92 @@ class CompetitionAnalyticsView(LoginRequiredMixin, UserPassesTestMixin, Competit
         })
 
         return context
+
+class CompetitionExportExcelView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, View):
+    def get(self, request, *args, **kwargs):
+        competition = self.get_competition()
+
+        wb = openpyxl.Workbook()
+
+        ws_plays = wb.active
+        ws_plays.title = "Plays"
+        ws_plays.append([
+            'ID', 'Title', 'Author Email', 'Author First Name', 'Author Last Name', 
+            'Status', 'Total Reviews', 'Phase 1 Yes', 'Phase 1 No', 'Phase 2 Yes', 'Phase 2 No'
+        ])
+        
+        plays = Play.objects.filter(competition=competition).prefetch_related('reviews')
+        for play in plays:
+            reviews = play.reviews.filter(is_obsolete=False, status='submitted')
+            ws_plays.append([
+                play.id,
+                play.title,
+                play.author_email,
+                play.author_first_name,
+                play.author_last_name or '',
+                'Active' if play.is_active else 'Inactive',
+                reviews.count(),
+                reviews.filter(phase='phase_1', verdict=True).count(),
+                reviews.filter(phase='phase_1', verdict=False).count(),
+                reviews.filter(phase='phase_2', verdict=True).count(),
+                reviews.filter(phase='phase_2', verdict=False).count()
+            ])
+
+        ws_reviews = wb.create_sheet(title="Reviews")
+        ws_reviews.append([
+            'Play ID', 'Play Title', 'Reader Email', 
+            'Phase', 'Verdict', 'Comment', 'Submitted At'
+        ])
+        
+        all_reviews = Review.objects.filter(
+            play__competition=competition, 
+            status='submitted', 
+            is_obsolete=False
+        ).select_related('play', 'reader')
+        
+        for review in all_reviews:
+            ws_reviews.append([
+                review.play.id,
+                review.play.title,
+                review.reader.email,
+                review.get_phase_display(),
+                'Yes' if review.verdict else 'No',
+                review.comment,
+                review.submitted_at.strftime('%Y-%m-%d %H:%M') if review.submitted_at else ''
+            ])
+
+        ws_readers = wb.create_sheet(title="Readers")
+        ws_readers.append([
+            'Email', 'Name', 'Telegram', 'Role', 'Submitted (Yes)', 'Submitted (No)'
+        ])
+        
+        users = User.objects.filter(
+            competition_roles__competition=competition,
+            competition_roles__is_active=True
+        ).annotate(
+            yes_votes=Count('review', filter=Q(review__play__competition=competition, review__status='submitted', review__verdict=True)),
+            no_votes=Count('review', filter=Q(review__play__competition=competition, review__status='submitted', review__verdict=False))
+        ).distinct()
+
+        for u in users:
+            role = u.get_role(competition)
+            ws_readers.append([
+                u.email,
+                u.get_full_name(),
+                u.telegram_username or '',
+                role,
+                u.yes_votes,
+                u.no_votes
+            ])
+
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; filename="{competition.slug}_full_export.xlsx"'
+        wb.save(response)
+        
+        return response
+
+    def test_func(self):
+        competition = self.get_competition()
+        if self.request.user.is_superuser:
+            return True
+        return self.request.user.get_role(competition) in ['admin', 'moderator']

@@ -70,7 +70,7 @@
             <article>
                 <header>Data Export</header>
                 <p>Generate and download full database backups in CSV or spreadsheet formats.</p>
-                <a href="#" role="button">Export Data</a>
+                <a href="{% url 'competitions:export' competition.slug %}" role="button">Export Data</a>
             </article>
         </div>
     {% endif %}
