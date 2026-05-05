@@ -8,15 +8,18 @@
                 <details class="dropdown">
                     <summary class="outline secondary">{{ user.email }}</summary>
                     <ul dir="rtl">
-                        <li>
-                            <a href="#" id="theme-switcher" class="secondary">Switch Theme</a>
-                        </li>
-                        <li>
-                            <form action="{% url 'logout' %}" method="post" style="margin-bottom: 0;">
-                                {% csrf_token %}
-                                <button type="submit" class="outline contrast">Logout</button>
-                            </form>
-                        </li>
+                         <li>
+                             <a href="#" id="theme-switcher" class="secondary">Switch Theme</a>
+                         </li>
+                         <li>
+                             <a href="#" id="language-switcher" class="secondary">Change Language</a>
+                         </li>
+                         <li>
+                             <form action="{% url 'logout' %}" method="post" style="margin-bottom: 0;">
+                                 {% csrf_token %}
+                                 <button type="submit" class="outline contrast">Logout</button>
+                             </form>
+                         </li>
                     </ul>
                 </details>
             </li>
