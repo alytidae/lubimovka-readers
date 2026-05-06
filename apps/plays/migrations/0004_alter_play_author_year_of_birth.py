@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('plays', '0003_remove_play_author_date_of_birth_and_more'),
+        ("plays", "0003_remove_play_author_date_of_birth_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='play',
-            name='author_year_of_birth',
+            model_name="play",
+            name="author_year_of_birth",
             field=models.PositiveSmallIntegerField(blank=True, null=True),
         ),
     ]

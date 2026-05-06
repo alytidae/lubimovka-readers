@@ -6,23 +6,26 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('competitions', '0002_remove_competition_play_link_sheet_column_name_and_more'),
+        (
+            "competitions",
+            "0002_remove_competition_play_link_sheet_column_name_and_more",
+        ),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='competition',
-            old_name='play_author_name_sheet_column_name',
-            new_name='play_author_first_name_sheet_column_name',
+            model_name="competition",
+            old_name="play_author_name_sheet_column_name",
+            new_name="play_author_first_name_sheet_column_name",
         ),
         migrations.AddField(
-            model_name='competition',
-            name='play_author_last_name_sheet_column_name',
+            model_name="competition",
+            name="play_author_last_name_sheet_column_name",
             field=models.CharField(blank=True, max_length=100, null=True),
         ),
         migrations.AlterField(
-            model_name='competition',
-            name='play_author_date_of_birth_sheet_column_name',
+            model_name="competition",
+            name="play_author_date_of_birth_sheet_column_name",
             field=models.CharField(blank=True, max_length=100, null=True),
         ),
     ]

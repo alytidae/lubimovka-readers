@@ -3,16 +3,17 @@ from django.conf import settings
 from pytils.translit import slugify
 from django.urls import reverse
 
+
 class Competition(models.Model):
     class Status(models.TextChoices):
-        SETUP = 'setup', 'Setup and Team Formation'
-        PHASE_1 = 'phase_1', 'Phase 1: Distribution (3 readers)'
-        PHASE_2 = 'phase_2', 'Phase 2: Open Reading'
-        FINISHED = 'finished', 'Finished'
+        SETUP = "setup", "Setup and Team Formation"
+        PHASE_1 = "phase_1", "Phase 1: Distribution (3 readers)"
+        PHASE_2 = "phase_2", "Phase 2: Open Reading"
+        FINISHED = "finished", "Finished"
 
     title = models.CharField(max_length=255)
     date = models.DateField()
-    
+
     slug = models.SlugField(max_length=255, unique=True, blank=True)
 
     google_sheet_url = models.URLField(max_length=500, blank=True)
@@ -21,13 +22,15 @@ class Competition(models.Model):
     play_url_sheet_column_name = models.CharField(max_length=100)
     play_author_email_sheet_column_name = models.CharField(max_length=100)
     play_author_first_name_sheet_column_name = models.CharField(max_length=100)
-    play_author_last_name_sheet_column_name = models.CharField(max_length=100, null=True, blank=True)
-    play_author_year_of_birth_sheet_column_name = models.CharField(max_length=100, null=True, blank=True)
+    play_author_last_name_sheet_column_name = models.CharField(
+        max_length=100, null=True, blank=True
+    )
+    play_author_year_of_birth_sheet_column_name = models.CharField(
+        max_length=100, null=True, blank=True
+    )
 
     status = models.CharField(
-        max_length=20, 
-        choices=Status.choices, 
-        default=Status.SETUP
+        max_length=20, choices=Status.choices, default=Status.SETUP
     )
 
     are_phase1_reviews_visible = models.BooleanField(default=False)
@@ -47,28 +50,28 @@ class Competition(models.Model):
 
 class CompetitionRole(models.Model):
     ROLE_CHOICES = (
-        ('reader', 'Reader'),
-        ('moderator', 'Moderator'),
-        ('admin', 'Admin'),
+        ("reader", "Reader"),
+        ("moderator", "Moderator"),
+        ("admin", "Admin"),
     )
-    
+
     competition = models.ForeignKey(
-        Competition, 
-        on_delete=models.CASCADE, 
-        related_name='roles'
+        Competition, on_delete=models.CASCADE, related_name="roles"
     )
 
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, 
-        on_delete=models.CASCADE, 
-        related_name='competition_roles'
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="competition_roles",
     )
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
 
     is_active = models.BooleanField(default=True)
 
     class Meta:
-        unique_together = ('competition', 'user')
+        unique_together = ("competition", "user")
 
     def __str__(self):
-        return f"{self.user.email} - {self.get_role_display()} in {self.competition.title}"
+        return (
+            f"{self.user.email} - {self.get_role_display()} in {self.competition.title}"
+        )

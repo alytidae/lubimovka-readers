@@ -10,26 +10,63 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('plays', '0004_alter_play_author_year_of_birth'),
+        ("plays", "0004_alter_play_author_year_of_birth"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Review',
+            name="Review",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('phase', models.CharField(choices=[('phase_1', 'Phase 1'), ('phase_2', 'Phase 2')], max_length=20)),
-                ('status', models.CharField(choices=[('assigned', 'Assigned'), ('draft', 'Draft'), ('submitted', 'Submitted')], max_length=20)),
-                ('verdict', models.BooleanField(blank=True, null=True)),
-                ('comment', models.TextField(blank=True)),
-                ('is_hidden', models.BooleanField(default=False)),
-                ('is_obsolete', models.BooleanField(default=False)),
-                ('play', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='reviews', to='plays.play')),
-                ('reader', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "phase",
+                    models.CharField(
+                        choices=[("phase_1", "Phase 1"), ("phase_2", "Phase 2")],
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("assigned", "Assigned"),
+                            ("draft", "Draft"),
+                            ("submitted", "Submitted"),
+                        ],
+                        max_length=20,
+                    ),
+                ),
+                ("verdict", models.BooleanField(blank=True, null=True)),
+                ("comment", models.TextField(blank=True)),
+                ("is_hidden", models.BooleanField(default=False)),
+                ("is_obsolete", models.BooleanField(default=False)),
+                (
+                    "play",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="reviews",
+                        to="plays.play",
+                    ),
+                ),
+                (
+                    "reader",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('play', 'reader', 'phase', 'is_obsolete')},
+                "unique_together": {("play", "reader", "phase", "is_obsolete")},
             },
         ),
     ]

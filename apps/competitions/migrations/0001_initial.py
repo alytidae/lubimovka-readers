@@ -15,30 +15,88 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Competition',
+            name="Competition",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=255)),
-                ('date', models.DateField()),
-                ('slug', models.SlugField(blank=True, max_length=255, unique=True)),
-                ('google_sheet_url', models.URLField(blank=True, max_length=500)),
-                ('play_title_sheet_column_name', models.CharField(blank=True, max_length=50)),
-                ('play_link_sheet_column_name', models.CharField(blank=True, max_length=50)),
-                ('status', models.CharField(choices=[('setup', 'Setup and Team Formation'), ('phase_1', 'Phase 1: Distribution (3 readers)'), ('phase_2', 'Phase 2: Open Reading'), ('finished', 'Finished')], default='setup', max_length=20)),
-                ('are_phase1_reviews_visible', models.BooleanField(default=False)),
-                ('are_phase2_reviews_visible', models.BooleanField(default=False)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=255)),
+                ("date", models.DateField()),
+                ("slug", models.SlugField(blank=True, max_length=255, unique=True)),
+                ("google_sheet_url", models.URLField(blank=True, max_length=500)),
+                (
+                    "play_title_sheet_column_name",
+                    models.CharField(blank=True, max_length=50),
+                ),
+                (
+                    "play_link_sheet_column_name",
+                    models.CharField(blank=True, max_length=50),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("setup", "Setup and Team Formation"),
+                            ("phase_1", "Phase 1: Distribution (3 readers)"),
+                            ("phase_2", "Phase 2: Open Reading"),
+                            ("finished", "Finished"),
+                        ],
+                        default="setup",
+                        max_length=20,
+                    ),
+                ),
+                ("are_phase1_reviews_visible", models.BooleanField(default=False)),
+                ("are_phase2_reviews_visible", models.BooleanField(default=False)),
             ],
         ),
         migrations.CreateModel(
-            name='CompetitionRole',
+            name="CompetitionRole",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('role', models.CharField(choices=[('reader', 'Reader'), ('moderator', 'Moderator'), ('admin', 'Admin')], max_length=20)),
-                ('competition', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='roles', to='competitions.competition')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='competition_roles', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "role",
+                    models.CharField(
+                        choices=[
+                            ("reader", "Reader"),
+                            ("moderator", "Moderator"),
+                            ("admin", "Admin"),
+                        ],
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "competition",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="roles",
+                        to="competitions.competition",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="competition_roles",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('competition', 'user')},
+                "unique_together": {("competition", "user")},
             },
         ),
     ]

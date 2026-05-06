@@ -6,18 +6,24 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('competitions', '0004_rename_play_author_date_of_birth_sheet_column_name_competition_play_author_year_of_birth_sheet_colum'),
-        ('plays', '0004_alter_play_author_year_of_birth'),
+        (
+            "competitions",
+            "0004_rename_play_author_date_of_birth_sheet_column_name_competition_play_author_year_of_birth_sheet_colum",
+        ),
+        ("plays", "0004_alter_play_author_year_of_birth"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='play',
-            name='author_email',
+            model_name="play",
+            name="author_email",
             field=models.EmailField(max_length=254),
         ),
         migrations.AddConstraint(
-            model_name='play',
-            constraint=models.UniqueConstraint(fields=('competition', 'author_email', 'title'), name='unique_play_per_author_per_competition'),
+            model_name="play",
+            constraint=models.UniqueConstraint(
+                fields=("competition", "author_email", "title"),
+                name="unique_play_per_author_per_competition",
+            ),
         ),
     ]

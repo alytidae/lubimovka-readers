@@ -6,40 +6,40 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('competitions', '0001_initial'),
+        ("competitions", "0001_initial"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='competition',
-            name='play_link_sheet_column_name',
+            model_name="competition",
+            name="play_link_sheet_column_name",
         ),
         migrations.AddField(
-            model_name='competition',
-            name='play_author_date_of_birth_sheet_column_name',
+            model_name="competition",
+            name="play_author_date_of_birth_sheet_column_name",
             field=models.CharField(blank=True, max_length=100),
         ),
         migrations.AddField(
-            model_name='competition',
-            name='play_author_email_sheet_column_name',
-            field=models.CharField(default='default', max_length=100),
+            model_name="competition",
+            name="play_author_email_sheet_column_name",
+            field=models.CharField(default="default", max_length=100),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='competition',
-            name='play_author_name_sheet_column_name',
-            field=models.CharField(default='default', max_length=100),
+            model_name="competition",
+            name="play_author_name_sheet_column_name",
+            field=models.CharField(default="default", max_length=100),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='competition',
-            name='play_url_sheet_column_name',
-            field=models.CharField(default='default', max_length=100),
+            model_name="competition",
+            name="play_url_sheet_column_name",
+            field=models.CharField(default="default", max_length=100),
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='competition',
-            name='play_title_sheet_column_name',
+            model_name="competition",
+            name="play_title_sheet_column_name",
             field=models.CharField(max_length=100),
         ),
     ]

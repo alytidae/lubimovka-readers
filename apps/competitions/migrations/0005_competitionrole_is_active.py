@@ -6,13 +6,16 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('competitions', '0004_rename_play_author_date_of_birth_sheet_column_name_competition_play_author_year_of_birth_sheet_colum'),
+        (
+            "competitions",
+            "0004_rename_play_author_date_of_birth_sheet_column_name_competition_play_author_year_of_birth_sheet_colum",
+        ),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='competitionrole',
-            name='is_active',
+            model_name="competitionrole",
+            name="is_active",
             field=models.BooleanField(default=True),
         ),
     ]

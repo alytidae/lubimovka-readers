@@ -9,20 +9,38 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('competitions', '0002_remove_competition_play_link_sheet_column_name_and_more'),
+        (
+            "competitions",
+            "0002_remove_competition_play_link_sheet_column_name_and_more",
+        ),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Play',
+            name="Play",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=255)),
-                ('url', models.URLField(max_length=500)),
-                ('author_email', models.EmailField(max_length=254, unique=True)),
-                ('author_name', models.CharField(max_length=255)),
-                ('author_date_of_birth', models.DateField(blank=True, null=True)),
-                ('competition', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='plays', to='competitions.competition')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=255)),
+                ("url", models.URLField(max_length=500)),
+                ("author_email", models.EmailField(max_length=254, unique=True)),
+                ("author_name", models.CharField(max_length=255)),
+                ("author_date_of_birth", models.DateField(blank=True, null=True)),
+                (
+                    "competition",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="plays",
+                        to="competitions.competition",
+                    ),
+                ),
             ],
         ),
     ]

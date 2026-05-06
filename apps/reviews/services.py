@@ -6,7 +6,18 @@ from typing import Optional
 from .models import Review
 from django.db import transaction
 from django.utils import timezone
-from django.db.models import Count, Q, Avg, F, ExpressionWrapper, fields, Exists, OuterRef, Min, Max
+from django.db.models import (
+    Count,
+    Q,
+    Avg,
+    F,
+    ExpressionWrapper,
+    fields,
+    Exists,
+    OuterRef,
+    Min,
+    Max,
+)
 from datetime import timedelta
 from apps.users.models import User
 
@@ -20,6 +31,7 @@ class Result:
     success: bool
     message: str
 
+
 @dataclass
 class AssignmentResult:
     success: bool
@@ -29,88 +41,92 @@ class AssignmentResult:
 
 @transaction.atomic
 def assign_play(reader, competition):
-    active_count = Review.objects.filter(
-        reader=reader,
-        play__competition=competition,
-        is_obsolete=False,
-    ).exclude(
-        status=Review.Status.SUBMITTED
-    ).count()
+    active_count = (
+        Review.objects.filter(
+            reader=reader,
+            play__competition=competition,
+            is_obsolete=False,
+        )
+        .exclude(status=Review.Status.SUBMITTED)
+        .count()
+    )
 
     if active_count >= MAX_ACTIVE_REVIEWS_PER_READER:
         return AssignmentResult(
             success=False,
-            message="\u2705 You’ve reached your limit of active plays to review. Please finish one of your current plays first."
+            message="\u2705 You’ve reached your limit of active plays to review. Please finish one of your current plays first.",
         )
-    
+
     if competition.status == Competition.Status.PHASE_1:
         current_phase = Review.Phase.PHASE_1
     else:
         return AssignmentResult(
             success=False,
-            message="You cannot request a new play during the current phase of the competition."
+            message="You cannot request a new play during the current phase of the competition.",
         )
 
-    available_play_ids = list(Play.objects.filter(
-        competition=competition,
-        is_active=True,
-    ).annotate(
-        active_reviews_count=Count(
-            "reviews",
-            filter=Q(
-                reviews__is_obsolete=False,
-                reviews__phase=current_phase
-            )
-        ),
-        approval_verdicts_count=Count(
-            "reviews",
-            filter=Q(
-                reviews__is_obsolete=False,
-                reviews__verdict=True,
-                reviews__phase=current_phase
-            )
-        ),
-        rejected_verdicts_count=Count(
-            "reviews",
-            filter=Q(
-                reviews__is_obsolete=False,
-                reviews__verdict=False,
-                reviews__phase=current_phase
-            )
-        ),
-        has_reviewed_by_current_reader=Exists(
-            Review.objects.filter(
-                play=OuterRef("pk"),
-                reader=reader,
-                phase=current_phase
-            )
-        )    
-    ).filter(
-        active_reviews_count__lt=MAX_REVIEWS_PER_PLAY,
-        has_reviewed_by_current_reader = False
-    ).exclude(
-        Q(approval_verdicts_count__gte=VERDICTS_REQUIRED_FOR_FINAL_DECISION) |
-        Q(rejected_verdicts_count__gte=VERDICTS_REQUIRED_FOR_FINAL_DECISION)
-    ).values_list("id", flat=True))
+    available_play_ids = list(
+        Play.objects.filter(
+            competition=competition,
+            is_active=True,
+        )
+        .annotate(
+            active_reviews_count=Count(
+                "reviews",
+                filter=Q(reviews__is_obsolete=False, reviews__phase=current_phase),
+            ),
+            approval_verdicts_count=Count(
+                "reviews",
+                filter=Q(
+                    reviews__is_obsolete=False,
+                    reviews__verdict=True,
+                    reviews__phase=current_phase,
+                ),
+            ),
+            rejected_verdicts_count=Count(
+                "reviews",
+                filter=Q(
+                    reviews__is_obsolete=False,
+                    reviews__verdict=False,
+                    reviews__phase=current_phase,
+                ),
+            ),
+            has_reviewed_by_current_reader=Exists(
+                Review.objects.filter(
+                    play=OuterRef("pk"), reader=reader, phase=current_phase
+                )
+            ),
+        )
+        .filter(
+            active_reviews_count__lt=MAX_REVIEWS_PER_PLAY,
+            has_reviewed_by_current_reader=False,
+        )
+        .exclude(
+            Q(approval_verdicts_count__gte=VERDICTS_REQUIRED_FOR_FINAL_DECISION)
+            | Q(rejected_verdicts_count__gte=VERDICTS_REQUIRED_FOR_FINAL_DECISION)
+        )
+        .values_list("id", flat=True)
+    )
 
     random.shuffle(available_play_ids)
 
     if not available_play_ids:
         return AssignmentResult(
             success=False,
-            message="There are no new plays available to review at the moment. Please check back later."
+            message="There are no new plays available to review at the moment. Please check back later.",
         )
 
     selected_play = None
     for play_id in available_play_ids:
-        play = Play.objects.select_for_update(skip_locked=True).filter(id=play_id).first()
-        
+        play = (
+            Play.objects.select_for_update(skip_locked=True).filter(id=play_id).first()
+        )
+
         if play:
             current_active_reviews = play.reviews.filter(
-                is_obsolete=False, 
-                phase=current_phase
+                is_obsolete=False, phase=current_phase
             ).count()
-            
+
             if current_active_reviews < MAX_REVIEWS_PER_PLAY:
                 selected_play = play
                 break
@@ -120,7 +136,7 @@ def assign_play(reader, competition):
     if not selected_play:
         return AssignmentResult(
             success=False,
-            message="There are no new plays available to review at the moment. Please check back later."
+            message="There are no new plays available to review at the moment. Please check back later.",
         )
 
     Review.objects.create(
@@ -133,66 +149,83 @@ def assign_play(reader, competition):
     return AssignmentResult(
         success=True,
         message="\u2705 A new play has been assigned to you.",
-        play=selected_play
+        play=selected_play,
     )
+
 
 def mark_public(review):
     if not review.is_hidden:
         return Result(success=False, message="This review is already public.")
-    
+
     review.is_hidden = False
-    review.save(update_fields=['is_hidden'])
-    
+    review.save(update_fields=["is_hidden"])
+
     return Result(success=True, message="\u2705 Review is now visible to others.")
+
 
 def mark_hidden(review):
     if review.is_hidden:
         return Result(success=False, message="This review is already hidden.")
-    
+
     review.is_hidden = True
-    review.save(update_fields=['is_hidden'])
-    
+    review.save(update_fields=["is_hidden"])
+
     return Result(success=True, message="\u2705 Review has been hidden by moderator.")
+
 
 def mark_obsolete(review):
     if review.is_obsolete:
-        return Result(success=False, message="This review is already marked as obsolete.")
-    
+        return Result(
+            success=False, message="This review is already marked as obsolete."
+        )
+
     review.is_obsolete = True
-    review.save(update_fields=['is_obsolete'])
-    
-    return Result(success=True, message="\u2705 Review marked as obsolete. The play is back in the pool.")
+    review.save(update_fields=["is_obsolete"])
+
+    return Result(
+        success=True,
+        message="\u2705 Review marked as obsolete. The play is back in the pool.",
+    )
+
 
 def restore(review):
     if not review.is_obsolete:
         return Result(success=False, message="This review is already active.")
-    
+
     review.is_obsolete = False
-    review.save(update_fields=['is_obsolete'])
-    
+    review.save(update_fields=["is_obsolete"])
+
     return Result(success=True, message="\u2705 Review has been successfully restored.")
+
 
 def save_draft(review, verdict, comment):
     review.verdict = verdict
     review.comment = comment
     review.status = Review.Status.DRAFT
 
-    review.save(update_fields=['verdict', 'comment', 'status'])
+    review.save(update_fields=["verdict", "comment", "status"])
 
-    return Result(success=True, message="\u2705 Your draft review has been saved successfully")
+    return Result(
+        success=True, message="\u2705 Your draft review has been saved successfully"
+    )
+
 
 def submit(review, verdict, comment):
     if review.status == Review.Status.SUBMITTED:
         return Result(success=False, message="This review has already been submitted.")
 
     if not comment or str(comment).strip() == "" or verdict is None:
-        return Result(success=False, message="Verdict and comment are mandatory for submission")
-    
+        return Result(
+            success=False, message="Verdict and comment are mandatory for submission"
+        )
+
     review.verdict = verdict
     review.comment = comment
     review.status = Review.Status.SUBMITTED
     review.submitted_at = timezone.now()
 
-    review.save(update_fields=['verdict', 'comment', 'status', 'submitted_at'])
+    review.save(update_fields=["verdict", "comment", "status", "submitted_at"])
 
-    return Result(success=True, message="\u2705 Your final review has been submitted successfully")
+    return Result(
+        success=True, message="\u2705 Your final review has been submitted successfully"
+    )

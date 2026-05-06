@@ -6,17 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('plays', '0002_rename_author_name_play_author_first_name_and_more'),
+        ("plays", "0002_rename_author_name_play_author_first_name_and_more"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='play',
-            name='author_date_of_birth',
+            model_name="play",
+            name="author_date_of_birth",
         ),
         migrations.AddField(
-            model_name='play',
-            name='author_year_of_birth',
+            model_name="play",
+            name="author_year_of_birth",
             field=models.CharField(blank=True, max_length=10, null=True),
         ),
     ]

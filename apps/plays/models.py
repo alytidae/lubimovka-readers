@@ -3,11 +3,10 @@ from datetime import date
 from apps.competitions.models import Competition
 from django.urls import reverse
 
+
 class Play(models.Model):
     competition = models.ForeignKey(
-        Competition, 
-        on_delete=models.CASCADE, 
-        related_name='plays'
+        Competition, on_delete=models.CASCADE, related_name="plays"
     )
 
     title = models.CharField(max_length=255)
@@ -23,18 +22,21 @@ class Play(models.Model):
     def is_author_over_35(self):
         if not self.author_year_of_birth:
             return False
-            
+
         current_year = date.today().year
-        age = current_year - self.author_year_of_birth         
+        age = current_year - self.author_year_of_birth
         return age > 35
- 
+
     def get_absolute_url(self):
-        return reverse("plays:detail", kwargs={"competition_slug": self.competition.slug, "pk": self.pk})
+        return reverse(
+            "plays:detail",
+            kwargs={"competition_slug": self.competition.slug, "pk": self.pk},
+        )
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['competition', 'author_email', 'title'],
-                name='unique_play_per_author_per_competition'
+                fields=["competition", "author_email", "title"],
+                name="unique_play_per_author_per_competition",
             )
         ]

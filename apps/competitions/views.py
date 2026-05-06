@@ -22,7 +22,10 @@ import openpyxl
 from django.http import HttpResponse
 from django.views import View
 
-class CompetitionCreateView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, CreateView):
+
+class CompetitionCreateView(
+    LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, CreateView
+):
     model = Competition
     template_name = "create_update.html"
     form_class = CompetitionCreationForm
@@ -35,7 +38,9 @@ class CompetitionCreateView(LoginRequiredMixin, UserPassesTestMixin, SuccessMess
         return self.request.user.is_superuser
 
 
-class CompetitionUpdateView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, UpdateView):
+class CompetitionUpdateView(
+    LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, UpdateView
+):
     model = Competition
     template_name = "create_update.html"
     form_class = CompetitionChangeForm
@@ -50,9 +55,7 @@ class CompetitionUpdateView(LoginRequiredMixin, UserPassesTestMixin, SuccessMess
             return True
 
         return user.competition_roles.filter(
-            competition=self.get_object(), 
-            role__in=["admin"],
-            is_active=True
+            competition=self.get_object(), role__in=["admin"], is_active=True
         ).exists()
 
 
@@ -66,10 +69,14 @@ class CompetitionListView(LoginRequiredMixin, ListView):
         if user.is_superuser:
             return Competition.objects.all()
 
-        return Competition.objects.filter(roles__user=user, roles__is_active=True).distinct()
+        return Competition.objects.filter(
+            roles__user=user, roles__is_active=True
+        ).distinct()
 
 
-class CompetitionDetailView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, DetailView):
+class CompetitionDetailView(
+    LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, DetailView
+):
     model = Competition
     template_name = "competition_detail.html"
     context_object_name = "competition"
@@ -106,7 +113,10 @@ class CompetitionSyncView(LoginRequiredMixin, UserPassesTestMixin, View):
             ).exists()
         )
 
-class CompetitionAnalyticsView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, TemplateView):
+
+class CompetitionAnalyticsView(
+    LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, TemplateView
+):
     template_name = "analytics_dashboard.html"
 
     def test_func(self):
@@ -118,43 +128,60 @@ class CompetitionAnalyticsView(LoginRequiredMixin, UserPassesTestMixin, Competit
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         competition = self.get_competition()
-        
+
         default_phase = competition.status
-        if default_phase not in ['phase_1', 'phase_2']:
-            default_phase = 'all' 
-            
-        selected_phase = self.request.GET.get('phase', default_phase)
-        
+        if default_phase not in ["phase_1", "phase_2"]:
+            default_phase = "all"
+
+        selected_phase = self.request.GET.get("phase", default_phase)
+
         plays_qs = Play.objects.filter(competition=competition, is_active=True)
-        
+
         users_qs = User.objects.filter(
-            competition_roles__competition=competition, 
-            competition_roles__role='reader',
-            competition_roles__is_active=True
+            competition_roles__competition=competition,
+            competition_roles__role="reader",
+            competition_roles__is_active=True,
         ).distinct()
-        
+
         reader_count = users_qs.count()
-        
+
         review_filters = Q(play__competition=competition, is_obsolete=False)
-        if selected_phase in ['phase_1', 'phase_2']:
+        if selected_phase in ["phase_1", "phase_2"]:
             review_filters &= Q(phase=selected_phase)
-            
+
         reviews_qs = Review.objects.filter(review_filters)
 
-        user_review_filters = Q(review__play__competition=competition, review__is_obsolete=False)
-        if selected_phase in ['phase_1', 'phase_2']:
+        user_review_filters = Q(
+            review__play__competition=competition, review__is_obsolete=False
+        )
+        if selected_phase in ["phase_1", "phase_2"]:
             user_review_filters &= Q(review__phase=selected_phase)
 
         top_readers_qs = users_qs.annotate(
-            submitted_reviews=Count('review', filter=user_review_filters & Q(review__status=Review.Status.SUBMITTED)),
-            submitted_yes=Count('review', filter=user_review_filters & Q(review__status=Review.Status.SUBMITTED, review__verdict=True)),
-            submitted_no=Count('review', filter=user_review_filters & Q(review__status=Review.Status.SUBMITTED, review__verdict=False)),
-            active_reviews=Count('review', filter=user_review_filters & Q(review__status__in=[Review.Status.ASSIGNED, Review.Status.DRAFT])),
+            submitted_reviews=Count(
+                "review",
+                filter=user_review_filters & Q(review__status=Review.Status.SUBMITTED),
+            ),
+            submitted_yes=Count(
+                "review",
+                filter=user_review_filters
+                & Q(review__status=Review.Status.SUBMITTED, review__verdict=True),
+            ),
+            submitted_no=Count(
+                "review",
+                filter=user_review_filters
+                & Q(review__status=Review.Status.SUBMITTED, review__verdict=False),
+            ),
+            active_reviews=Count(
+                "review",
+                filter=user_review_filters
+                & Q(review__status__in=[Review.Status.ASSIGNED, Review.Status.DRAFT]),
+            ),
             avg_reading_time=Avg(
-                F('review__submitted_at') - F('review__created_at'),
-                filter=user_review_filters & Q(review__status=Review.Status.SUBMITTED)
-            )
-        ).order_by('-submitted_reviews')
+                F("review__submitted_at") - F("review__created_at"),
+                filter=user_review_filters & Q(review__status=Review.Status.SUBMITTED),
+            ),
+        ).order_by("-submitted_reviews")
 
         top_readers = list(top_readers_qs)
         for reader in top_readers:
@@ -165,51 +192,103 @@ class CompetitionAnalyticsView(LoginRequiredMixin, UserPassesTestMixin, Competit
             else:
                 reader.speed_str = "-"
 
-        p1_yes = Count('reviews', filter=Q(reviews__phase='phase_1', reviews__status=Review.Status.SUBMITTED, reviews__verdict=True, reviews__is_obsolete=False))
-        p1_no = Count('reviews', filter=Q(reviews__phase='phase_1', reviews__status=Review.Status.SUBMITTED, reviews__verdict=False, reviews__is_obsolete=False))
-        p2_yes = Count('reviews', filter=Q(reviews__phase='phase_2', reviews__status=Review.Status.SUBMITTED, reviews__verdict=True, reviews__is_obsolete=False))
-        p2_no = Count('reviews', filter=Q(reviews__phase='phase_2', reviews__status=Review.Status.SUBMITTED, reviews__verdict=False, reviews__is_obsolete=False))
-        
-        play_review_filters = Q(reviews__is_obsolete=False, reviews__status=Review.Status.SUBMITTED)
-        if selected_phase in ['phase_1', 'phase_2']:
+        p1_yes = Count(
+            "reviews",
+            filter=Q(
+                reviews__phase="phase_1",
+                reviews__status=Review.Status.SUBMITTED,
+                reviews__verdict=True,
+                reviews__is_obsolete=False,
+            ),
+        )
+        p1_no = Count(
+            "reviews",
+            filter=Q(
+                reviews__phase="phase_1",
+                reviews__status=Review.Status.SUBMITTED,
+                reviews__verdict=False,
+                reviews__is_obsolete=False,
+            ),
+        )
+        p2_yes = Count(
+            "reviews",
+            filter=Q(
+                reviews__phase="phase_2",
+                reviews__status=Review.Status.SUBMITTED,
+                reviews__verdict=True,
+                reviews__is_obsolete=False,
+            ),
+        )
+        p2_no = Count(
+            "reviews",
+            filter=Q(
+                reviews__phase="phase_2",
+                reviews__status=Review.Status.SUBMITTED,
+                reviews__verdict=False,
+                reviews__is_obsolete=False,
+            ),
+        )
+
+        play_review_filters = Q(
+            reviews__is_obsolete=False, reviews__status=Review.Status.SUBMITTED
+        )
+        if selected_phase in ["phase_1", "phase_2"]:
             play_review_filters &= Q(reviews__phase=selected_phase)
 
-        plays_overview = plays_qs.annotate(
-            total_submitted=Count('reviews', filter=play_review_filters),
-            phase_1_yes=p1_yes,
-            phase_1_no=p1_no,
-            phase_2_yes=p2_yes,
-            phase_2_no=p2_no,
-        ).annotate(
-            current_status=Case(
-                When(phase_1_no__gte=2, then=Value('Eliminated in Phase 1 ❌')),
-                When(phase_1_yes__gte=2, then=Value('Phase 2')),
-                default=Value('Phase 1'),
-                output_field=CharField()
+        plays_overview = (
+            plays_qs.annotate(
+                total_submitted=Count("reviews", filter=play_review_filters),
+                phase_1_yes=p1_yes,
+                phase_1_no=p1_no,
+                phase_2_yes=p2_yes,
+                phase_2_no=p2_no,
             )
-        ).order_by('-total_submitted')
+            .annotate(
+                current_status=Case(
+                    When(phase_1_no__gte=2, then=Value("Eliminated in Phase 1 ❌")),
+                    When(phase_1_yes__gte=2, then=Value("Phase 2")),
+                    default=Value("Phase 1"),
+                    output_field=CharField(),
+                )
+            )
+            .order_by("-total_submitted")
+        )
 
         yes_filters = play_review_filters & Q(reviews__verdict=True)
         no_filters = play_review_filters & Q(reviews__verdict=False)
-        
-        controversial_plays = plays_qs.annotate(
-            yes_votes=Count('reviews', filter=yes_filters),
-            no_votes=Count('reviews', filter=no_filters)
-        ).filter(yes_votes__gt=0, no_votes__gt=0).order_by('-yes_votes', '-no_votes')
 
-        total_yes = reviews_qs.filter(status=Review.Status.SUBMITTED, verdict=True).count()
-        total_no = reviews_qs.filter(status=Review.Status.SUBMITTED, verdict=False).count()
+        controversial_plays = (
+            plays_qs.annotate(
+                yes_votes=Count("reviews", filter=yes_filters),
+                no_votes=Count("reviews", filter=no_filters),
+            )
+            .filter(yes_votes__gt=0, no_votes__gt=0)
+            .order_by("-yes_votes", "-no_votes")
+        )
+
+        total_yes = reviews_qs.filter(
+            status=Review.Status.SUBMITTED, verdict=True
+        ).count()
+        total_no = reviews_qs.filter(
+            status=Review.Status.SUBMITTED, verdict=False
+        ).count()
 
         pending_actions = None
-        if selected_phase == 'phase_1':
-            pending_actions = Review.objects.filter(
-                play__competition=competition,
-                phase=Review.Phase.PHASE_1,
-                status__in=[Review.Status.ASSIGNED, Review.Status.DRAFT],
-                is_obsolete=False
-            ).select_related('play', 'reader').order_by('created_at')[:10]
-        elif selected_phase == 'phase_2':
-            pending_actions = sorted(top_readers, key=lambda x: x.submitted_reviews)[:10]
+        if selected_phase == "phase_1":
+            pending_actions = (
+                Review.objects.filter(
+                    play__competition=competition,
+                    phase=Review.Phase.PHASE_1,
+                    status__in=[Review.Status.ASSIGNED, Review.Status.DRAFT],
+                    is_obsolete=False,
+                )
+                .select_related("play", "reader")
+                .order_by("created_at")[:10]
+            )
+        elif selected_phase == "phase_2":
+            pending_actions = sorted(top_readers, key=lambda x: x.submitted_reviews)[
+                :10
+            ]
 
         eta_days = None
         total_done = reviews_qs.filter(status=Review.Status.SUBMITTED).count()
@@ -217,39 +296,47 @@ class CompetitionAnalyticsView(LoginRequiredMixin, UserPassesTestMixin, Competit
 
         seven_days_ago = timezone.now() - timedelta(days=7)
         recent_submissions = reviews_qs.filter(
-            status=Review.Status.SUBMITTED, 
-            submitted_at__gte=seven_days_ago
+            status=Review.Status.SUBMITTED, submitted_at__gte=seven_days_ago
         ).count()
         velocity_per_day = recent_submissions / 7.0
 
         active_plays_count = plays_qs.count()
-        if selected_phase == 'phase_1':
+        if selected_phase == "phase_1":
             total_target = active_plays_count * 2
-        elif selected_phase == 'phase_2':
+        elif selected_phase == "phase_2":
             total_target = active_plays_count * reader_count
         else:
-            total_target = (active_plays_count * 2) + (active_plays_count * reader_count)
+            total_target = (active_plays_count * 2) + (
+                active_plays_count * reader_count
+            )
 
         remaining_tasks = max(0, total_target - total_done)
         if velocity_per_day > 0 and remaining_tasks > 0:
             eta_days = round(remaining_tasks / velocity_per_day)
 
-        context.update({
-            'selected_phase': selected_phase,
-            'top_readers': top_readers,
-            'plays_overview': plays_overview,
-            'controversial_plays': controversial_plays,
-            'total_yes': total_yes,
-            'total_no': total_no,
-            'pending_actions': pending_actions,
-            'eta_days': eta_days,
-            'velocity_per_day': round(velocity_per_day, 1),
-            'progress_percent': int((total_done / total_target * 100)) if total_target > 0 else 0,
-        })
+        context.update(
+            {
+                "selected_phase": selected_phase,
+                "top_readers": top_readers,
+                "plays_overview": plays_overview,
+                "controversial_plays": controversial_plays,
+                "total_yes": total_yes,
+                "total_no": total_no,
+                "pending_actions": pending_actions,
+                "eta_days": eta_days,
+                "velocity_per_day": round(velocity_per_day, 1),
+                "progress_percent": (
+                    int((total_done / total_target * 100)) if total_target > 0 else 0
+                ),
+            }
+        )
 
         return context
 
-class CompetitionExportExcelView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, View):
+
+class CompetitionExportExcelView(
+    LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, View
+):
     def get(self, request, *args, **kwargs):
         competition = self.get_competition()
 
@@ -257,83 +344,131 @@ class CompetitionExportExcelView(LoginRequiredMixin, UserPassesTestMixin, Compet
 
         ws_plays = wb.active
         ws_plays.title = "Plays"
-        ws_plays.append([
-            'ID', 'Title', 'Author Email', 'Author First Name', 'Author Last Name', 
-            'Status', 'Total Reviews', 'Phase 1 Yes', 'Phase 1 No', 'Phase 2 Yes', 'Phase 2 No'
-        ])
-        
-        plays = Play.objects.filter(competition=competition).prefetch_related('reviews')
+        ws_plays.append(
+            [
+                "ID",
+                "Title",
+                "Author Email",
+                "Author First Name",
+                "Author Last Name",
+                "Status",
+                "Total Reviews",
+                "Phase 1 Yes",
+                "Phase 1 No",
+                "Phase 2 Yes",
+                "Phase 2 No",
+            ]
+        )
+
+        plays = Play.objects.filter(competition=competition).prefetch_related("reviews")
         for play in plays:
-            reviews = play.reviews.filter(is_obsolete=False, status='submitted')
-            ws_plays.append([
-                play.id,
-                play.title,
-                play.author_email,
-                play.author_first_name,
-                play.author_last_name or '',
-                'Active' if play.is_active else 'Inactive',
-                reviews.count(),
-                reviews.filter(phase='phase_1', verdict=True).count(),
-                reviews.filter(phase='phase_1', verdict=False).count(),
-                reviews.filter(phase='phase_2', verdict=True).count(),
-                reviews.filter(phase='phase_2', verdict=False).count()
-            ])
+            reviews = play.reviews.filter(is_obsolete=False, status="submitted")
+            ws_plays.append(
+                [
+                    play.id,
+                    play.title,
+                    play.author_email,
+                    play.author_first_name,
+                    play.author_last_name or "",
+                    "Active" if play.is_active else "Inactive",
+                    reviews.count(),
+                    reviews.filter(phase="phase_1", verdict=True).count(),
+                    reviews.filter(phase="phase_1", verdict=False).count(),
+                    reviews.filter(phase="phase_2", verdict=True).count(),
+                    reviews.filter(phase="phase_2", verdict=False).count(),
+                ]
+            )
 
         ws_reviews = wb.create_sheet(title="Reviews")
-        ws_reviews.append([
-            'Play ID', 'Play Title', 'Reader Email', 
-            'Phase', 'Verdict', 'Comment', 'Submitted At'
-        ])
-        
+        ws_reviews.append(
+            [
+                "Play ID",
+                "Play Title",
+                "Reader Email",
+                "Phase",
+                "Verdict",
+                "Comment",
+                "Submitted At",
+            ]
+        )
+
         all_reviews = Review.objects.filter(
-            play__competition=competition, 
-            status='submitted', 
-            is_obsolete=False
-        ).select_related('play', 'reader')
-        
+            play__competition=competition, status="submitted", is_obsolete=False
+        ).select_related("play", "reader")
+
         for review in all_reviews:
-            ws_reviews.append([
-                review.play.id,
-                review.play.title,
-                review.reader.email,
-                review.get_phase_display(),
-                'Yes' if review.verdict else 'No',
-                review.comment,
-                review.submitted_at.strftime('%Y-%m-%d %H:%M') if review.submitted_at else ''
-            ])
+            ws_reviews.append(
+                [
+                    review.play.id,
+                    review.play.title,
+                    review.reader.email,
+                    review.get_phase_display(),
+                    "Yes" if review.verdict else "No",
+                    review.comment,
+                    (
+                        review.submitted_at.strftime("%Y-%m-%d %H:%M")
+                        if review.submitted_at
+                        else ""
+                    ),
+                ]
+            )
 
         ws_readers = wb.create_sheet(title="Readers")
-        ws_readers.append([
-            'Email', 'Name', 'Telegram', 'Role', 'Submitted (Yes)', 'Submitted (No)'
-        ])
-        
-        users = User.objects.filter(
-            competition_roles__competition=competition,
-            competition_roles__is_active=True
-        ).annotate(
-            yes_votes=Count('review', filter=Q(review__play__competition=competition, review__status='submitted', review__verdict=True)),
-            no_votes=Count('review', filter=Q(review__play__competition=competition, review__status='submitted', review__verdict=False))
-        ).distinct()
+        ws_readers.append(
+            ["Email", "Name", "Telegram", "Role", "Submitted (Yes)", "Submitted (No)"]
+        )
+
+        users = (
+            User.objects.filter(
+                competition_roles__competition=competition,
+                competition_roles__is_active=True,
+            )
+            .annotate(
+                yes_votes=Count(
+                    "review",
+                    filter=Q(
+                        review__play__competition=competition,
+                        review__status="submitted",
+                        review__verdict=True,
+                    ),
+                ),
+                no_votes=Count(
+                    "review",
+                    filter=Q(
+                        review__play__competition=competition,
+                        review__status="submitted",
+                        review__verdict=False,
+                    ),
+                ),
+            )
+            .distinct()
+        )
 
         for u in users:
             role = u.get_role(competition)
-            ws_readers.append([
-                u.email,
-                u.get_full_name(),
-                u.telegram_username or '',
-                role,
-                u.yes_votes,
-                u.no_votes
-            ])
+            ws_readers.append(
+                [
+                    u.email,
+                    u.get_full_name(),
+                    u.telegram_username or "",
+                    role,
+                    u.yes_votes,
+                    u.no_votes,
+                ]
+            )
 
-        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-        response['Content-Disposition'] = f'attachment; filename="{competition.slug}_full_export.xlsx"'
+        response = HttpResponse(
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+        response["Content-Disposition"] = (
+            f'attachment; filename="{competition.slug}_full_export.xlsx"'
+        )
         wb.save(response)
-        
+
         return response
 
     def test_func(self):
         competition = self.get_competition()
         if self.request.user.is_superuser:
             return True
-        return self.request.user.get_role(competition) in ['admin', 'moderator']
+        return self.request.user.get_role(competition) in ["admin", "moderator"]

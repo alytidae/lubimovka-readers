@@ -6,20 +6,31 @@ from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from apps.competitions.mixins import CompetitionContextMixin
 from .models import Review
 from .forms import ReviewUpdateForm
-from .services import assign_play, mark_public, mark_hidden, mark_obsolete, restore, save_draft, submit
+from .services import (
+    assign_play,
+    mark_public,
+    mark_hidden,
+    mark_obsolete,
+    restore,
+    save_draft,
+    submit,
+)
 from django.contrib import messages
 
-class ReviewRequestPlayView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, View):
+
+class ReviewRequestPlayView(
+    LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, View
+):
     def post(self, request, *args, **kwargs):
         competition = self.get_competition()
         result = assign_play(request.user, competition)
-    
+
         if result.success:
             messages.success(request, result.message)
         else:
             messages.info(request, result.message)
 
-        return redirect('plays:list', competition_slug=competition.slug)
+        return redirect("plays:list", competition_slug=competition.slug)
 
     def test_func(self):
         competition = self.get_competition()
@@ -28,29 +39,28 @@ class ReviewRequestPlayView(LoginRequiredMixin, UserPassesTestMixin, Competition
             return True
         return False
 
-class ReviewSaveDraftView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, View):
+
+class ReviewSaveDraftView(
+    LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, View
+):
     def post(self, request, *args, **kwargs):
         competition = self.get_competition()
 
         review = get_object_or_404(
-            Review.objects
-                .filter(
-                    pk=kwargs["pk"],
-                    play__competition__slug=kwargs["competition_slug"],
-                    reader=request.user,
-                )
-                .exclude(status=Review.Status.SUBMITTED)
+            Review.objects.filter(
+                pk=kwargs["pk"],
+                play__competition__slug=kwargs["competition_slug"],
+                reader=request.user,
+            ).exclude(status=Review.Status.SUBMITTED)
         )
 
         form = ReviewUpdateForm(request.POST, instance=review)
 
         if form.is_valid():
             result = save_draft(
-                review, 
-                form.cleaned_data['verdict'], 
-                form.cleaned_data['comment']
+                review, form.cleaned_data["verdict"], form.cleaned_data["comment"]
             )
-            
+
             if result.success:
                 messages.success(request, result.message)
             else:
@@ -58,39 +68,43 @@ class ReviewSaveDraftView(LoginRequiredMixin, UserPassesTestMixin, CompetitionCo
         else:
             messages.error(request, "Invalid data submitted.")
 
-        return redirect('plays:detail', pk=review.play.id, competition_slug=competition.slug)
+        return redirect(
+            "plays:detail", pk=review.play.id, competition_slug=competition.slug
+        )
 
     def test_func(self):
         competition = self.get_competition()
-        
-        has_access = Review.objects.filter(id=self.kwargs.get("pk"), reader=self.request.user).exists()
+
+        has_access = Review.objects.filter(
+            id=self.kwargs.get("pk"), reader=self.request.user
+        ).exists()
 
         if has_access and self.request.user.get_role(competition) in ["reader"]:
             return True
         return False
 
-class ReviewSubmitView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, View):
+
+class ReviewSubmitView(
+    LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, View
+):
     def post(self, request, *args, **kwargs):
         competition = self.get_competition()
 
         review = get_object_or_404(
-            Review.objects
-                .filter(
-                    pk=kwargs["pk"],
-                    play__competition__slug=kwargs["competition_slug"],
-                    reader=request.user,
-                )
+            Review.objects.filter(
+                pk=kwargs["pk"],
+                play__competition__slug=kwargs["competition_slug"],
+                reader=request.user,
+            )
         )
 
         form = ReviewUpdateForm(request.POST, instance=review)
 
         if form.is_valid():
             result = submit(
-                review, 
-                form.cleaned_data['verdict'], 
-                form.cleaned_data['comment']
+                review, form.cleaned_data["verdict"], form.cleaned_data["comment"]
             )
-            
+
             if result.success:
                 messages.success(request, result.message)
             else:
@@ -98,29 +112,36 @@ class ReviewSubmitView(LoginRequiredMixin, UserPassesTestMixin, CompetitionConte
         else:
             messages.error(request, "Invalid data submitted.")
 
-        return redirect('plays:detail', pk=review.play.id, competition_slug=competition.slug)
+        return redirect(
+            "plays:detail", pk=review.play.id, competition_slug=competition.slug
+        )
 
     def test_func(self):
         competition = self.get_competition()
-        
-        has_access = Review.objects.filter(id=self.kwargs.get("pk"), reader=self.request.user).exists()
+
+        has_access = Review.objects.filter(
+            id=self.kwargs.get("pk"), reader=self.request.user
+        ).exists()
 
         if has_access and self.request.user.get_role(competition) in ["reader"]:
             return True
         return False
 
-class ReviewMarkPublicView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, View):
+
+class ReviewMarkPublicView(
+    LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, View
+):
     def post(self, request, *args, **kwargs):
         competition = self.get_competition()
         review = get_object_or_404(
-            Review,
-            pk=kwargs["pk"],
-            play__competition__slug=kwargs["competition_slug"]
+            Review, pk=kwargs["pk"], play__competition__slug=kwargs["competition_slug"]
         )
 
         mark_public(review)
 
-        return redirect('plays:detail', competition_slug=competition.slug, pk=review.play.id)
+        return redirect(
+            "plays:detail", competition_slug=competition.slug, pk=review.play.id
+        )
 
     def test_func(self):
         competition = self.get_competition()
@@ -133,18 +154,20 @@ class ReviewMarkPublicView(LoginRequiredMixin, UserPassesTestMixin, CompetitionC
         return False
 
 
-class ReviewMarkHiddenView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, View):
+class ReviewMarkHiddenView(
+    LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, View
+):
     def post(self, request, *args, **kwargs):
         competition = self.get_competition()
         review = get_object_or_404(
-            Review,
-            pk=kwargs["pk"],
-            play__competition__slug=kwargs["competition_slug"]
+            Review, pk=kwargs["pk"], play__competition__slug=kwargs["competition_slug"]
         )
 
         mark_hidden(review)
 
-        return redirect('plays:detail', competition_slug=competition.slug, pk=review.play.id)
+        return redirect(
+            "plays:detail", competition_slug=competition.slug, pk=review.play.id
+        )
 
     def test_func(self):
         competition = self.get_competition()
@@ -156,18 +179,21 @@ class ReviewMarkHiddenView(LoginRequiredMixin, UserPassesTestMixin, CompetitionC
             return True
         return False
 
-class ReviewMarkObsoleteView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, View):
+
+class ReviewMarkObsoleteView(
+    LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, View
+):
     def post(self, request, *args, **kwargs):
         competition = self.get_competition()
         review = get_object_or_404(
-            Review,
-            pk=kwargs["pk"],
-            play__competition__slug=kwargs["competition_slug"]
+            Review, pk=kwargs["pk"], play__competition__slug=kwargs["competition_slug"]
         )
 
         mark_obsolete(review)
 
-        return redirect('plays:detail', competition_slug=competition.slug, pk=review.play.id)
+        return redirect(
+            "plays:detail", competition_slug=competition.slug, pk=review.play.id
+        )
 
     def test_func(self):
         competition = self.get_competition()
@@ -179,18 +205,21 @@ class ReviewMarkObsoleteView(LoginRequiredMixin, UserPassesTestMixin, Competitio
             return True
         return False
 
-class ReviewRestoreView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, View):
+
+class ReviewRestoreView(
+    LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, View
+):
     def post(self, request, *args, **kwargs):
         competition = self.get_competition()
         review = get_object_or_404(
-            Review,
-            pk=kwargs["pk"],
-            play__competition__slug=kwargs["competition_slug"]
+            Review, pk=kwargs["pk"], play__competition__slug=kwargs["competition_slug"]
         )
 
         restore(review)
 
-        return redirect('plays:detail', competition_slug=competition.slug, pk=review.play.id)
+        return redirect(
+            "plays:detail", competition_slug=competition.slug, pk=review.play.id
+        )
 
     def test_func(self):
         competition = self.get_competition()
@@ -201,4 +230,3 @@ class ReviewRestoreView(LoginRequiredMixin, UserPassesTestMixin, CompetitionCont
         if self.request.user.get_role(competition) in ["moderator", "admin"]:
             return True
         return False
-

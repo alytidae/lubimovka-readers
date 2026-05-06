@@ -12,7 +12,9 @@ from apps.reviews.models import Review
 from django.contrib import messages
 
 
-class PlayDetailView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, DetailView):
+class PlayDetailView(
+    LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, DetailView
+):
     model = Play
     template_name = "play_detail.html"
 
@@ -77,7 +79,9 @@ class PlayDetailView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContext
         return qs.filter(reviews__reader=user, reviews__is_obsolete=False).distinct()
 
 
-class PlayListView(LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, ListView):
+class PlayListView(
+    LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, ListView
+):
     model = Play
     template_name = "play_list.html"
     ordering = ["is_active", "author_email"]
