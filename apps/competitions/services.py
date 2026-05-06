@@ -35,7 +35,7 @@ def sync_plays_from_google_sheet(competition):
         year_str = re.split(r"[. /]", str(year_raw))[-1]
         try:
             year = int(year_str)
-        except ValueError, TypeError:
+        except (ValueError, TypeError):
             year = None
 
         Play.objects.update_or_create(
