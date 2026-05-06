@@ -25,12 +25,14 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-    email = models.EmailField(unique=True, null=False, blank=False)
-    first_name = models.CharField(max_length=50)
-    last_name = models.CharField(max_length=50)
+    email = models.EmailField(_("Email"), unique=True, null=False, blank=False)
+    first_name = models.CharField(_("First Name"), max_length=50)
+    last_name = models.CharField(_("Last Name"), max_length=50)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
-    telegram_username = models.CharField(max_length=128, blank=True, null=True)
+    telegram_username = models.CharField(
+        _("Telegram"), max_length=128, blank=True, null=True
+    )
 
     objects = UserManager()
 

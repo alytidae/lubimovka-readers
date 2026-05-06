@@ -12,30 +12,42 @@ class Competition(models.Model):
         PHASE_2 = "phase_2", _("Phase 2: Open Reading")
         FINISHED = "finished", _("Finished")
 
-    title = models.CharField(max_length=255)
-    date = models.DateField()
+    title = models.CharField(_("Title"), max_length=255)
+    date = models.DateField(_("Date"))
 
     slug = models.SlugField(max_length=255, unique=True, blank=True)
 
-    google_sheet_url = models.URLField(max_length=500, blank=True)
+    google_sheet_url = models.URLField(
+        _("Google Sheet URL"), max_length=500, blank=True
+    )
 
-    play_title_sheet_column_name = models.CharField(max_length=100)
-    play_url_sheet_column_name = models.CharField(max_length=100)
-    play_author_email_sheet_column_name = models.CharField(max_length=100)
-    play_author_first_name_sheet_column_name = models.CharField(max_length=100)
+    play_title_sheet_column_name = models.CharField(
+        _("Play title column"), max_length=100
+    )
+    play_url_sheet_column_name = models.CharField(_("Play URL column"), max_length=100)
+    play_author_email_sheet_column_name = models.CharField(
+        _("Author email column"), max_length=100
+    )
+    play_author_first_name_sheet_column_name = models.CharField(
+        _("Author first name column"), max_length=100
+    )
     play_author_last_name_sheet_column_name = models.CharField(
-        max_length=100, null=True, blank=True
+        _("Author last name column"), max_length=100, null=True, blank=True
     )
     play_author_year_of_birth_sheet_column_name = models.CharField(
-        max_length=100, null=True, blank=True
+        _("Author year of birth column"), max_length=100, null=True, blank=True
     )
 
     status = models.CharField(
-        max_length=20, choices=Status.choices, default=Status.SETUP
+        _("Status"), max_length=20, choices=Status.choices, default=Status.SETUP
     )
 
-    are_phase1_reviews_visible = models.BooleanField(default=False)
-    are_phase2_reviews_visible = models.BooleanField(default=False)
+    are_phase1_reviews_visible = models.BooleanField(
+        _("Phase 1 reviews visible"), default=False
+    )
+    are_phase2_reviews_visible = models.BooleanField(
+        _("Phase 2 reviews visible"), default=False
+    )
 
     def save(self, *args, **kwargs):
         if not self.slug:

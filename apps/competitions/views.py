@@ -251,9 +251,12 @@ class CompetitionAnalyticsView(
             )
             .annotate(
                 current_status=Case(
-                    When(phase_1_no__gte=2, then=Value(_("Eliminated in Phase 1 ❌"))),
-                    When(phase_1_yes__gte=2, then=Value(_("Phase 2"))),
-                    default=Value(_("Phase 1")),
+                    When(
+                        phase_1_no__gte=2,
+                        then=Value(str(_("Eliminated in Phase 1 ❌"))),
+                    ),
+                    When(phase_1_yes__gte=2, then=Value(str(_("Phase 2")))),
+                    default=Value(str(_("Phase 1"))),
                     output_field=CharField(),
                 )
             )
