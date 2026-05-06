@@ -1,5 +1,3 @@
-from django.shortcuts import render
-from django.views.generic import ListView, DetailView
 from django.views import View
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin

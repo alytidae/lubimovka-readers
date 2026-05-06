@@ -1,7 +1,6 @@
 import gspread
 import re
 from apps.plays.models import Play
-import os
 
 
 def _normalize_row_keys(row):

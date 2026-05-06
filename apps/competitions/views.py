@@ -1,13 +1,10 @@
 from django.contrib.messages.views import SuccessMessageMixin
-import traceback
+import logging
+
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView, ListView, DetailView
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.utils.translation import gettext_lazy as _
-from .models import Competition
-from .mixins import CompetitionContextMixin
-from .forms import CompetitionCreationForm, CompetitionChangeForm
-from .services import sync_plays_from_google_sheet
 from django.views import View
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
@@ -15,13 +12,18 @@ from django.db.models import Count, Q, Avg, F, Case, When, Value, CharField
 from django.utils import timezone
 from datetime import timedelta
 from django.views.generic import TemplateView
+from django.http import HttpResponse
+import openpyxl
+
 from apps.users.models import User
 from apps.plays.models import Play
 from apps.reviews.models import Review
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-import openpyxl
-from django.http import HttpResponse
-from django.views import View
+from .models import Competition
+from .mixins import CompetitionContextMixin
+from .forms import CompetitionCreationForm, CompetitionChangeForm
+from .services import sync_plays_from_google_sheet
+
+logger = logging.getLogger(__name__)
 
 
 class CompetitionCreateView(
@@ -105,7 +107,7 @@ class CompetitionSyncView(LoginRequiredMixin, UserPassesTestMixin, View):
                 request,
                 _("Sync error: %(error)s") % {"error": f"{type(e).__name__}: {e}"},
             )
-            print(traceback.format_exc())
+            logger.exception("Sync error")
 
         return redirect("plays:list", competition_slug=competition.slug)
 
