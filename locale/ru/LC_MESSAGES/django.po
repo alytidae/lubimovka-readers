@@ -86,7 +86,7 @@ msgstr "✅ %(title)s успешно обновлена"
 
 #, python-format
 msgid "✅ %(count)s Phase 2 reviews have been assigned."
-msgstr ""
+msgstr "✅ %(count)s рецензий 2-го этапа назначено."
 
 #, python-format
 msgid "Successfully synced %(count)s plays."
