@@ -52,6 +52,7 @@
                             <th scope="col">{% trans "Author" %}</th>
                             <th scope="col">{% trans "Status" %}</th>
                         {% else %}
+                            <th scope="col">{% trans "Phase" %}</th>
                             <th scope="col">{% trans "Review Status" %}</th>
                         {% endif %}
                     </tr>
@@ -77,7 +78,24 @@
                                 <td>
                                     {% for review in play.reviews.all %}
                                         {% if review.reader == user %}
-                                            <ins>{{ review.get_status_display }}</ins>
+                                            {{ review.get_phase_display }}
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% for review in play.reviews.all %}
+                                        {% if review.reader == user %}
+                                            {% if review.status == 'submitted' %}
+                                                {% if review.verdict %}
+                                                    <ins>✅ {% trans "Yes" %} - {% trans "Submitted" %}</ins>
+                                                {% else %}
+                                                    <ins>❌ {% trans "No" %} - {% trans "Submitted" %}</ins>
+                                                {% endif %}
+                                            {% elif review.status == 'draft' %}
+                                                <mark>{% trans "Draft" %}</mark>
+                                            {% else %}
+                                                <ins>{{ review.get_status_display }}</ins>
+                                            {% endif %}
                                         {% endif %}
                                     {% endfor %}
                                 </td>

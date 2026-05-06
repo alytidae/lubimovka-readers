@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-06 20:06+0200\n"
+"POT-Creation-Date: 2026-05-06 21:01+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -85,6 +85,10 @@ msgid "✅ %(title)s was updated successfully"
 msgstr "✅ %(title)s успешно обновлена"
 
 #, python-format
+msgid "✅ %(count)s Phase 2 reviews have been assigned."
+msgstr ""
+
+#, python-format
 msgid "Successfully synced %(count)s plays."
 msgstr "Успешно синхронизировано пьес: %(count)s."
 
@@ -125,6 +129,9 @@ msgstr "Черновик"
 
 msgid "Submitted"
 msgstr "Отправлена"
+
+msgid "You cannot modify this review during the current competition phase."
+msgstr "Вы не можете изменить эту рецензию на текущем этапе конкурса."
 
 msgid ""
 "✅ You've reached your limit of active plays to review. Please finish one of "
@@ -710,6 +717,9 @@ msgstr "Запросить новую пьесу"
 
 msgid "Play Database"
 msgstr "База пьес"
+
+msgid "Phase"
+msgstr "Этап"
 
 msgid "Review Status"
 msgstr "Статус рецензии"
