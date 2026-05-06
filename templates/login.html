@@ -1,17 +1,18 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}Login - Lubimovka Readers{% endblock title %}
+{% block title %}{% trans "Login" %} - {% trans "Lubimovka Readers" %}{% endblock title %}
 
 {% block content %}
     <article style="max-width: 500px; margin: 0 auto;">
         <header>
-            <h2 style="margin-bottom: 0;">Sign In</h2>
+            <h2 style="margin-bottom: 0;">{% trans "Sign In" %}</h2>
         </header>
         
         <form method="post">
             {% csrf_token %}
             {{ form.as_p }}
-            <button type="submit">Login</button>
+            <button type="submit">{% trans "Login" %}</button>
         </form>
     </article>
 {% endblock content %}

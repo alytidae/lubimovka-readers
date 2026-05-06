@@ -5,6 +5,7 @@ from django.views import View
 from .models import Play
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
+from django.utils.translation import gettext_lazy as _
 from apps.competitions.mixins import CompetitionContextMixin
 from apps.competitions.models import CompetitionRole, Competition
 from django.db.models import Q
@@ -124,9 +125,14 @@ class PlayActivateView(LoginRequiredMixin, UserPassesTestMixin, View):
         if not play.is_active:
             play.is_active = True
             play.save(update_fields=["is_active"])
-            messages.success(request, f"✅ {play.title} was activated successfully")
+            messages.success(
+                request,
+                _("✅ %(title)s was activated successfully") % {"title": play.title},
+            )
         else:
-            messages.info(request, f"{play.title} is already active")
+            messages.info(
+                request, _("%(title)s is already active") % {"title": play.title}
+            )
 
         return redirect(play.get_absolute_url())
 
@@ -152,9 +158,14 @@ class PlayDeactivateView(LoginRequiredMixin, UserPassesTestMixin, View):
         if play.is_active:
             play.is_active = False
             play.save(update_fields=["is_active"])
-            messages.success(request, f"✅ {play.title} was deactivated successfully")
+            messages.success(
+                request,
+                _("✅ %(title)s was deactivated successfully") % {"title": play.title},
+            )
         else:
-            messages.info(request, f"{play.title} is already not active")
+            messages.info(
+                request, _("%(title)s is already not active") % {"title": play.title}
+            )
 
         return redirect(play.get_absolute_url())
 

@@ -1,17 +1,18 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from apps.users.models import User
 from apps.plays.models import Play
 
 
 class Review(models.Model):
     class Phase(models.TextChoices):
-        PHASE_1 = "phase_1", "Phase 1"
-        PHASE_2 = "phase_2", "Phase 2"
+        PHASE_1 = "phase_1", _("Phase 1")
+        PHASE_2 = "phase_2", _("Phase 2")
 
     class Status(models.TextChoices):
-        ASSIGNED = "assigned", "Assigned"
-        DRAFT = "draft", "Draft"
-        SUBMITTED = "submitted", "Submitted"
+        ASSIGNED = "assigned", _("Assigned")
+        DRAFT = "draft", _("Draft")
+        SUBMITTED = "submitted", _("Submitted")
 
     reader = models.ForeignKey(User, on_delete=models.CASCADE)
     play = models.ForeignKey(Play, on_delete=models.CASCADE, related_name="reviews")

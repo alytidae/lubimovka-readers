@@ -1,13 +1,14 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block title %}
-    {% if object %}Update{% else %}Create{% endif %} - Lubimovka Readers
+    {% if object %}{% trans "Update" %}{% else %}{% trans "Create" %}{% endif %} - {% trans "Lubimovka Readers" %}
 {% endblock title %}
 
 {% block content %}
     <article>
         <header>
-            <h2>{% if object %}Update Record{% else %}Create Record{% endif %}</h2>
+            <h2>{% if object %}{% trans "Update Record" %}{% else %}{% trans "Create Record" %}{% endif %}</h2>
         </header>
 
         <form method="post">
@@ -15,8 +16,8 @@
             {{ form.as_p }}
             
             <footer>
-                <button type="submit">Submit</button>
-                <a href="javascript:history.back()" role="button" class="outline secondary">Cancel</a>
+                <button type="submit">{% trans "Submit" %}</button>
+                <a href="javascript:history.back()" role="button" class="outline secondary">{% trans "Cancel" %}</a>
             </footer>
         </form>
     </article>

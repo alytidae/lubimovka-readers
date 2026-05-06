@@ -1,9 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
+{% load i18n %}<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Lubimovka Readers{% endblock title %}</title>
+    <title>{% block title %}{% trans "Lubimovka Readers" %}{% endblock title %}</title>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.green.min.css">
     
@@ -29,7 +29,7 @@
         {% if messages %}
             {% for message in messages %}
                 <article>
-                    <header>Notification</header>
+                    <header>{% trans "Notification" %}</header>
                     {{ message }}
                 </article>
             {% endfor %}
@@ -54,6 +54,21 @@
                     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
                     htmlElement.setAttribute('data-theme', newTheme);
                     localStorage.setItem('pico-theme', newTheme);
+                });
+            }
+
+            const languageSwitcher = document.getElementById('language-switcher');
+            if (languageSwitcher) {
+                languageSwitcher.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const currentLang = '{{ LANGUAGE_CODE }}';
+                    const newLang = currentLang === 'ru' ? 'en' : 'ru';
+                    const languageInput = document.getElementById('language-input');
+                    const languageForm = document.getElementById('language-form');
+                    if (languageInput && languageForm) {
+                        languageInput.value = newLang;
+                        languageForm.submit();
+                    }
                 });
             }
         });

@@ -1,3 +1,4 @@
+{% load i18n %}
 <nav>
     <ul>
         <li><strong><a href="{% url 'competitions:list' %}" class="contrast">Lubimovka Readers</a></strong></li>
@@ -9,22 +10,27 @@
                     <summary class="outline secondary">{{ user.email }}</summary>
                     <ul dir="rtl">
                          <li>
-                             <a href="#" id="theme-switcher" class="secondary">Switch Theme</a>
+                             <a href="#" id="theme-switcher" class="secondary">{% trans "Switch Theme" %}</a>
                          </li>
                          <li>
-                             <a href="#" id="language-switcher" class="secondary">Change Language</a>
+                             <a href="#" id="language-switcher" class="secondary">{% trans "Change Language" %}</a>
                          </li>
                          <li>
                              <form action="{% url 'logout' %}" method="post" style="margin-bottom: 0;">
                                  {% csrf_token %}
-                                 <button type="submit" class="outline contrast">Logout</button>
+                                 <button type="submit" class="outline contrast">{% trans "Logout" %}</button>
                              </form>
                          </li>
                     </ul>
+                    <form action="{% url 'set_language' %}" method="post" id="language-form" style="display:none;">
+                        {% csrf_token %}
+                        <input type="hidden" name="language" id="language-input" value="">
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    </form>
                 </details>
             </li>
         {% else %}
-            <li><a href="{% url 'login' %}">Login</a></li>
+            <li><a href="{% url 'login' %}">{% trans "Login" %}</a></li>
         {% endif %}
     </ul>
 </nav>

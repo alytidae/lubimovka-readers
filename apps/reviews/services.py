@@ -18,6 +18,7 @@ from django.db.models import (
     Min,
     Max,
 )
+from django.utils.translation import gettext_lazy as _
 from datetime import timedelta
 from apps.users.models import User
 
@@ -54,7 +55,9 @@ def assign_play(reader, competition):
     if active_count >= MAX_ACTIVE_REVIEWS_PER_READER:
         return AssignmentResult(
             success=False,
-            message="\u2705 You’ve reached your limit of active plays to review. Please finish one of your current plays first.",
+            message=_(
+                "✅ You've reached your limit of active plays to review. Please finish one of your current plays first."
+            ),
         )
 
     if competition.status == Competition.Status.PHASE_1:
@@ -62,7 +65,9 @@ def assign_play(reader, competition):
     else:
         return AssignmentResult(
             success=False,
-            message="You cannot request a new play during the current phase of the competition.",
+            message=_(
+                "You cannot request a new play during the current phase of the competition."
+            ),
         )
 
     available_play_ids = list(
@@ -113,7 +118,9 @@ def assign_play(reader, competition):
     if not available_play_ids:
         return AssignmentResult(
             success=False,
-            message="There are no new plays available to review at the moment. Please check back later.",
+            message=_(
+                "There are no new plays available to review at the moment. Please check back later."
+            ),
         )
 
     selected_play = None
@@ -136,7 +143,9 @@ def assign_play(reader, competition):
     if not selected_play:
         return AssignmentResult(
             success=False,
-            message="There are no new plays available to review at the moment. Please check back later.",
+            message=_(
+                "There are no new plays available to review at the moment. Please check back later."
+            ),
         )
 
     Review.objects.create(
@@ -148,35 +157,35 @@ def assign_play(reader, competition):
 
     return AssignmentResult(
         success=True,
-        message="\u2705 A new play has been assigned to you.",
+        message=_("✅ A new play has been assigned to you."),
         play=selected_play,
     )
 
 
 def mark_public(review):
     if not review.is_hidden:
-        return Result(success=False, message="This review is already public.")
+        return Result(success=False, message=_("This review is already public."))
 
     review.is_hidden = False
     review.save(update_fields=["is_hidden"])
 
-    return Result(success=True, message="\u2705 Review is now visible to others.")
+    return Result(success=True, message=_("✅ Review is now visible to others."))
 
 
 def mark_hidden(review):
     if review.is_hidden:
-        return Result(success=False, message="This review is already hidden.")
+        return Result(success=False, message=_("This review is already hidden."))
 
     review.is_hidden = True
     review.save(update_fields=["is_hidden"])
 
-    return Result(success=True, message="\u2705 Review has been hidden by moderator.")
+    return Result(success=True, message=_("✅ Review has been hidden by moderator."))
 
 
 def mark_obsolete(review):
     if review.is_obsolete:
         return Result(
-            success=False, message="This review is already marked as obsolete."
+            success=False, message=_("This review is already marked as obsolete.")
         )
 
     review.is_obsolete = True
@@ -184,18 +193,18 @@ def mark_obsolete(review):
 
     return Result(
         success=True,
-        message="\u2705 Review marked as obsolete. The play is back in the pool.",
+        message=_("✅ Review marked as obsolete. The play is back in the pool."),
     )
 
 
 def restore(review):
     if not review.is_obsolete:
-        return Result(success=False, message="This review is already active.")
+        return Result(success=False, message=_("This review is already active."))
 
     review.is_obsolete = False
     review.save(update_fields=["is_obsolete"])
 
-    return Result(success=True, message="\u2705 Review has been successfully restored.")
+    return Result(success=True, message=_("✅ Review has been successfully restored."))
 
 
 def save_draft(review, verdict, comment):
@@ -206,17 +215,20 @@ def save_draft(review, verdict, comment):
     review.save(update_fields=["verdict", "comment", "status"])
 
     return Result(
-        success=True, message="\u2705 Your draft review has been saved successfully"
+        success=True, message=_("✅ Your draft review has been saved successfully")
     )
 
 
 def submit(review, verdict, comment):
     if review.status == Review.Status.SUBMITTED:
-        return Result(success=False, message="This review has already been submitted.")
+        return Result(
+            success=False, message=_("This review has already been submitted.")
+        )
 
     if not comment or str(comment).strip() == "" or verdict is None:
         return Result(
-            success=False, message="Verdict and comment are mandatory for submission"
+            success=False,
+            message=_("Verdict and comment are mandatory for submission"),
         )
 
     review.verdict = verdict
@@ -227,5 +239,5 @@ def submit(review, verdict, comment):
     review.save(update_fields=["verdict", "comment", "status", "submitted_at"])
 
     return Result(
-        success=True, message="\u2705 Your final review has been submitted successfully"
+        success=True, message=_("✅ Your final review has been submitted successfully")
     )

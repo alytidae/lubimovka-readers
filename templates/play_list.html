@@ -1,19 +1,20 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}Plays - {{ current_competition.title }} - Lubimovka Readers{% endblock title %}
+{% block title %}{% trans "Plays" %} - {{ current_competition.title }} - {% trans "Lubimovka Readers" %}{% endblock title %}
 
 {% block content %}
     <nav aria-label="breadcrumb">
       <ul>
-        <li><a href="{% url 'competitions:list' %}">Competitions</a></li>
+        <li><a href="{% url 'competitions:list' %}">{% trans "Competitions" %}</a></li>
         <li><a href="{% url 'competitions:detail' current_competition.slug %}">{{ current_competition.title }}</a></li>
-        <li>Plays</li>
+        <li>{% trans "Plays" %}</li>
       </ul>
     </nav>
 
     <hgroup>
-        <h1>Plays Dashboard</h1>
-        <p>Review submitted plays for <strong>{{ current_competition.title }}</strong></p>
+        <h1>{% trans "Plays Dashboard" %}</h1>
+        <p>{% blocktrans with title=current_competition.title %}Review submitted plays for <strong>{{ title }}</strong>{% endblocktrans %}</p>
     </hgroup>
 
     <nav>
@@ -23,7 +24,7 @@
             <li>
                 <form method="post" action="{% url 'competitions:sync' current_competition.slug %}" style="margin-bottom: 0;">
                     {% csrf_token %}
-                    <button type="submit" class="outline">Sync with Google Sheets</button>
+                    <button type="submit" class="outline">{% trans "Sync with Google Sheets" %}</button>
                 </form>
             </li>
             {% endif %}
@@ -32,7 +33,7 @@
             <li>
                 <form method="post" action="{% url 'reviews:request_play' current_competition.slug %}" style="margin-bottom: 0;">
                     {% csrf_token %}
-                    <button type="submit">Request New Play</button>
+                    <button type="submit">{% trans "Request New Play" %}</button>
                 </form>
             </li>
             {% endif %}
@@ -40,18 +41,18 @@
     </nav>
 
     <article>
-        <header>Play Database</header>
+        <header>{% trans "Play Database" %}</header>
 
         <figure>
             <table class="striped">
                 <thead>
                     <tr>
-                        <th scope="col">Title</th>
+                        <th scope="col">{% trans "Title" %}</th>
                         {% if not is_reader %}
-                            <th scope="col">Author</th>
-                            <th scope="col">Status</th>
+                            <th scope="col">{% trans "Author" %}</th>
+                            <th scope="col">{% trans "Status" %}</th>
                         {% else %}
-                            <th scope="col">Review Status</th>
+                            <th scope="col">{% trans "Review Status" %}</th>
                         {% endif %}
                     </tr>
                 </thead>
@@ -70,7 +71,7 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {% if play.is_active %}✅ Active{% else %}❌ Inactive{% endif %}
+                                    {% if play.is_active %}✅ {% trans "Active" %}{% else %}❌ {% trans "Inactive" %}{% endif %}
                                 </td>
                             {% else %}
                                 <td>
@@ -84,7 +85,7 @@
                         </tr>
                     {% empty %}
                         <tr>
-                            <td colspan="3">No plays found for this competition.</td>
+                            <td colspan="3">{% trans "No plays found for this competition." %}</td>
                         </tr>
                     {% endfor %}
                 </tbody>

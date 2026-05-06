@@ -5,6 +5,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import render
 from django.urls import reverse
 from django.views.generic import CreateView, UpdateView, ListView, DetailView
+from django.utils.translation import gettext_lazy as _
 from .models import User
 from .forms import CustomUserChangeForm, CustomUserAddForm
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
@@ -27,7 +28,7 @@ class UserCreateView(
     template_name = "create_update.html"
 
     form_class = CustomUserAddForm
-    success_message = "\u2705 %(email)s was processed successfully"
+    success_message = _("✅ %(email)s was processed successfully")
 
     def test_func(self):
         competition = self.get_competition()
@@ -92,7 +93,7 @@ class UserUpdateView(
     model = User
     template_name = "create_update.html"
     form_class = CustomUserChangeForm
-    success_message = "\u2705 %(email)s was updated successfully"
+    success_message = _("✅ %(email)s was updated successfully")
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -301,7 +302,7 @@ class UserInviteView(
         role = request.POST.get("role")
 
         if not email or not role:
-            messages.error(request, "Email and role are required.")
+            messages.error(request, _("Email and role are required."))
             return redirect("users:list", competition_slug=competition.slug)
 
         email = User.objects.normalize_email(email).lower()
@@ -316,7 +317,8 @@ class UserInviteView(
             )
             messages.success(
                 request,
-                f"✅ User {email} has been automatically added to this competition.",
+                _("✅ User %(email)s has been automatically added to this competition.")
+                % {"email": email},
             )
             return redirect("users:list", competition_slug=competition.slug)
         else:

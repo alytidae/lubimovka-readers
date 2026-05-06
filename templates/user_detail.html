@@ -1,69 +1,70 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}{{ object.get_full_name|default:object.email }} - Profile - Lubimovka Readers{% endblock title %}
+{% block title %}{{ object.get_full_name|default:object.email }} - {% trans "Profile" %} - {% trans "Lubimovka Readers" %}{% endblock title %}
 
 {% block content %}
     <nav aria-label="breadcrumb">
       <ul>
-        <li><a href="{% url 'competitions:list' %}">Competitions</a></li>
+        <li><a href="{% url 'competitions:list' %}">{% trans "Competitions" %}</a></li>
         <li><a href="{% url 'competitions:detail' current_competition.slug %}">{{ current_competition.title }}</a></li>
         {% if object.role != "reader"%}
-        <li><a href="{% url 'users:list' current_competition.slug %}">Team Management</a></li>
+        <li><a href="{% url 'users:list' current_competition.slug %}">{% trans "Team Management" %}</a></li>
         {% endif %}
-        <li>{{ object.first_name|default:"User Profile" }}</li>
+        <li>{{ object.first_name|default:_("User Profile") }}</li>
       </ul>
     </nav>
 
     <hgroup>
         <h1>{{ object.get_full_name|default:object.email }}</h1>
-        <p>Profile & Statistics</p>
+        <p>{% trans "Profile & Statistics" %}</p>
     </hgroup>
 
     {% if object.role != "reader" %}
     <nav>
         <ul></ul>
         <ul>
-            <li><a href="{% url 'users:update' current_competition.slug object.pk %}" role="button" class="secondary outline">Edit Profile</a></li>
+            <li><a href="{% url 'users:update' current_competition.slug object.pk %}" role="button" class="secondary outline">{% trans "Edit Profile" %}</a></li>
         </ul>
     </nav>
     {% endif %}
 
     <div class="grid">
         <article>
-            <header>Personal Information</header>
+            <header>{% trans "Personal Information" %}</header>
             <ul>
-                <li><strong>Email:</strong> <a href="mailto:{{ object.email }}">{{ object.email }}</a></li>
+                <li><strong>{% trans "Email" %}:</strong> <a href="mailto:{{ object.email }}">{{ object.email }}</a></li>
                 
                 <li>
-                    <strong>Telegram:</strong> 
+                    <strong>{% trans "Telegram" %}:</strong> 
                     {% if object.telegram_username %}
                         <a href="https://t.me/{{ object.telegram_username }}" target="_blank" rel="noopener noreferrer">@{{ object.telegram_username }}</a>
                     {% else %}
-                        <em>Not provided</em>
+                        <em>{% trans "Not provided" %}</em>
                     {% endif %}
                 </li>
                 
-                <li><strong>First Name:</strong> {{ object.first_name|default:"-" }}</li>
-                <li><strong>Last Name:</strong> {{ object.last_name|default:"-" }}</li>
+                <li><strong>{% trans "First Name" %}:</strong> {{ object.first_name|default:"-" }}</li>
+                <li><strong>{% trans "Last Name" %}:</strong> {{ object.last_name|default:"-" }}</li>
             </ul>
         </article>
 
         {% if object.role == "reader" %}
         <article>
-            <header>Reading Statistics</header>
+            <header>{% trans "Reading Statistics" %}</header>
             
-            <p><strong>Total Assigned Plays:</strong> {{ total_assigned }}</p>
-            <p><strong>Completed Reviews:</strong> {{ submitted_count }} <small>({{ yes_count }} ✅ / {{ no_count }} ❌)</small></p>
-            <p><strong>Pending (Drafts/Assigned):</strong> {{ active_count }}</p>
-            <p><strong>Average Reading Speed:</strong> {{ avg_reading_speed }}</p>
+            <p><strong>{% trans "Total Assigned Plays" %}:</strong> {{ total_assigned }}</p>
+            <p><strong>{% trans "Completed Reviews" %}:</strong> {{ submitted_count }} <small>({{ yes_count }} ✅ / {{ no_count }} ❌)</small></p>
+            <p><strong>{% trans "Pending (Drafts/Assigned)" %}:</strong> {{ active_count }}</p>
+            <p><strong>{% trans "Average Reading Speed" %}:</strong> {{ avg_reading_speed }}</p>
             
             <figure>
                 {% if total_assigned > 0 %}
                     <progress value="{{ submitted_count }}" max="{{ total_assigned }}"></progress>
-                    <figcaption><small>Completed {{ submitted_count }} out of {{ total_assigned }} assigned plays.</small></figcaption>
+                    <figcaption><small>{% blocktrans with submitted=submitted_count total=total_assigned %}Completed {{ submitted }} out of {{ total }} assigned plays.{% endblocktrans %}</small></figcaption>
                 {% else %}
                     <progress value="0" max="100"></progress>
-                    <figcaption><small>No plays assigned yet.</small></figcaption>
+                    <figcaption><small>{% trans "No plays assigned yet." %}</small></figcaption>
                 {% endif %}
             </figure>
         </article>
@@ -72,7 +73,7 @@
 
     {% if object.role == "reader" or is_moderator %}
     <article>
-        <header>User Reviews & Feedback</header>
+        <header>{% trans "User Reviews & Feedback" %}</header>
         {% include "includes/review_list.html" with show_play_title=True reviews=reviews %}
     </article>
     {% endif %}

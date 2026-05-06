@@ -3,6 +3,7 @@ import traceback
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView, ListView, DetailView
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
+from django.utils.translation import gettext_lazy as _
 from .models import Competition
 from .mixins import CompetitionContextMixin
 from .forms import CompetitionCreationForm, CompetitionChangeForm
@@ -29,7 +30,7 @@ class CompetitionCreateView(
     model = Competition
     template_name = "create_update.html"
     form_class = CompetitionCreationForm
-    success_message = "\u2705 %(title)s was created successfully"
+    success_message = _("✅ %(title)s was created successfully")
 
     def get_success_url(self):
         return self.object.get_absolute_url()
@@ -44,7 +45,7 @@ class CompetitionUpdateView(
     model = Competition
     template_name = "create_update.html"
     form_class = CompetitionChangeForm
-    success_message = "\u2705 %(title)s was updated successfully"
+    success_message = _("✅ %(title)s was updated successfully")
 
     def get_success_url(self):
         return self.object.get_absolute_url()
@@ -96,9 +97,14 @@ class CompetitionSyncView(LoginRequiredMixin, UserPassesTestMixin, View):
 
         try:
             count = sync_plays_from_google_sheet(competition)
-            messages.success(request, f"Successfully synced {count} plays.")
+            messages.success(
+                request, _("Successfully synced %(count)s plays.") % {"count": count}
+            )
         except Exception as e:
-            messages.error(request, f"Sync error: {type(e).__name__}: {e}")
+            messages.error(
+                request,
+                _("Sync error: %(error)s") % {"error": f"{type(e).__name__}: {e}"},
+            )
             print(traceback.format_exc())
 
         return redirect("plays:list", competition_slug=competition.slug)
@@ -245,9 +251,9 @@ class CompetitionAnalyticsView(
             )
             .annotate(
                 current_status=Case(
-                    When(phase_1_no__gte=2, then=Value("Eliminated in Phase 1 ❌")),
-                    When(phase_1_yes__gte=2, then=Value("Phase 2")),
-                    default=Value("Phase 1"),
+                    When(phase_1_no__gte=2, then=Value(_("Eliminated in Phase 1 ❌"))),
+                    When(phase_1_yes__gte=2, then=Value(_("Phase 2"))),
+                    default=Value(_("Phase 1")),
                     output_field=CharField(),
                 )
             )

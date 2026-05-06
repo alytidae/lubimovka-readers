@@ -1,18 +1,19 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}{{ object.title }} - {{ current_competition.title }} - Lubimovka Readers{% endblock title %}
+{% block title %}{{ object.title }} - {{ current_competition.title }} - {% trans "Lubimovka Readers" %}{% endblock title %}
 
 {% block content %}
     <dialog id="activate-dialog">
         <article>
             <header>
                 <button type="button" aria-label="Close" rel="prev" onclick="document.getElementById('activate-dialog').close()"></button>
-                <p><strong>Confirm activation</strong></p>
+                <p><strong>{% trans "Confirm activation" %}</strong></p>
             </header>
-            <p>Please confirm that all play data is correct. Once activated, the play will be visible to all readers.</p>
+            <p>{% trans "Please confirm that all play data is correct. Once activated, the play will be visible to all readers." %}</p>
             <form method="post" action="{% url 'plays:activate' current_competition.slug object.pk %}">
                 {% csrf_token %}
-                <footer><button type="submit">Yes, activate play</button></footer>
+                <footer><button type="submit">{% trans "Yes, activate play" %}</button></footer>
             </form>
         </article>
     </dialog>
@@ -21,12 +22,12 @@
         <article>
             <header>
                 <button type="button" aria-label="Close" rel="prev" onclick="document.getElementById('deactivate-dialog').close()"></button>
-                <p><strong>Confirm deactivation</strong></p>
+                <p><strong>{% trans "Confirm deactivation" %}</strong></p>
             </header>
-            <p>Are you sure you want to deactivate this play? It will no longer be visible to readers.</p>
+            <p>{% trans "Are you sure you want to deactivate this play? It will no longer be visible to readers." %}</p>
             <form method="post" action="{% url 'plays:deactivate' current_competition.slug object.pk %}">
                 {% csrf_token %}
-                <footer><button type="submit" class="secondary">Yes, deactivate play</button></footer>
+                <footer><button type="submit" class="secondary">{% trans "Yes, deactivate play" %}</button></footer>
             </form>
         </article>
     </dialog>
@@ -35,62 +36,62 @@
         <article>
             <header>
                 <button type="button" aria-label="Close" rel="prev" onclick="document.getElementById('submit-review-confirmation').close()"></button>
-                <p><strong>Final Submission</strong></p>
+                <p><strong>{% trans "Final Submission" %}</strong></p>
             </header>
-            <p>This will be your final assessment. You will <strong>not</strong> be able to change your vote or comment after submitting.</p>
+            <p>{% trans "This will be your final assessment. You will <strong>not</strong> be able to change your vote or comment after submitting." %}</p>
             <footer>
-                <button type="button" class="secondary outline" onclick="document.getElementById('submit-review-confirmation').close()">Cancel</button>
-                <button type="button" onclick="document.getElementById('final-review-form').submit()">I understand, submit</button>
+                <button type="button" class="secondary outline" onclick="document.getElementById('submit-review-confirmation').close()">{% trans "Cancel" %}</button>
+                <button type="button" onclick="document.getElementById('final-review-form').submit()">{% trans "I understand, submit" %}</button>
             </footer>
         </article>
     </dialog>
 
     <nav aria-label="breadcrumb">
       <ul>
-        <li><a href="{% url 'competitions:list' %}">Competitions</a></li>
+        <li><a href="{% url 'competitions:list' %}">{% trans "Competitions" %}</a></li>
         <li><a href="{% url 'competitions:detail' current_competition.slug %}">{{ current_competition.title }}</a></li>
-        <li><a href="{% url 'plays:list' current_competition.slug %}">Plays</a></li>
+        <li><a href="{% url 'plays:list' current_competition.slug %}">{% trans "Plays" %}</a></li>
         <li>{{ object.title }}</li>
       </ul>
     </nav>
 
     <hgroup>
         <h1>{{ object.title }}</h1>
-        <p>Play details</p>
+        <p>{% trans "Play details" %}</p>
     </hgroup>
 
     <div class="grid">
         <article>
-            <header>Play Information</header>
+            <header>{% trans "Play Information" %}</header>
             <ul>
-                <li><strong>Title:</strong> {{ object.title }}</li>
+                <li><strong>{% trans "Title" %}:</strong> {{ object.title }}</li>
                 
                 {% if not is_reader %}
-                    <li><strong>Author:</strong> {{ object.author_first_name }} {{ object.author_last_name }}</li>
+                    <li><strong>{% trans "Author" %}:</strong> {{ object.author_first_name }} {{ object.author_last_name }}</li>
                     {% if object.author_year_of_birth %}
-                        <li><strong>Author Date of Birth:</strong> {{ object.author_year_of_birth }}</li>
+                        <li><strong>{% trans "Author Date of Birth" %}:</strong> {{ object.author_year_of_birth }}</li>
                     {% endif %}
                     <li>
-                        <strong>Status:</strong>
-                        {% if object.is_active %}✅ Active{% else %}❌ Inactive{% endif %}
+                        <strong>{% trans "Status" %}:</strong>
+                        {% if object.is_active %}✅ {% trans "Active" %}{% else %}❌ {% trans "Inactive" %}{% endif %}
                     </li>
                 {% endif %}
 
                 {% if object.url %}
-                    <li><strong>Text:</strong> <a href="{{ object.url }}" target="_blank" rel="noopener noreferrer">Open play text</a></li>
+                    <li><strong>{% trans "Text" %}:</strong> <a href="{{ object.url }}" target="_blank" rel="noopener noreferrer">{% trans "Open play text" %}</a></li>
                 {% endif %}
             </ul>
         </article>
 
         {% if is_moderator %}
         <article>
-            <header>Actions</header>
+            <header>{% trans "Actions" %}</header>
             {% if not object.is_active %}
-                <p>This play is currently inactive.</p>
-                <button type="button" onclick="document.getElementById('activate-dialog').showModal()">Activate Play</button>
+                <p>{% trans "This play is currently inactive." %}</p>
+                <button type="button" onclick="document.getElementById('activate-dialog').showModal()">{% trans "Activate Play" %}</button>
             {% else %}
-                <p>This play is active and visible.</p>
-                <button type="button" class="secondary" onclick="document.getElementById('deactivate-dialog').showModal()">Deactivate Play</button>
+                <p>{% trans "This play is active and visible." %}</p>
+                <button type="button" class="secondary" onclick="document.getElementById('deactivate-dialog').showModal()">{% trans "Deactivate Play" %}</button>
             {% endif %}
         </article>
         {% endif %}
@@ -98,32 +99,32 @@
 
     {% if my_active_review %}
         <article>
-            <header>Your Review ({{ my_active_review.get_phase_display }})</header>
+            <header>{% blocktrans with phase=my_active_review.get_phase_display %}Your Review ({{ phase }}){% endblocktrans %}</header>
             
             <form id="final-review-form" method="post" action="{% url 'reviews:submit' current_competition.slug my_active_review.id %}">
                 {% csrf_token %}
                 
                 <fieldset>
-                    <legend>Does this play pass to the next stage?</legend>
+                    <legend>{% trans "Does this play pass to the next stage?" %}</legend>
                     <label>
                         <input type="radio" name="verdict" value="True" {% if my_active_review.verdict == True %}checked{% endif %} required>
-                        Yes, pass to next stage
+                        {% trans "Yes, pass to next stage" %}
                     </label>
                     <label>
                         <input type="radio" name="verdict" value="False" {% if my_active_review.verdict == False %}checked{% endif %} required>
-                        No, reject
+                        {% trans "No, reject" %}
                     </label>
                 </fieldset>
 
-                <label for="comment">Comment</label>
+                <label for="comment">{% trans "Comment" %}</label>
                 <textarea id="comment" name="comment" rows="6" required>{{ my_active_review.comment|default:"" }}</textarea>
                 
                 <div class="grid">
                     <button type="submit" formaction="{% url 'reviews:save_draft' current_competition.slug my_active_review.id %}" formnovalidate class="secondary outline">
-                        Save Draft
+                        {% trans "Save Draft" %}
                     </button>
                     <button type="button" onclick="document.getElementById('submit-review-confirmation').showModal()">
-                        Submit Final Vote
+                        {% trans "Submit Final Vote" %}
                     </button>
                 </div>
             </form>
@@ -131,7 +132,7 @@
     {% endif %}
 
     <article>
-        <header>Reviews & Feedback</header>
+        <header>{% trans "Reviews & Feedback" %}</header>
         {% include "includes/review_list.html" with show_play_title=False reviews=reviews %}
     </article>
 

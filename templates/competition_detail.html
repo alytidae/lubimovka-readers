@@ -1,38 +1,39 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}{{ competition.title }} - Lubimovka Readers{% endblock title %}
+{% block title %}{{ competition.title }} - {% trans "Lubimovka Readers" %}{% endblock title %}
 
 {% block content %}
     <nav aria-label="breadcrumb">
       <ul>
-        <li><a href="{% url 'competitions:list' %}">Competitions</a></li>
+        <li><a href="{% url 'competitions:list' %}">{% trans "Competitions" %}</a></li>
         <li>{{ competition.title }}</li>
       </ul>
     </nav>
 
     <hgroup>
         <h1>{{ competition.title }}</h1>
-        <p>Current Phase: <strong>{{ competition.get_status_display }}</strong></p>
+        <p>{% trans "Current Phase" %}: <strong>{{ competition.get_status_display }}</strong></p>
     </hgroup>
 
     {% if is_reader %}
         <div class="grid">
             <article>
-                <header>My Tasks & Reviews</header>
-                <p>Read your assigned plays, submit reviews, and rate the texts.</p>
-                <a href="{% url 'plays:list' current_competition.slug %}" role="button">Open Plays Dashboard</a>
+                <header>{% trans "My Tasks & Reviews" %}</header>
+                <p>{% trans "Read your assigned plays, submit reviews, and rate the texts." %}</p>
+                <a href="{% url 'plays:list' current_competition.slug %}" role="button">{% trans "Open Plays Dashboard" %}</a>
             </article>
 
             <article>
-                <header>My Progress</header>
-                <p>Track your reading statistics, completed tasks, and personal metrics.</p>
-                <a href="{% url 'users:detail' current_competition.slug user.id %}" role="button">View Stats</a>
+                <header>{% trans "My Progress" %}</header>
+                <p>{% trans "Track your reading statistics, completed tasks, and personal metrics." %}</p>
+                <a href="{% url 'users:detail' current_competition.slug user.id %}" role="button">{% trans "View Stats" %}</a>
             </article>
         
             <article>
-                <header>Contact Moderators</header>
-                <p>If you feel stuck or need guidance during the reading process, our moderators are here to help.</p>
-                <a href="{% url 'users:list' current_competition.slug %}" role="button">View Moderators</a>
+                <header>{% trans "Contact Moderators" %}</header>
+                <p>{% trans "If you feel stuck or need guidance during the reading process, our moderators are here to help." %}</p>
+                <a href="{% url 'users:list' current_competition.slug %}" role="button">{% trans "View Moderators" %}</a>
             </article>
         </div>
     {% endif %}
@@ -40,21 +41,21 @@
     {% if is_moderator or is_admin %}
         <div class="grid">
             <article>
-                <header>Global Plays Database</header>
-                <p>Access all submitted plays, manage assignments, and view global ratings.</p>
-                <a href="{% url 'plays:list' current_competition.slug %}" role="button">Open Database</a>
+                <header>{% trans "Global Plays Database" %}</header>
+                <p>{% trans "Access all submitted plays, manage assignments, and view global ratings." %}</p>
+                <a href="{% url 'plays:list' current_competition.slug %}" role="button">{% trans "Open Database" %}</a>
             </article>
 
             <article>
-                <header>Team Management</header>
-                <p>Invite readers, manage roles, and monitor team activity.</p>
-                <a href="{% url 'users:list' competition.slug %}" role="button">Manage Team</a>
+                <header>{% trans "Team Management" %}</header>
+                <p>{% trans "Invite readers, manage roles, and monitor team activity." %}</p>
+                <a href="{% url 'users:list' competition.slug %}" role="button">{% trans "Manage Team" %}</a>
             </article>
 
             <article>
-                <header>Deep Analytics</header>
-                <p>Analyze scoring trends, reader performance, and overall competition metrics.</p>
-                <a href="{% url 'competitions:analytics' competition.slug %}" role="button">View Analytics</a>
+                <header>{% trans "Deep Analytics" %}</header>
+                <p>{% trans "Analyze scoring trends, reader performance, and overall competition metrics." %}</p>
+                <a href="{% url 'competitions:analytics' competition.slug %}" role="button">{% trans "View Analytics" %}</a>
             </article>
         </div>
     {% endif %}
@@ -62,15 +63,15 @@
     {% if is_admin %}
         <div class="grid">
             <article>
-                <header>Settings</header>
-                <p>Configure phase deadlines, update guidelines, and manage integrations.</p>
-                <a href="{% url 'competitions:update' competition.slug %}" role="button">Edit Settings</a>
+                <header>{% trans "Settings" %}</header>
+                <p>{% trans "Configure phase deadlines, update guidelines, and manage integrations." %}</p>
+                <a href="{% url 'competitions:update' competition.slug %}" role="button">{% trans "Edit Settings" %}</a>
             </article>
 
             <article>
-                <header>Data Export</header>
-                <p>Generate and download full database backups in CSV or spreadsheet formats.</p>
-                <a href="{% url 'competitions:export' competition.slug %}" role="button">Export Data</a>
+                <header>{% trans "Data Export" %}</header>
+                <p>{% trans "Generate and download full database backups in CSV or spreadsheet formats." %}</p>
+                <a href="{% url 'competitions:export' competition.slug %}" role="button">{% trans "Export Data" %}</a>
             </article>
         </div>
     {% endif %}

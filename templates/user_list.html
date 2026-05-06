@@ -1,42 +1,43 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}Team Management - {{ current_competition.title }} - Lubimovka Readers{% endblock title %}
+{% block title %}{% trans "Team Management" %} - {{ current_competition.title }} - {% trans "Lubimovka Readers" %}{% endblock title %}
 
 {% block content %}
     {% if user.role != "reader" %}
     <nav aria-label="breadcrumb">
       <ul>
-        <li><a href="{% url 'competitions:list' %}">Competitions</a></li>
+        <li><a href="{% url 'competitions:list' %}">{% trans "Competitions" %}</a></li>
         <li><a href="{% url 'competitions:detail' current_competition.slug %}">{{ current_competition.title }}</a></li>
-        <li>Team Management</li>
+        <li>{% trans "Team Management" %}</li>
       </ul>
     </nav>
 
     <hgroup>
-        <h1>Team Management</h1>
-        <p>Manage readers, moderators, and track overall progress for <strong>{{ current_competition.title }}</strong></p>
+        <h1>{% trans "Team Management" %}</h1>
+        <p>{% blocktrans with title=current_competition.title %}Manage readers, moderators, and track overall progress for <strong>{{ title }}</strong>{% endblocktrans %}</p>
     </hgroup>
 
     <nav>
         <ul></ul>
         <ul>
-            <li><button type="button" onclick="document.getElementById('invite-dialog').showModal()">Add Member</button></li>
+            <li><button type="button" onclick="document.getElementById('invite-dialog').showModal()">{% trans "Add Member" %}</button></li>
         </ul>
     </nav>
 
     <article>
-        <header>Team Members</header>
+        <header>{% trans "Team Members" %}</header>
         
         <figure>
             <table class="striped">
                 <thead>
                     <tr>
-                        <th scope="col">Email</th>
-                        <th scope="col">Name</th>
-                        <th scope="col">Telegram</th>
-                        <th scope="col">Role</th>
-                        <th scope="col">Status</th>
-                        <th scope="col">Actions</th>
+                        <th scope="col">{% trans "Email" %}</th>
+                        <th scope="col">{% trans "Name" %}</th>
+                        <th scope="col">{% trans "Telegram" %}</th>
+                        <th scope="col">{% trans "Role" %}</th>
+                        <th scope="col">{% trans "Status" %}</th>
+                        <th scope="col">{% trans "Actions" %}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -48,19 +49,19 @@
                             <td>{{ user.role|capfirst }}</td>
                             <td>
                                 {% if user.role_is_active %}
-                                ✅ Active
+                                ✅ {% trans "Active" %}
                                 {% else %}
-                                ❌ Disabled
+                                ❌ {% trans "Disabled" %}
                                 {% endif %}
                             </td>
                             <td>
-                                <a href="{% url 'users:update' current_competition.slug user.id %}"><small>Edit</small></a>
+                                <a href="{% url 'users:update' current_competition.slug user.id %}"><small>{% trans "Edit" %}</small></a>
                             </td>
                         </tr>
                     {% empty %}
                         <tr>
                             <td colspan="5">
-                                No team members found for this competition.
+                                {% trans "No team members found for this competition." %}
                             </td>
                         </tr>
                     {% endfor %}
@@ -71,28 +72,28 @@
     {% else %}
     <nav aria-label="breadcrumb">
       <ul>
-        <li><a href="{% url 'competitions:list' %}">Competitions</a></li>
+        <li><a href="{% url 'competitions:list' %}">{% trans "Competitions" %}</a></li>
         <li><a href="{% url 'competitions:detail' current_competition.slug %}">{{ current_competition.title }}</a></li>
-        <li>Contact Moderators</li>
+        <li>{% trans "Contact Moderators" %}</li>
       </ul>
     </nav>
 
     <hgroup>
-        <h1>Contact Moderators</h1>
-        <p>If need guidance during the reading process, our moderators are here to help.</p>
+        <h1>{% trans "Contact Moderators" %}</h1>
+        <p>{% trans "If need guidance during the reading process, our moderators are here to help." %}</p>
     </hgroup>
 
     <article>
-        <header>Moderators</header>
+        <header>{% trans "Moderators" %}</header>
         
         <figure>
             <table class="striped">
                 <thead>
                     <tr>
-                        <th scope="col">Email</th>
-                        <th scope="col">Name</th>
-                        <th scope="col">Telegram</th>
-                        <th scope="col">Role</th>
+                        <th scope="col">{% trans "Email" %}</th>
+                        <th scope="col">{% trans "Name" %}</th>
+                        <th scope="col">{% trans "Telegram" %}</th>
+                        <th scope="col">{% trans "Role" %}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -106,7 +107,7 @@
                     {% empty %}
                         <tr>
                             <td colspan="5">
-                                No team members found for this competition.
+                                {% trans "No team members found for this competition." %}
                             </td>
                         </tr>
                     {% endfor %}
@@ -119,25 +120,25 @@
         <article>
             <header>
                 <button type="button" aria-label="Close" rel="prev" onclick="document.getElementById('invite-dialog').close()"></button>
-                <p><strong>Invite Member</strong></p>
+                <p><strong>{% trans "Invite Member" %}</strong></p>
             </header>
-            <p>Enter the email and role. If the user is already registered, they will be added automatically. Otherwise, you will be redirected to create their profile.</p>
+            <p>{% trans "Enter the email and role. If the user is already registered, they will be added automatically. Otherwise, you will be redirected to create their profile." %}</p>
             <form method="post" action="{% url 'users:invite' current_competition.slug %}">
                 {% csrf_token %}
-                <label for="invite_email">Email address</label>
+                <label for="invite_email">{% trans "Email address" %}</label>
                 <input type="email" id="invite_email" name="email" required>
             
-                <label for="invite_role">Role</label>
+                <label for="invite_role">{% trans "Role" %}</label>
                 <select id="invite_role" name="role" required>
-                    <option value="reader" selected>Reader</option>
+                    <option value="reader" selected>{% trans "Reader" %}</option>
                     {% if user.role == "admin" or user.is_superuser %}
-                        <option value="moderator">Moderator</option>
-                        <option value="admin">Admin</option>
+                        <option value="moderator">{% trans "Moderator" %}</option>
+                        <option value="admin">{% trans "Admin" %}</option>
                     {% endif %}
                 </select>
                 <footer>
-                    <button type="submit">Continue</button>
-                    <button type="button" class="secondary outline" onclick="document.getElementById('invite-dialog').close()">Cancel</button>
+                    <button type="submit">{% trans "Continue" %}</button>
+                    <button type="button" class="secondary outline" onclick="document.getElementById('invite-dialog').close()">{% trans "Cancel" %}</button>
                 </footer>
             </form>
         </article>

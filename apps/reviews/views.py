@@ -3,6 +3,7 @@ from django.views.generic import ListView, DetailView
 from django.views import View
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
+from django.utils.translation import gettext_lazy as _
 from apps.competitions.mixins import CompetitionContextMixin
 from .models import Review
 from .forms import ReviewUpdateForm
@@ -66,7 +67,7 @@ class ReviewSaveDraftView(
             else:
                 messages.warning(request, result.message)
         else:
-            messages.error(request, "Invalid data submitted.")
+            messages.error(request, _("Invalid data submitted."))
 
         return redirect(
             "plays:detail", pk=review.play.id, competition_slug=competition.slug
@@ -110,7 +111,7 @@ class ReviewSubmitView(
             else:
                 messages.warning(request, result.message)
         else:
-            messages.error(request, "Invalid data submitted.")
+            messages.error(request, _("Invalid data submitted."))
 
         return redirect(
             "plays:detail", pk=review.play.id, competition_slug=competition.slug

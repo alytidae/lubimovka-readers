@@ -1,29 +1,30 @@
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django import forms
+from django.utils.translation import gettext_lazy as _
 from .models import User
 
 
 class CustomUserAddForm(forms.ModelForm):
     ROLE_CHOICES = (
-        ("reader", "Reader"),
-        ("moderator", "Moderator"),
-        ("admin", "Admin"),
+        ("reader", _("Reader")),
+        ("moderator", _("Moderator")),
+        ("admin", _("Admin")),
     )
 
     role = forms.ChoiceField(choices=ROLE_CHOICES, required=True)
 
     password = forms.CharField(
-        label="Password",
+        label=_("Password"),
         required=True,
         widget=forms.PasswordInput,
-        help_text="Required for new users.",
+        help_text=_("Required for new users."),
     )
 
     password_confirm = forms.CharField(
-        label="Password confirmation",
+        label=_("Password confirmation"),
         required=True,
         widget=forms.PasswordInput,
-        help_text="Enter the same password as before, for verification.",
+        help_text=_("Enter the same password as before, for verification."),
     )
 
     class Meta:
@@ -35,7 +36,7 @@ class CustomUserAddForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         if self.creator_role == "moderator":
-            self.fields["role"].choices = [("reader", "Reader")]
+            self.fields["role"].choices = [("reader", _("Reader"))]
 
     def clean(self):
         cleaned_data = super().clean()
@@ -46,11 +47,15 @@ class CustomUserAddForm(forms.ModelForm):
         if email and User.objects.filter(email=email).exists():
             self.add_error(
                 "email",
-                "A user with this email already exists. Use the invite form instead.",
+                _(
+                    "A user with this email already exists. Use the invite form instead."
+                ),
             )
 
         if password and password_confirm and password != password_confirm:
-            self.add_error("password_confirm", "The two password fields didn't match.")
+            self.add_error(
+                "password_confirm", _("The two password fields didn't match.")
+            )
 
         return cleaned_data
 
@@ -67,14 +72,14 @@ class CustomUserAddForm(forms.ModelForm):
 
 class CustomUserChangeForm(forms.ModelForm):
     ROLE_CHOICES = (
-        ("reader", "Reader"),
-        ("moderator", "Moderator"),
-        ("admin", "Admin"),
+        ("reader", _("Reader")),
+        ("moderator", _("Moderator")),
+        ("admin", _("Admin")),
     )
 
     role = forms.ChoiceField(choices=ROLE_CHOICES, required=True)
     role_is_active = forms.BooleanField(
-        required=False, label="Active in this competition"
+        required=False, label=_("Active in this competition")
     )
 
     class Meta:
@@ -92,4 +97,4 @@ class CustomUserChangeForm(forms.ModelForm):
         self.fields["role_is_active"].initial = current_role_is_active
 
         if self.editor_role == "moderator":
-            self.fields["role"].choices = [("reader", "Reader")]
+            self.fields["role"].choices = [("reader", _("Reader"))]

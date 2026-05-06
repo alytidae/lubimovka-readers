@@ -1,15 +1,16 @@
 from django.db import models
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 from pytils.translit import slugify
 from django.urls import reverse
 
 
 class Competition(models.Model):
     class Status(models.TextChoices):
-        SETUP = "setup", "Setup and Team Formation"
-        PHASE_1 = "phase_1", "Phase 1: Distribution (3 readers)"
-        PHASE_2 = "phase_2", "Phase 2: Open Reading"
-        FINISHED = "finished", "Finished"
+        SETUP = "setup", _("Setup and Team Formation")
+        PHASE_1 = "phase_1", _("Phase 1: Distribution (3 readers)")
+        PHASE_2 = "phase_2", _("Phase 2: Open Reading")
+        FINISHED = "finished", _("Finished")
 
     title = models.CharField(max_length=255)
     date = models.DateField()
@@ -50,9 +51,9 @@ class Competition(models.Model):
 
 class CompetitionRole(models.Model):
     ROLE_CHOICES = (
-        ("reader", "Reader"),
-        ("moderator", "Moderator"),
-        ("admin", "Admin"),
+        ("reader", _("Reader")),
+        ("moderator", _("Moderator")),
+        ("admin", _("Admin")),
     )
 
     competition = models.ForeignKey(
