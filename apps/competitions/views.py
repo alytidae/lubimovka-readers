@@ -22,6 +22,7 @@ from .models import Competition
 from .mixins import CompetitionContextMixin
 from .forms import CompetitionCreationForm, CompetitionChangeForm
 from .services import sync_plays_from_google_sheet
+from apps.reviews.services import auto_assign_phase2
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +49,24 @@ class CompetitionUpdateView(
     template_name = "create_update.html"
     form_class = CompetitionChangeForm
     success_message = _("✅ %(title)s was updated successfully")
+
+    def form_valid(self, form):
+        old_status = self.get_object().status
+        response = super().form_valid(form)
+
+        if (
+            old_status != Competition.Status.PHASE_2
+            and self.object.status == Competition.Status.PHASE_2
+        ):
+            count = auto_assign_phase2(self.object)
+            if count > 0:
+                messages.success(
+                    self.request,
+                    _("✅ %(count)s Phase 2 reviews have been assigned.")
+                    % {"count": count},
+                )
+
+        return response
 
     def get_success_url(self):
         return self.object.get_absolute_url()
