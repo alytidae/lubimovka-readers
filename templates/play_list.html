@@ -77,7 +77,7 @@
                             {% else %}
                                 <td>
                                     {% for review in play.reviews.all %}
-                                        {% if review.reader == user %}
+                                        {% if review.reader == user and not review.is_obsolete %}
                                             <div{% if not forloop.last %} class="review-phase-row"{% endif %}>
                                                 {{ review.get_phase_display }}
                                             </div>
@@ -86,7 +86,7 @@
                                 </td>
                                 <td>
                                     {% for review in play.reviews.all %}
-                                        {% if review.reader == user %}
+                                        {% if review.reader == user and not review.is_obsolete %}
                                             <div{% if not forloop.last %} class="review-phase-row"{% endif %}>
                                                 {% if review.status == 'submitted' %}
                                                     {% if review.verdict %}

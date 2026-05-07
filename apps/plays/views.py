@@ -37,7 +37,7 @@ class PlayDetailView(
         user = self.request.user
 
         base_reviews_qs = Review.objects.filter(
-            play=play, status=Review.Status.SUBMITTED, is_obsolete=False
+            play=play, status=Review.Status.SUBMITTED
         ).select_related("reader")
 
         visible_reviews = []
@@ -53,7 +53,9 @@ class PlayDetailView(
             if competition.are_phase2_reviews_visible:
                 filters |= Q(phase=Review.Phase.PHASE_2, is_hidden=False)
 
-            visible_reviews = base_reviews_qs.filter(filters).distinct()
+            visible_reviews = base_reviews_qs.filter(
+                filters, is_obsolete=False
+            ).distinct()
 
         context["reviews"] = visible_reviews
 

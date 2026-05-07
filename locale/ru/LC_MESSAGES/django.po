@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-07 19:00+0200\n"
+"POT-Creation-Date: 2026-05-07 19:35+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -140,22 +140,22 @@ msgstr "Этап 2"
 msgid "Phase 1"
 msgstr "Этап 1"
 
-#: apps/plays/views.py:138
+#: apps/plays/views.py:140
 #, python-format
 msgid "✅ %(title)s was activated successfully"
 msgstr "✅ %(title)s успешно активирована"
 
-#: apps/plays/views.py:142
+#: apps/plays/views.py:144
 #, python-format
 msgid "%(title)s is already active"
 msgstr "%(title)s уже активна"
 
-#: apps/plays/views.py:171
+#: apps/plays/views.py:173
 #, python-format
 msgid "✅ %(title)s was deactivated successfully"
 msgstr "✅ %(title)s успешно деактивирована"
 
-#: apps/plays/views.py:175
+#: apps/plays/views.py:177
 #, python-format
 msgid "%(title)s is already not active"
 msgstr "%(title)s уже неактивна"
@@ -467,12 +467,12 @@ msgid "Lists plays that have received a mix of both 'Yes' and 'No' verdicts."
 msgstr "Пьесы, получившие как положительные, так и отрицательные вердикты."
 
 #: templates/analytics_dashboard.html:100
-#: templates/includes/review_list.html:47 templates/play_list.html:93
+#: templates/includes/review_list.html:64 templates/play_list.html:93
 msgid "Yes"
 msgstr "Да"
 
 #: templates/analytics_dashboard.html:100
-#: templates/includes/review_list.html:47 templates/play_list.html:95
+#: templates/includes/review_list.html:64 templates/play_list.html:95
 msgid "No"
 msgstr "Нет"
 
@@ -532,7 +532,7 @@ msgstr "Этап 2 (Нет)"
 msgid "No plays active."
 msgstr "Нет активных пьес."
 
-#: templates/base.html:45
+#: templates/base.html:59
 msgid "Notification"
 msgstr "Уведомление"
 
@@ -702,12 +702,13 @@ msgid ""
 msgstr ""
 "Это <strong>автоматически назначит</strong> все пьесы, получившие 2 и более "
 "голосов «Да» на 1-м этапе, <strong>каждому активному читателю</strong> в "
-"этом конкурсе. Пожалуйста, убедитесь, что все рецензии 1-го этапа "
-"завершены, прежде чем продолжить."
+"этом конкурсе. Пожалуйста, убедитесь, что все рецензии 1-го этапа завершены, "
+"прежде чем продолжить."
 
 #: templates/create_update.html:17 templates/create_update.html:34
 #: templates/includes/review_list.html:11
-#: templates/includes/review_list.html:28 templates/play_detail.html:43
+#: templates/includes/review_list.html:28
+#: templates/includes/review_list.html:45 templates/play_detail.html:43
 #: templates/user_list.html:141
 msgid "Cancel"
 msgstr "Отмена"
@@ -778,43 +779,71 @@ msgstr ""
 msgid "Yes, mark for revote"
 msgstr "Да, пометить для переголосования"
 
-#: templates/includes/review_list.html:42
+#: templates/includes/review_list.html:39
+#, fuzzy
+#| msgid "Reader Review"
+msgid "Restore Review"
+msgstr "Восстановить рецензию"
+
+#: templates/includes/review_list.html:41
+msgid ""
+"Are you sure you want to restore this review? It will become active again "
+"and its verdict will count toward the play's totals."
+msgstr ""
+"Вы уверены, что хотите восстановить эту рецензию? Она снова станет "
+"активной, и её вердикт будет учитываться в итогах пьесы."
+
+#: templates/includes/review_list.html:46
+#, fuzzy
+#| msgid "Yes, mark for revote"
+msgid "Yes, restore review"
+msgstr "Да, восстановить рецензию"
+
+#: templates/includes/review_list.html:59
 msgid "Reader Review"
 msgstr "Рецензия читателя"
 
-#: templates/includes/review_list.html:43
+#: templates/includes/review_list.html:60
 msgid "You"
 msgstr "Вы"
 
-#: templates/includes/review_list.html:47
+#: templates/includes/review_list.html:64
 msgid "Verdict"
 msgstr "Вердикт"
 
-#: templates/includes/review_list.html:47
+#: templates/includes/review_list.html:64
 msgid "Pending"
 msgstr "Ожидает"
 
-#: templates/includes/review_list.html:48
+#: templates/includes/review_list.html:65
 msgid "Hidden"
 msgstr "Скрыта"
 
-#: templates/includes/review_list.html:51
+#: templates/includes/review_list.html:66
+msgid "Obsolete"
+msgstr "Устарела"
+
+#: templates/includes/review_list.html:69
 msgid "No comment provided."
 msgstr "Комментарий не предоставлен."
 
-#: templates/includes/review_list.html:57
+#: templates/includes/review_list.html:75
+msgid "Restore"
+msgstr "Восстановить"
+
+#: templates/includes/review_list.html:78
 msgid "Show Review"
 msgstr "Показать рецензию"
 
-#: templates/includes/review_list.html:57
+#: templates/includes/review_list.html:78
 msgid "Hide Review"
 msgstr "Скрыть рецензию"
 
-#: templates/includes/review_list.html:59
+#: templates/includes/review_list.html:80
 msgid "Revote"
 msgstr "Переголосование"
 
-#: templates/includes/review_list.html:65
+#: templates/includes/review_list.html:87
 msgid "No reviews available yet."
 msgstr "Рецензий пока нет."
 
