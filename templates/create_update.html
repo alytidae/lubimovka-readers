@@ -6,12 +6,26 @@
 {% endblock title %}
 
 {% block content %}
+    <dialog id="phase2-confirm-dialog">
+        <article>
+            <header>
+                <button type="button" aria-label="Close" rel="prev" onclick="document.getElementById('phase2-confirm-dialog').close()"></button>
+                <p><strong>{% trans "Switch to Phase 2?" %}</strong></p>
+            </header>
+            <p>{% trans "This will <strong>automatically assign</strong> all plays that received 2 or more YES votes in Phase 1 to <strong>every active reader</strong> in this competition. Please make sure all Phase 1 reviews are finalized before proceeding." %}</p>
+            <footer>
+                <button type="button" class="secondary outline" onclick="document.getElementById('phase2-confirm-dialog').close()">{% trans "Cancel" %}</button>
+                <button type="button" onclick="document.getElementById('main-form').submit()">{% trans "Yes, switch to Phase 2" %}</button>
+            </footer>
+        </article>
+    </dialog>
+
     <article>
         <header>
             <h2>{% if object %}{% trans "Update Record" %}{% else %}{% trans "Create Record" %}{% endif %}</h2>
         </header>
 
-        <form method="post">
+        <form id="main-form" method="post">
             {% csrf_token %}
             {{ form.as_p }}
             
@@ -21,4 +35,18 @@
             </footer>
         </form>
     </article>
+
+    <script>
+        document.getElementById('main-form').addEventListener('submit', function(e) {
+            var statusSelect = document.getElementById('id_status');
+            if (statusSelect && statusSelect.value === 'phase_2') {
+                e.preventDefault();
+                document.getElementById('phase2-confirm-dialog').showModal();
+            }
+        });
+
+        document.getElementById('phase2-confirm-dialog').addEventListener('click', function(e) {
+            if (e.target === this) this.close();
+        });
+    </script>
 {% endblock content %}

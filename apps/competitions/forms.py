@@ -17,7 +17,7 @@ class CompetitionCreationForm(forms.ModelForm):
             "play_author_year_of_birth_sheet_column_name",
         )
         widgets = {
-            "date": forms.DateInput(attrs={"type": "date"}),
+            "date": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
             "google_sheet_url": forms.URLInput(
                 attrs={"placeholder": "https://docs.google.com/spreadsheets/d/..."}
             ),
@@ -35,5 +35,5 @@ class CompetitionChangeForm(forms.ModelForm):
             "are_phase2_reviews_visible",
         )
         widgets = {
-            "date": forms.DateInput(attrs={"type": "date"}),
+            "date": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
         }

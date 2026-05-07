@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-06 21:01+0200\n"
+"POT-Creation-Date: 2026-05-07 19:00+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,120 +19,165 @@ msgstr ""
 "n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
 "(n%100>=11 && n%100<=14)? 2 : 3);\n"
 
+#: apps/competitions/models.py:10
 msgid "Setup and Team Formation"
 msgstr "Настройка и формирование команды"
 
+#: apps/competitions/models.py:11
 msgid "Phase 1: Distribution (3 readers)"
 msgstr "Этап 1: Распределение (3 читателя)"
 
+#: apps/competitions/models.py:12
 msgid "Phase 2: Open Reading"
 msgstr "Этап 2: Открытое чтение"
 
+#: apps/competitions/models.py:13
 msgid "Finished"
 msgstr "Завершено"
 
+#: apps/competitions/models.py:15 templates/play_detail.html:67
+#: templates/play_list.html:50
 msgid "Title"
 msgstr "Название"
 
+#: apps/competitions/models.py:16
 msgid "Date"
 msgstr "Дата"
 
+#: apps/competitions/models.py:21
 msgid "Google Sheet URL"
 msgstr "Ссылка на Google Таблицу"
 
+#: apps/competitions/models.py:25
 msgid "Play title column"
 msgstr "Столбец названия пьесы"
 
+#: apps/competitions/models.py:27
 msgid "Play URL column"
 msgstr "Столбец ссылки на пьесу"
 
+#: apps/competitions/models.py:29
 msgid "Author email column"
 msgstr "Столбец email автора"
 
+#: apps/competitions/models.py:32
 msgid "Author first name column"
 msgstr "Столбец имени автора"
 
+#: apps/competitions/models.py:35
 msgid "Author last name column"
 msgstr "Столбец фамилии автора"
 
+#: apps/competitions/models.py:38
 msgid "Author year of birth column"
 msgstr "Столбец года рождения автора"
 
+#: apps/competitions/models.py:42 templates/play_detail.html:75
+#: templates/play_list.html:53 templates/user_list.html:39
 msgid "Status"
 msgstr "Статус"
 
+#: apps/competitions/models.py:46
 msgid "Phase 1 reviews visible"
 msgstr "Рецензии этапа 1 видны"
 
+#: apps/competitions/models.py:49
 msgid "Phase 2 reviews visible"
 msgstr "Рецензии этапа 2 видны"
 
+#: apps/competitions/models.py:66 apps/users/forms.py:9 apps/users/forms.py:39
+#: apps/users/forms.py:75 apps/users/forms.py:100
+#: templates/analytics_dashboard.html:115 templates/user_list.html:133
 msgid "Reader"
 msgstr "Читатель"
 
+#: apps/competitions/models.py:67 apps/users/forms.py:10 apps/users/forms.py:76
+#: templates/user_list.html:135
 msgid "Moderator"
 msgstr "Модератор"
 
+#: apps/competitions/models.py:68 apps/users/forms.py:11 apps/users/forms.py:77
+#: templates/user_list.html:136
 msgid "Admin"
 msgstr "Администратор"
 
+#: apps/competitions/views.py:36
 #, python-format
 msgid "✅ %(title)s was created successfully"
 msgstr "✅ %(title)s успешно создана"
 
+#: apps/competitions/views.py:51
 #, python-format
 msgid "✅ %(title)s was updated successfully"
 msgstr "✅ %(title)s успешно обновлена"
 
+#: apps/competitions/views.py:65
 #, python-format
 msgid "✅ %(count)s Phase 2 reviews have been assigned."
 msgstr "✅ %(count)s рецензий 2-го этапа назначено."
 
+#: apps/competitions/views.py:122
 #, python-format
 msgid "Successfully synced %(count)s plays."
 msgstr "Успешно синхронизировано пьес: %(count)s."
 
+#: apps/competitions/views.py:127
 #, python-format
 msgid "Sync error: %(error)s"
 msgstr "Ошибка синхронизации: %(error)s"
 
+#: apps/competitions/views.py:277
 msgid "Eliminated in Phase 1 ❌"
 msgstr "Выбыла на этапе 1 ❌"
 
+#: apps/competitions/views.py:279 apps/reviews/models.py:10
+#: templates/analytics_dashboard.html:34
 msgid "Phase 2"
 msgstr "Этап 2"
 
+#: apps/competitions/views.py:280 apps/reviews/models.py:9
+#: templates/analytics_dashboard.html:29
 msgid "Phase 1"
 msgstr "Этап 1"
 
+#: apps/plays/views.py:138
 #, python-format
 msgid "✅ %(title)s was activated successfully"
 msgstr "✅ %(title)s успешно активирована"
 
+#: apps/plays/views.py:142
 #, python-format
 msgid "%(title)s is already active"
 msgstr "%(title)s уже активна"
 
+#: apps/plays/views.py:171
 #, python-format
 msgid "✅ %(title)s was deactivated successfully"
 msgstr "✅ %(title)s успешно деактивирована"
 
+#: apps/plays/views.py:175
 #, python-format
 msgid "%(title)s is already not active"
 msgstr "%(title)s уже неактивна"
 
+#: apps/reviews/models.py:13
 msgid "Assigned"
 msgstr "Назначена"
 
+#: apps/reviews/models.py:14 templates/play_list.html:98
 msgid "Draft"
 msgstr "Черновик"
 
+#: apps/reviews/models.py:15 templates/play_list.html:93
+#: templates/play_list.html:95
 msgid "Submitted"
 msgstr "Отправлена"
 
+#: apps/reviews/services.py:35
 msgid "You cannot modify this review during the current competition phase."
 msgstr "Вы не можете изменить эту рецензию на текущем этапе конкурса."
 
+#: apps/reviews/services.py:70
 msgid ""
 "✅ You've reached your limit of active plays to review. Please finish one of "
 "your current plays first."
@@ -140,10 +185,12 @@ msgstr ""
 "✅ Вы достигли лимита активных пьес для рецензирования. Пожалуйста, "
 "завершите одну из текущих пьес."
 
+#: apps/reviews/services.py:80
 msgid ""
 "You cannot request a new play during the current phase of the competition."
 msgstr "Вы не можете запросить новую пьесу на текущем этапе конкурса."
 
+#: apps/reviews/services.py:133 apps/reviews/services.py:158
 msgid ""
 "There are no new plays available to review at the moment. Please check back "
 "later."
@@ -151,167 +198,229 @@ msgstr ""
 "В данный момент нет новых пьес для рецензирования. Пожалуйста, проверьте "
 "позже."
 
+#: apps/reviews/services.py:171
 msgid "✅ A new play has been assigned to you."
 msgstr "✅ Вам назначена новая пьеса."
 
+#: apps/reviews/services.py:178
 msgid "This review is already public."
 msgstr "Эта рецензия уже публичная."
 
+#: apps/reviews/services.py:183
 msgid "✅ Review is now visible to others."
 msgstr "✅ Рецензия теперь видна другим."
 
+#: apps/reviews/services.py:188
 msgid "This review is already hidden."
 msgstr "Эта рецензия уже скрыта."
 
+#: apps/reviews/services.py:193
 msgid "✅ Review has been hidden by moderator."
 msgstr "✅ Рецензия скрыта модератором."
 
+#: apps/reviews/services.py:199
 msgid "This review is already marked as obsolete."
 msgstr "Эта рецензия уже помечена как устаревшая."
 
+#: apps/reviews/services.py:207
 msgid "✅ Review marked as obsolete. The play is back in the pool."
 msgstr "✅ Рецензия помечена как устаревшая. Пьеса возвращена в пул."
 
+#: apps/reviews/services.py:213
 msgid "This review is already active."
 msgstr "Эта рецензия уже активна."
 
+#: apps/reviews/services.py:218
 msgid "✅ Review has been successfully restored."
 msgstr "✅ Рецензия успешно восстановлена."
 
+#: apps/reviews/services.py:233
 msgid "✅ Your draft review has been saved successfully"
 msgstr "✅ Черновик рецензии успешно сохранён"
 
+#: apps/reviews/services.py:244
 msgid "This review has already been submitted."
 msgstr "Эта рецензия уже отправлена."
 
+#: apps/reviews/services.py:250
 msgid "Verdict and comment are mandatory for submission"
 msgstr "Вердикт и комментарий обязательны для отправки"
 
+#: apps/reviews/services.py:261
 msgid "✅ Your final review has been submitted successfully"
 msgstr "✅ Ваша итоговая рецензия успешно отправлена"
 
+#: apps/reviews/views.py:68 apps/reviews/views.py:112
 msgid "Invalid data submitted."
 msgstr "Отправлены некорректные данные."
 
+#: apps/users/admin.py:19
 msgid "Personal Info"
 msgstr "Личная информация"
 
+#: apps/users/admin.py:23
 msgid "Permissions"
 msgstr "Права доступа"
 
+#: apps/users/admin.py:34
 msgid "Important dates"
 msgstr "Важные даты"
 
+#: apps/users/forms.py:17
 msgid "Password"
 msgstr "Пароль"
 
+#: apps/users/forms.py:20
 msgid "Required for new users."
 msgstr "Обязательно для новых пользователей."
 
+#: apps/users/forms.py:24
 msgid "Password confirmation"
 msgstr "Подтверждение пароля"
 
+#: apps/users/forms.py:27
 msgid "Enter the same password as before, for verification."
 msgstr "Введите тот же пароль для подтверждения."
 
+#: apps/users/forms.py:51
 msgid "A user with this email already exists. Use the invite form instead."
 msgstr ""
 "Пользователь с таким email уже существует. Используйте форму приглашения."
 
+#: apps/users/forms.py:57
 msgid "The two password fields didn't match."
 msgstr "Пароли не совпадают."
 
+#: apps/users/forms.py:82
 msgid "Active in this competition"
 msgstr "Активен в этом конкурсе"
 
+#: apps/users/models.py:14
 msgid "Email is required"
 msgstr "Email обязателен"
 
+#: apps/users/models.py:28 templates/user_detail.html:36
+#: templates/user_list.html:35 templates/user_list.html:93
 msgid "Email"
 msgstr "Email"
 
+#: apps/users/models.py:29 templates/user_detail.html:47
 msgid "First Name"
 msgstr "Имя"
 
+#: apps/users/models.py:30 templates/user_detail.html:48
 msgid "Last Name"
 msgstr "Фамилия"
 
+#: apps/users/models.py:34 templates/user_detail.html:39
+#: templates/user_list.html:37 templates/user_list.html:95
 msgid "Telegram"
 msgstr "Telegram"
 
+#: apps/users/views.py:31
 #, python-format
 msgid "✅ %(email)s was processed successfully"
 msgstr "✅ %(email)s успешно обработан"
 
+#: apps/users/views.py:96
 #, python-format
 msgid "✅ %(email)s was updated successfully"
 msgstr "✅ %(email)s успешно обновлён"
 
+#: apps/users/views.py:305
 msgid "Email and role are required."
 msgstr "Email и роль обязательны."
 
+#: apps/users/views.py:320
 #, python-format
 msgid "✅ User %(email)s has been automatically added to this competition."
 msgstr "✅ Пользователь %(email)s автоматически добавлен в этот конкурс."
 
+#: templates/analytics_dashboard.html:4 templates/analytics_dashboard.html:11
+#: templates/analytics_dashboard.html:16
 msgid "Analytics Dashboard"
 msgstr "Аналитика"
 
+#: templates/analytics_dashboard.html:4 templates/base.html:6
+#: templates/competition_detail.html:4 templates/competition_list.html:4
+#: templates/create_update.html:5 templates/login.html:4
+#: templates/play_detail.html:4 templates/play_list.html:4
+#: templates/user_detail.html:4 templates/user_list.html:4
 msgid "Lubimovka Readers"
 msgstr "Любимовка Readers"
 
+#: templates/analytics_dashboard.html:9 templates/competition_detail.html:9
+#: templates/competition_list.html:4 templates/play_detail.html:51
+#: templates/play_list.html:9 templates/user_detail.html:9
+#: templates/user_list.html:10 templates/user_list.html:75
 msgid "Competitions"
 msgstr "Конкурсы"
 
+#: templates/analytics_dashboard.html:17
 msgid "Real-time metrics, progress tracking, and team performance."
 msgstr ""
 "Метрики в реальном времени, отслеживание прогресса и эффективность команды."
 
+#: templates/analytics_dashboard.html:24
 msgid "Overall"
 msgstr "Общее"
 
+#: templates/analytics_dashboard.html:42
 msgid "Progress & ETA"
 msgstr "Прогресс и сроки"
 
+#: templates/analytics_dashboard.html:43
 #, python-format
 msgid "Completion: %(percent)s%%"
 msgstr "Завершено: %(percent)s%%"
 
+#: templates/analytics_dashboard.html:46
 msgid "Current Velocity"
 msgstr "Текущая скорость"
 
+#: templates/analytics_dashboard.html:46
 #, python-format
 msgid "%(velocity)s reviews/day (last 7 days)"
 msgstr "%(velocity)s рецензий/день (последние 7 дней)"
 
+#: templates/analytics_dashboard.html:47
 msgid "Estimated Time Left"
 msgstr "Оставшееся время"
 
+#: templates/analytics_dashboard.html:47
 #, python-format
 msgid "%(days)s days"
 msgstr "%(days)s дн."
 
+#: templates/analytics_dashboard.html:47
 msgid "N/A"
 msgstr "Н/Д"
 
+#: templates/analytics_dashboard.html:47
 msgid "Need more data"
 msgstr "Нужно больше данных"
 
+#: templates/analytics_dashboard.html:52
 msgid "Yes/No Funnel"
 msgstr "Воронка решений"
 
+#: templates/analytics_dashboard.html:53
 msgid "Overall decision distribution for submitted reviews."
 msgstr "Общее распределение решений по отправленным рецензиям."
 
+#: templates/analytics_dashboard.html:55
 msgid "Pass to next stage"
 msgstr "Проходит на следующий этап"
 
+#: templates/analytics_dashboard.html:56
 msgid "Rejected"
 msgstr "Отклонено"
 
+#: templates/analytics_dashboard.html:63
 msgid "Pending Actions"
 msgstr "Ожидающие действия"
 
+#: templates/analytics_dashboard.html:65
 msgid ""
 "Displays reviews that have been assigned but remain unsubmitted for the "
 "longest time."
@@ -319,13 +428,16 @@ msgstr ""
 "Показывает рецензии, которые были назначены, но остаются неотправленными "
 "дольше всего."
 
+#: templates/analytics_dashboard.html:70
 #, python-format
 msgid "Assigned to <strong>%(email)s</strong> (%(ago)s ago)"
 msgstr "Назначена <strong>%(email)s</strong> (%(ago)s назад)"
 
+#: templates/analytics_dashboard.html:73
 msgid "No pending actions required."
 msgstr "Нет ожидающих действий."
 
+#: templates/analytics_dashboard.html:77
 msgid ""
 "Highlights readers with the lowest number of submitted reviews compared to "
 "the rest of the team."
@@ -333,97 +445,131 @@ msgstr ""
 "Показывает читателей с наименьшим количеством отправленных рецензий по "
 "сравнению с остальной командой."
 
+#: templates/analytics_dashboard.html:82
 #, python-format
 msgid "Submitted only <strong>%(count)s</strong> reviews."
 msgstr "Отправлено всего <strong>%(count)s</strong> рецензий."
 
+#: templates/analytics_dashboard.html:85
 msgid "Team reading pace is perfectly balanced."
 msgstr "Темп чтения команды идеально сбалансирован."
 
+#: templates/analytics_dashboard.html:89
 msgid "Please select a specific Phase tab to view pending actions."
 msgstr "Выберите конкретный этап для просмотра ожидающих действий."
 
+#: templates/analytics_dashboard.html:94
 msgid "Controversial Plays"
 msgstr "Спорные пьесы"
 
+#: templates/analytics_dashboard.html:95
 msgid "Lists plays that have received a mix of both 'Yes' and 'No' verdicts."
 msgstr "Пьесы, получившие как положительные, так и отрицательные вердикты."
 
+#: templates/analytics_dashboard.html:100
+#: templates/includes/review_list.html:47 templates/play_list.html:93
 msgid "Yes"
 msgstr "Да"
 
+#: templates/analytics_dashboard.html:100
+#: templates/includes/review_list.html:47 templates/play_list.html:95
 msgid "No"
 msgstr "Нет"
 
+#: templates/analytics_dashboard.html:103
 msgid "No controversial plays yet."
 msgstr "Спорных пьес пока нет."
 
+#: templates/analytics_dashboard.html:110
 msgid "Reader Leaderboard"
 msgstr "Рейтинг читателей"
 
+#: templates/analytics_dashboard.html:116
 msgid "Avg Reading Speed"
 msgstr "Ср. скорость чтения"
 
+#: templates/analytics_dashboard.html:117
 msgid "Submitted Reviews"
 msgstr "Отправленные рецензии"
 
+#: templates/analytics_dashboard.html:118 templates/user_detail.html:58
 msgid "Pending (Drafts/Assigned)"
 msgstr "В работе (черновики/назначенные)"
 
+#: templates/analytics_dashboard.html:134
 msgid "No readers found for this filter."
 msgstr "Читатели для этого фильтра не найдены."
 
+#: templates/analytics_dashboard.html:143
 msgid "Plays Overview"
 msgstr "Обзор пьес"
 
+#: templates/analytics_dashboard.html:148
 msgid "Play Title"
 msgstr "Название пьесы"
 
+#: templates/analytics_dashboard.html:149
 msgid "Current Status"
 msgstr "Текущий статус"
 
+#: templates/analytics_dashboard.html:152
 msgid "Phase 1 (Yes)"
 msgstr "Этап 1 (Да)"
 
+#: templates/analytics_dashboard.html:153
 msgid "Phase 1 (No)"
 msgstr "Этап 1 (Нет)"
 
+#: templates/analytics_dashboard.html:157
 msgid "Phase 2 (Yes)"
 msgstr "Этап 2 (Да)"
 
+#: templates/analytics_dashboard.html:158
 msgid "Phase 2 (No)"
 msgstr "Этап 2 (Нет)"
 
+#: templates/analytics_dashboard.html:180
 msgid "No plays active."
 msgstr "Нет активных пьес."
 
+#: templates/base.html:45
 msgid "Notification"
 msgstr "Уведомление"
 
+#: templates/competition_detail.html:16 templates/competition_list.html:22
 msgid "Current Phase"
 msgstr "Текущий этап"
 
+#: templates/competition_detail.html:22
 msgid "My Tasks & Reviews"
 msgstr "Мои задачи и рецензии"
 
+#: templates/competition_detail.html:23
 msgid "Read your assigned plays, submit reviews, and rate the texts."
 msgstr "Читайте назначенные пьесы, отправляйте рецензии и оценивайте тексты."
 
+#: templates/competition_detail.html:24
 msgid "Open Plays Dashboard"
 msgstr "Открыть пьесы"
 
+#: templates/competition_detail.html:28
 msgid "My Progress"
 msgstr "Мой прогресс"
 
+#: templates/competition_detail.html:29
 msgid "Track your reading statistics, completed tasks, and personal metrics."
 msgstr "Отслеживайте статистику чтения, выполненные задачи и личные метрики."
 
+#: templates/competition_detail.html:30
 msgid "View Stats"
 msgstr "Посмотреть статистику"
 
+#: templates/competition_detail.html:34 templates/user_list.html:77
+#: templates/user_list.html:82
 msgid "Contact Moderators"
 msgstr "Связаться с модераторами"
 
+#: templates/competition_detail.html:35
 msgid ""
 "If you feel stuck or need guidance during the reading process, our "
 "moderators are here to help."
@@ -431,117 +577,179 @@ msgstr ""
 "Если вы застряли или вам нужна помощь в процессе чтения, наши модераторы "
 "готовы помочь."
 
+#: templates/competition_detail.html:36
 msgid "View Moderators"
 msgstr "Посмотреть модераторов"
 
+#: templates/competition_detail.html:44
 msgid "Global Plays Database"
 msgstr "База данных пьес"
 
+#: templates/competition_detail.html:45
 msgid ""
 "Access all submitted plays, manage assignments, and view global ratings."
 msgstr ""
 "Доступ ко всем отправленным пьесам, управление назначениями и просмотр общих "
 "оценок."
 
+#: templates/competition_detail.html:46
 msgid "Open Database"
 msgstr "Открыть базу"
 
+#: templates/competition_detail.html:50 templates/user_detail.html:12
+#: templates/user_list.html:4 templates/user_list.html:12
+#: templates/user_list.html:17
 msgid "Team Management"
 msgstr "Управление командой"
 
+#: templates/competition_detail.html:51
 msgid "Invite readers, manage roles, and monitor team activity."
 msgstr ""
 "Приглашайте читателей, управляйте ролями и отслеживайте активность команды."
 
+#: templates/competition_detail.html:52
 msgid "Manage Team"
 msgstr "Управление командой"
 
+#: templates/competition_detail.html:56
 msgid "Deep Analytics"
 msgstr "Подробная аналитика"
 
+#: templates/competition_detail.html:57
 msgid ""
 "Analyze scoring trends, reader performance, and overall competition metrics."
 msgstr ""
 "Анализируйте тенденции оценок, эффективность читателей и общие метрики "
 "конкурса."
 
+#: templates/competition_detail.html:58
 msgid "View Analytics"
 msgstr "Посмотреть аналитику"
 
+#: templates/competition_detail.html:66
 msgid "Settings"
 msgstr "Настройки"
 
+#: templates/competition_detail.html:67
 msgid "Configure phase deadlines, update guidelines, and manage integrations."
 msgstr ""
 "Настройте сроки этапов, обновите руководства и управляйте интеграциями."
 
+#: templates/competition_detail.html:68
 msgid "Edit Settings"
 msgstr "Редактировать настройки"
 
+#: templates/competition_detail.html:72
 msgid "Data Export"
 msgstr "Экспорт данных"
 
+#: templates/competition_detail.html:73
 msgid ""
 "Generate and download full database backups in CSV or spreadsheet formats."
 msgstr ""
 "Создайте и скачайте полные резервные копии базы данных в CSV или форматах "
 "электронных таблиц."
 
+#: templates/competition_detail.html:74
 msgid "Export Data"
 msgstr "Экспортировать"
 
+#: templates/competition_list.html:8
 #, python-format
 msgid "Welcome, %(name)s!"
 msgstr "Добро пожаловать, %(name)s!"
 
+#: templates/competition_list.html:9
 msgid "Below are the competitions you have access to."
 msgstr "Ниже представлены конкурсы, к которым у вас есть доступ."
 
+#: templates/competition_list.html:26
 msgid "Your Role"
 msgstr "Ваша роль"
 
+#: templates/competition_list.html:28
 msgid "Administrator"
 msgstr "Администратор"
 
+#: templates/competition_list.html:40
 msgid "Open Competition"
 msgstr "Открыть конкурс"
 
+#: templates/competition_list.html:46
 msgid "You don't have access to any competitions yet."
 msgstr "У вас пока нет доступа ни к одному конкурсу."
 
+#: templates/create_update.html:5
 msgid "Update"
 msgstr "Обновление"
 
+#: templates/create_update.html:5
 msgid "Create"
 msgstr "Создание"
 
-msgid "Update Record"
-msgstr "Обновить запись"
+#: templates/create_update.html:13
+#, fuzzy
+#| msgid "Switch Theme"
+msgid "Switch to Phase 2?"
+msgstr "Перейти ко 2-му этапу?"
 
-msgid "Create Record"
-msgstr "Создать запись"
+#: templates/create_update.html:15
+msgid ""
+"This will <strong>automatically assign</strong> all plays that received 2 or "
+"more YES votes in Phase 1 to <strong>every active reader</strong> in this "
+"competition. Please make sure all Phase 1 reviews are finalized before "
+"proceeding."
+msgstr ""
+"Это <strong>автоматически назначит</strong> все пьесы, получившие 2 и более "
+"голосов «Да» на 1-м этапе, <strong>каждому активному читателю</strong> в "
+"этом конкурсе. Пожалуйста, убедитесь, что все рецензии 1-го этапа "
+"завершены, прежде чем продолжить."
 
-msgid "Submit"
-msgstr "Отправить"
-
+#: templates/create_update.html:17 templates/create_update.html:34
+#: templates/includes/review_list.html:11
+#: templates/includes/review_list.html:28 templates/play_detail.html:43
+#: templates/user_list.html:141
 msgid "Cancel"
 msgstr "Отмена"
 
+#: templates/create_update.html:18
+msgid "Yes, switch to Phase 2"
+msgstr "Да, перейти ко 2-му этапу"
+
+#: templates/create_update.html:25
+msgid "Update Record"
+msgstr "Обновить запись"
+
+#: templates/create_update.html:25
+msgid "Create Record"
+msgstr "Создать запись"
+
+#: templates/create_update.html:33
+msgid "Submit"
+msgstr "Отправить"
+
+#: templates/includes/navbar.html:13
 msgid "Switch Theme"
 msgstr "Сменить тему"
 
+#: templates/includes/navbar.html:16
 msgid "Change Language"
 msgstr "Сменить язык"
 
+#: templates/includes/navbar.html:21
 msgid "Logout"
 msgstr "Выйти"
 
+#: templates/includes/navbar.html:33 templates/login.html:4
+#: templates/login.html:15
 msgid "Login"
 msgstr "Войти"
 
+#: templates/includes/review_list.html:5
 msgid "Visibility Toggle"
 msgstr "Изменение видимости"
 
+#: templates/includes/review_list.html:7
 msgid ""
 "Are you sure you want to change the visibility of this review? Hidden "
 "reviews will only be visible to moderators."
@@ -549,12 +757,15 @@ msgstr ""
 "Вы уверены, что хотите изменить видимость этой рецензии? Скрытые рецензии "
 "будут видны только модераторам."
 
+#: templates/includes/review_list.html:12
 msgid "Confirm Visibility Change"
 msgstr "Подтвердить изменение видимости"
 
+#: templates/includes/review_list.html:22
 msgid "Revote (Mark Obsolete)"
 msgstr "Переголосование (пометить устаревшей)"
 
+#: templates/includes/review_list.html:24
 msgid ""
 "Are you sure you want to mark this review as obsolete? The play will be "
 "returned to the pool for another reader to evaluate. This action cannot be "
@@ -563,42 +774,59 @@ msgstr ""
 "Вы уверены, что хотите пометить эту рецензию как устаревшую? Пьеса будет "
 "возвращена в пул для оценки другим читателем. Это действие сложно отменить."
 
+#: templates/includes/review_list.html:29
 msgid "Yes, mark for revote"
 msgstr "Да, пометить для переголосования"
 
+#: templates/includes/review_list.html:42
 msgid "Reader Review"
 msgstr "Рецензия читателя"
 
+#: templates/includes/review_list.html:43
+msgid "You"
+msgstr "Вы"
+
+#: templates/includes/review_list.html:47
 msgid "Verdict"
 msgstr "Вердикт"
 
+#: templates/includes/review_list.html:47
 msgid "Pending"
 msgstr "Ожидает"
 
+#: templates/includes/review_list.html:48
 msgid "Hidden"
 msgstr "Скрыта"
 
+#: templates/includes/review_list.html:51
 msgid "No comment provided."
 msgstr "Комментарий не предоставлен."
 
+#: templates/includes/review_list.html:57
 msgid "Show Review"
 msgstr "Показать рецензию"
 
+#: templates/includes/review_list.html:57
 msgid "Hide Review"
 msgstr "Скрыть рецензию"
 
+#: templates/includes/review_list.html:59
 msgid "Revote"
 msgstr "Переголосование"
 
+#: templates/includes/review_list.html:65
 msgid "No reviews available yet."
 msgstr "Рецензий пока нет."
 
+#: templates/login.html:9
 msgid "Sign In"
 msgstr "Вход"
 
+#: templates/play_detail.html:11
 msgid "Confirm activation"
 msgstr "Подтвердите активацию"
 
+#: templates/play_detail.html:13
 msgid ""
 "Please confirm that all play data is correct. Once activated, the play will "
 "be visible to all readers."
@@ -606,12 +834,15 @@ msgstr ""
 "Пожалуйста, подтвердите, что все данные пьесы верны. После активации пьеса "
 "будет видна всем читателям."
 
+#: templates/play_detail.html:16
 msgid "Yes, activate play"
 msgstr "Да, активировать пьесу"
 
+#: templates/play_detail.html:25
 msgid "Confirm deactivation"
 msgstr "Подтвердите деактивацию"
 
+#: templates/play_detail.html:27
 msgid ""
 "Are you sure you want to deactivate this play? It will no longer be visible "
 "to readers."
@@ -619,12 +850,15 @@ msgstr ""
 "Вы уверены, что хотите деактивировать эту пьесу? Она больше не будет видна "
 "читателям."
 
+#: templates/play_detail.html:30
 msgid "Yes, deactivate play"
 msgstr "Да, деактивировать пьесу"
 
+#: templates/play_detail.html:39
 msgid "Final Submission"
 msgstr "Итоговая отправка"
 
+#: templates/play_detail.html:41
 msgid ""
 "This will be your final assessment. You will <strong>not</strong> be able to "
 "change your vote or comment after submitting."
@@ -632,141 +866,188 @@ msgstr ""
 "Это будет ваша итоговая оценка. После отправки вы <strong>не</strong> "
 "сможете изменить свой голос или комментарий."
 
+#: templates/play_detail.html:44
 msgid "I understand, submit"
 msgstr "Понимаю, отправить"
 
+#: templates/play_detail.html:53 templates/play_list.html:4
+#: templates/play_list.html:11
 msgid "Plays"
 msgstr "Пьесы"
 
+#: templates/play_detail.html:60
 msgid "Play details"
 msgstr "Детали пьесы"
 
+#: templates/play_detail.html:65
 msgid "Play Information"
 msgstr "Информация о пьесе"
 
+#: templates/play_detail.html:70 templates/play_list.html:52
 msgid "Author"
 msgstr "Автор"
 
+#: templates/play_detail.html:72
 msgid "Author Date of Birth"
 msgstr "Год рождения автора"
 
+#: templates/play_detail.html:76 templates/play_list.html:75
+#: templates/user_list.html:52
 msgid "Active"
 msgstr "Активна"
 
+#: templates/play_detail.html:76 templates/play_list.html:75
 msgid "Inactive"
 msgstr "Неактивна"
 
+#: templates/play_detail.html:81
 msgid "Text"
 msgstr "Текст"
 
+#: templates/play_detail.html:81
 msgid "Open play text"
 msgstr "Открыть текст пьесы"
 
+#: templates/play_detail.html:88 templates/user_list.html:40
 msgid "Actions"
 msgstr "Действия"
 
+#: templates/play_detail.html:90
 msgid "This play is currently inactive."
 msgstr "Эта пьеса в данный момент неактивна."
 
+#: templates/play_detail.html:91
 msgid "Activate Play"
 msgstr "Активировать пьесу"
 
+#: templates/play_detail.html:93
 msgid "This play is active and visible."
 msgstr "Эта пьеса активна и видна."
 
+#: templates/play_detail.html:94
 msgid "Deactivate Play"
 msgstr "Деактивировать пьесу"
 
+#: templates/play_detail.html:102
 #, python-format
 msgid "Your Review (%(phase)s)"
 msgstr "Ваша рецензия (%(phase)s)"
 
+#: templates/play_detail.html:108
 msgid "Does this play pass to the next stage?"
 msgstr "Проходит ли эта пьеса на следующий этап?"
 
+#: templates/play_detail.html:111
 msgid "Yes, pass to next stage"
 msgstr "Да, проходит на следующий этап"
 
+#: templates/play_detail.html:115
 msgid "No, reject"
 msgstr "Нет, отклонить"
 
+#: templates/play_detail.html:119
 msgid "Comment"
 msgstr "Комментарий"
 
+#: templates/play_detail.html:124
 msgid "Save Draft"
 msgstr "Сохранить черновик"
 
+#: templates/play_detail.html:127
 msgid "Submit Final Vote"
 msgstr "Отправить итоговый голос"
 
+#: templates/play_detail.html:135
 msgid "Reviews & Feedback"
 msgstr "Рецензии и обратная связь"
 
+#: templates/play_list.html:16
 msgid "Plays Dashboard"
 msgstr "Пьесы"
 
+#: templates/play_list.html:17
 #, python-format
 msgid "Review submitted plays for <strong>%(title)s</strong>"
 msgstr "Рецензирование отправленных пьес для <strong>%(title)s</strong>"
 
+#: templates/play_list.html:27
 msgid "Sync with Google Sheets"
 msgstr "Синхронизировать с Google Sheets"
 
+#: templates/play_list.html:36
 msgid "Request New Play"
 msgstr "Запросить новую пьесу"
 
+#: templates/play_list.html:44
 msgid "Play Database"
 msgstr "База пьес"
 
+#: templates/play_list.html:55
 msgid "Phase"
 msgstr "Этап"
 
+#: templates/play_list.html:56
 msgid "Review Status"
 msgstr "Статус рецензии"
 
+#: templates/play_list.html:110
 msgid "No plays found for this competition."
 msgstr "Пьес для этого конкурса не найдено."
 
+#: templates/user_detail.html:4
 msgid "Profile"
 msgstr "Профиль"
 
+#: templates/user_detail.html:14
 msgid "User Profile"
 msgstr "Профиль пользователя"
 
+#: templates/user_detail.html:20
 msgid "Profile & Statistics"
 msgstr "Профиль и статистика"
 
+#: templates/user_detail.html:27
 msgid "Edit Profile"
 msgstr "Редактировать профиль"
 
+#: templates/user_detail.html:34
 msgid "Personal Information"
 msgstr "Личная информация"
 
+#: templates/user_detail.html:43
 msgid "Not provided"
 msgstr "Не указано"
 
+#: templates/user_detail.html:54
 msgid "Reading Statistics"
 msgstr "Статистика чтения"
 
+#: templates/user_detail.html:56
 msgid "Total Assigned Plays"
 msgstr "Всего назначено пьес"
 
+#: templates/user_detail.html:57
 msgid "Completed Reviews"
 msgstr "Завершённые рецензии"
 
+#: templates/user_detail.html:59
 msgid "Average Reading Speed"
 msgstr "Средняя скорость чтения"
 
+#: templates/user_detail.html:64
 #, python-format
 msgid "Completed %(submitted)s out of %(total)s assigned plays."
 msgstr "Завершено %(submitted)s из %(total)s назначенных пьес."
 
+#: templates/user_detail.html:67
 msgid "No plays assigned yet."
 msgstr "Пьесы пока не назначены."
 
+#: templates/user_detail.html:76
 msgid "User Reviews & Feedback"
 msgstr "Рецензии пользователя"
 
+#: templates/user_list.html:18
 #, python-format
 msgid ""
 "Manage readers, moderators, and track overall progress for "
@@ -775,38 +1056,50 @@ msgstr ""
 "Управляйте читателями, модераторами и отслеживайте общий прогресс для "
 "<strong>%(title)s</strong>"
 
+#: templates/user_list.html:24
 msgid "Add Member"
 msgstr "Добавить участника"
 
+#: templates/user_list.html:29
 msgid "Team Members"
 msgstr "Участники команды"
 
+#: templates/user_list.html:36 templates/user_list.html:94
 msgid "Name"
 msgstr "Имя"
 
+#: templates/user_list.html:38 templates/user_list.html:96
+#: templates/user_list.html:131
 msgid "Role"
 msgstr "Роль"
 
+#: templates/user_list.html:54
 msgid "Disabled"
 msgstr "Отключён"
 
+#: templates/user_list.html:58
 msgid "Edit"
 msgstr "Ред."
 
+#: templates/user_list.html:64 templates/user_list.html:110
 msgid "No team members found for this competition."
 msgstr "Участники для этого конкурса не найдены."
 
+#: templates/user_list.html:83
 msgid ""
 "If need guidance during the reading process, our moderators are here to help."
 msgstr ""
 "Если вам нужна помощь в процессе чтения, наши модераторы готовы помочь."
 
+#: templates/user_list.html:87
 msgid "Moderators"
 msgstr "Модераторы"
 
+#: templates/user_list.html:123
 msgid "Invite Member"
 msgstr "Пригласить участника"
 
+#: templates/user_list.html:125
 msgid ""
 "Enter the email and role. If the user is already registered, they will be "
 "added automatically. Otherwise, you will be redirected to create their "
@@ -816,8 +1109,10 @@ msgstr ""
 "добавлен автоматически. Иначе вы будете перенаправлены для создания его "
 "профиля."
 
+#: templates/user_list.html:128
 msgid "Email address"
 msgstr "Адрес электронной почты"
 
+#: templates/user_list.html:140
 msgid "Continue"
 msgstr "Продолжить"

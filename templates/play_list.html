@@ -78,24 +78,28 @@
                                 <td>
                                     {% for review in play.reviews.all %}
                                         {% if review.reader == user %}
-                                            {{ review.get_phase_display }}
+                                            <div{% if not forloop.last %} class="review-phase-row"{% endif %}>
+                                                {{ review.get_phase_display }}
+                                            </div>
                                         {% endif %}
                                     {% endfor %}
                                 </td>
                                 <td>
                                     {% for review in play.reviews.all %}
                                         {% if review.reader == user %}
-                                            {% if review.status == 'submitted' %}
-                                                {% if review.verdict %}
-                                                    <ins>✅ {% trans "Yes" %} - {% trans "Submitted" %}</ins>
+                                            <div{% if not forloop.last %} class="review-phase-row"{% endif %}>
+                                                {% if review.status == 'submitted' %}
+                                                    {% if review.verdict %}
+                                                        ✅ {% trans "Yes" %} - {% trans "Submitted" %}
+                                                    {% else %}
+                                                        ❌ {% trans "No" %} - {% trans "Submitted" %}
+                                                    {% endif %}
+                                                {% elif review.status == 'draft' %}
+                                                    <mark>{% trans "Draft" %}</mark>
                                                 {% else %}
-                                                    <ins>❌ {% trans "No" %} - {% trans "Submitted" %}</ins>
+                                                    {{ review.get_status_display }}
                                                 {% endif %}
-                                            {% elif review.status == 'draft' %}
-                                                <mark>{% trans "Draft" %}</mark>
-                                            {% else %}
-                                                <ins>{{ review.get_status_display }}</ins>
-                                            {% endif %}
+                                            </div>
                                         {% endif %}
                                     {% endfor %}
                                 </td>

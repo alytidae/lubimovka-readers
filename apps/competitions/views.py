@@ -284,6 +284,13 @@ class CompetitionAnalyticsView(
             .order_by("-total_submitted")
         )
 
+        qualifying_plays_count = plays_overview.filter(phase_1_yes__gte=2).count()
+
+        if selected_phase == "phase_1":
+            plays_overview = plays_overview.filter(phase_1_yes__lt=2)
+        elif selected_phase == "phase_2":
+            plays_overview = plays_overview.filter(phase_1_yes__gte=2)
+
         yes_filters = play_review_filters & Q(reviews__verdict=True)
         no_filters = play_review_filters & Q(reviews__verdict=False)
 
@@ -334,10 +341,10 @@ class CompetitionAnalyticsView(
         if selected_phase == "phase_1":
             total_target = active_plays_count * 2
         elif selected_phase == "phase_2":
-            total_target = active_plays_count * reader_count
+            total_target = qualifying_plays_count * reader_count
         else:
             total_target = (active_plays_count * 2) + (
-                active_plays_count * reader_count
+                qualifying_plays_count * reader_count
             )
 
         remaining_tasks = max(0, total_target - total_done)

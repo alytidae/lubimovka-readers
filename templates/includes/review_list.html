@@ -33,13 +33,14 @@
 </dialog>
 
 {% for review in reviews %}
-    <details>
+    <details{% if review.reader == user %} class="own-review"{% endif %}>
         <summary>
             <strong>
                 {% if show_play_title %}
                     <a href="{% url 'plays:detail' current_competition.slug review.play.pk %}">{{ review.play.title }}</a>
                 {% else %}
                     {% if is_moderator %}{{ review.reader.get_full_name|default:review.reader.email }}{% else %}{% trans "Reader Review" %}{% endif %}
+                    {% if review.reader == user %}<mark>{% trans "You" %}</mark>{% endif %}
                 {% endif %}
             </strong> 
             - {{ review.get_phase_display }}
