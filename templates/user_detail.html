@@ -20,7 +20,7 @@
         <p>{% trans "Profile & Statistics" %}</p>
     </hgroup>
 
-    {% if object.role != "reader" %}
+    {% if is_admin %}
     <nav>
         <ul></ul>
         <ul>

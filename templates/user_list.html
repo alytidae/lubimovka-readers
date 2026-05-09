@@ -19,10 +19,12 @@
     </hgroup>
 
     <nav>
-        <ul></ul>
-        <ul>
-            <li><button type="button" onclick="document.getElementById('invite-dialog').showModal()">{% trans "Add Member" %}</button></li>
-        </ul>
+	{% if user.role == "admin" %}
+	<ul></ul>
+	<ul>
+	    <li><button type="button" onclick="document.getElementById('invite-dialog').showModal()">{% trans "Add Member" %}</button></li>
+	</ul>
+	{% endif %}
     </nav>
 
     <article>
@@ -37,34 +39,38 @@
                         <th scope="col">{% trans "Telegram" %}</th>
                         <th scope="col">{% trans "Role" %}</th>
                         <th scope="col">{% trans "Status" %}</th>
-                        <th scope="col">{% trans "Actions" %}</th>
+			{% if user.role == "admin" %}
+			<th scope="col">{% trans "Actions" %}</th>
+			{% endif %}
                     </tr>
                 </thead>
                 <tbody>
-                    {% for user in object_list %}
-                        <tr>
-                            <td><a href="{% url 'users:detail' current_competition.slug user.id %}">{{ user.email }}</a></td>
-                            <td>{{ user.first_name }} {{ user.last_name }}</td>
-                            <td>{{ user.telegram_username }}</td>
-                            <td>{{ user.role|capfirst }}</td>
-                            <td>
-                                {% if user.role_is_active %}
-                                ✅ {% trans "Active" %}
-                                {% else %}
-                                ❌ {% trans "Disabled" %}
-                                {% endif %}
-                            </td>
-                            <td>
-                                <a href="{% url 'users:update' current_competition.slug user.id %}"><small>{% trans "Edit" %}</small></a>
-                            </td>
-                        </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="5">
-                                {% trans "No team members found for this competition." %}
-                            </td>
-                        </tr>
-                    {% endfor %}
+			{% for user_obj in object_list %}
+			    <tr>
+				<td><a href="{% url 'users:detail' current_competition.slug user_obj.id %}">{{ user_obj.email }}</a></td>
+				<td>{{ user_obj.first_name }} {{ user_obj.last_name }}</td>
+				<td>{{ user_obj.telegram_username }}</td>
+				<td>{{ user_obj.role|capfirst }}</td>
+				<td>
+				    {% if user_obj.role_is_active %}
+				    ✅ {% trans "Active" %}
+				    {% else %}
+				    ❌ {% trans "Disabled" %}
+				    {% endif %}
+				</td>
+				{% if user.role == "admin" or user.is_superuser %}
+				<td>
+				    <a href="{% url 'users:update' current_competition.slug user_obj.id %}"><small>{% trans "Edit" %}</small></a>
+				</td>
+				{% endif %}
+			    </tr>
+			{% empty %}
+			    <tr>
+				<td colspan="5">
+				    {% trans "No team members found for this competition." %}
+				</td>
+			    </tr>
+			{% endfor %}
                 </tbody>
             </table>
         </figure>

@@ -37,7 +37,7 @@ class UserCreateView(
             return True
 
         return self.request.user.competition_roles.filter(
-            competition=competition, role__in=["admin", "moderator"], is_active=True
+            competition=competition, role__in=["admin"], is_active=True
         ).exists()
 
     def get_initial(self):
@@ -221,6 +221,9 @@ class UserDetailView(
             )
         else:
             context["avg_reading_speed"] = "-"
+
+        context["user"] = self.request.user
+        context["user"].role = self.request.user.get_role(competition)
 
         return context
 
