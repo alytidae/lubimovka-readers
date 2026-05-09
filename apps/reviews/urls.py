@@ -25,4 +25,5 @@ urlpatterns = [
         name="mark_obsolete",
     ),
     path("<int:pk>/restore/", views.ReviewRestoreView.as_view(), name="restore"),
+    path("<int:pk>/edit/", views.ReviewUpdateView.as_view(), name="edit"),
 ]

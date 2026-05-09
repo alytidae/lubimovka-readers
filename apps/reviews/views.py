@@ -1,4 +1,5 @@
 from django.views import View
+from django.views.generic.edit import UpdateView
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.utils.translation import gettext_lazy as _
@@ -227,5 +228,29 @@ class ReviewRestoreView(
             return True
 
         if self.request.user.get_role(competition) in ["moderator", "admin"]:
+            return True
+        return False
+
+
+class ReviewUpdateView(
+    LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, UpdateView
+):
+    model = Review
+    fields = ["verdict", "comment"]
+
+    def get_success_url(self):
+        return redirect(
+            "plays:detail",
+            competition_slug=self.get_competition().slug,
+            pk=self.object.play.id,
+        ).url
+
+    def test_func(self):
+        competition = self.get_competition()
+
+        if self.request.user.is_superuser:
+            return True
+
+        if self.request.user.get_role(competition) in ["admin"]:
             return True
         return False

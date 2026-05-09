@@ -49,6 +49,35 @@
     </article>
 </dialog>
 
+<dialog id="edit-review-dialog">
+    <article>
+        <header>
+            <button type="button" aria-label="Close" rel="prev" onclick="document.getElementById('edit-review-dialog').close()"></button>
+            <p><strong>{% trans "Edit Review" %}</strong></p>
+        </header>
+        <form id="edit-review-form" method="post" action="">
+            {% csrf_token %}
+            <fieldset>
+                <legend>{% trans "Verdict" %}</legend>
+                <label>
+                    <input type="radio" name="verdict" value="True">
+                    {% trans "Yes, pass to next stage" %}
+                </label>
+                <label>
+                    <input type="radio" name="verdict" value="False">
+                    {% trans "No, reject" %}
+                </label>
+            </fieldset>
+            <label for="edit-review-comment">{% trans "Comment" %}</label>
+            <textarea id="edit-review-comment" name="comment" rows="6"></textarea>
+            <footer>
+                <button type="button" class="secondary outline" onclick="document.getElementById('edit-review-dialog').close()">{% trans "Cancel" %}</button>
+                <button type="submit">{% trans "Save Changes" %}</button>
+            </footer>
+        </form>
+    </article>
+</dialog>
+
 {% for review in reviews %}
     <details{% if review.is_obsolete %} class="obsolete-review"{% elif review.reader == user %} class="own-review"{% endif %}>
         <summary>
@@ -71,13 +100,16 @@
         {% if is_moderator %}
             <footer>
                 <div class="grid">
+			{% if is_admin %}
+			<button type="button" class="secondary outline" onclick="openEditModal('{% url 'reviews:edit' current_competition.slug review.id %}', {{ review.verdict|lower|default:'null' }}, '{{ review.comment|escapejs }}')">{% trans "Edit" %}</button>
+			{% endif %}
                     {% if review.is_obsolete %}
                         <button type="button" onclick="openRestoreModal('{% url 'reviews:restore' current_competition.slug review.id %}')">{% trans "Restore" %}</button>
                     {% else %}
                         <button type="button" class="secondary outline" onclick="openVisibilityModal('{% if review.is_hidden %}{% url 'reviews:mark_public' current_competition.slug review.id %}{% else %}{% url 'reviews:mark_hidden' current_competition.slug review.id %}{% endif %}')">
                             {% if review.is_hidden %}{% trans "Show Review" %}{% else %}{% trans "Hide Review" %}{% endif %}
                         </button>
-                        <button type="button" class="contrast outline" onclick="openRevoteModal('{% url 'reviews:mark_obsolete' current_competition.slug review.id %}')">{% trans "Revote" %}</button>
+                        <button type="button" class="secondary outline" onclick="openRevoteModal('{% url 'reviews:mark_obsolete' current_competition.slug review.id %}')">{% trans "Revote" %}</button>
                     {% endif %}
                 </div>
             </footer>
@@ -99,5 +131,12 @@
     function openRestoreModal(url) {
         document.getElementById('restore-review-form').action = url;
         document.getElementById('restore-review-dialog').showModal();
+    }
+    function openEditModal(url, verdict, comment) {
+        document.getElementById('edit-review-form').action = url;
+        var radios = document.querySelectorAll('#edit-review-form input[name="verdict"]');
+        radios.forEach(function(r) { r.checked = (r.value === String(verdict)); });
+        document.getElementById('edit-review-comment').value = comment || '';
+        document.getElementById('edit-review-dialog').showModal();
     }
 </script>
