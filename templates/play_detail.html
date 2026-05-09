@@ -13,7 +13,7 @@
             <p>{% trans "Here you can add a comment about this play, its author, or the circumstances under which you activated or deactivated it." %}</p>
             <form method="post" action="{% url 'plays:edit-comment' current_competition.slug object.pk %}">
                 {% csrf_token %}
-		<textarea name="internal_comment" rows="10">{{ object.internal_comment }}</textarea>
+		<textarea name="internal_comment" rows="10">{{ object.internal_comment|default:"" }}</textarea>
                 <footer><button type="submit">{% trans "Edit comment" %}</button></footer>
             </form>
         </article>
