@@ -4,6 +4,21 @@
 {% block title %}{{ object.title }} - {{ current_competition.title }} - {% trans "Lubimovka Readers" %}{% endblock title %}
 
 {% block content %}
+    <dialog id="comment-dialog">
+        <article>
+            <header>
+                <button type="button" aria-label="Close" rel="prev" onclick="document.getElementById('comment-dialog').close()"></button>
+                <p><strong>{% trans "Comment Play" %}</strong></p>
+            </header>
+            <p>{% trans "Here you can add a comment about this play, its author, or the circumstances under which you activated or deactivated it." %}</p>
+            <form method="post" action="{% url 'plays:edit-comment' current_competition.slug object.pk %}">
+                {% csrf_token %}
+		<textarea name="internal_comment" rows="10">{{ object.internal_comment }}</textarea>
+                <footer><button type="submit">{% trans "Edit comment" %}</button></footer>
+            </form>
+        </article>
+    </dialog>
+
     <dialog id="activate-dialog">
         <article>
             <header>
@@ -68,12 +83,17 @@
                 
                 {% if not is_reader %}
                     <li><strong>{% trans "Author" %}:</strong> {{ object.author_first_name }} {{ object.author_last_name }}</li>
+                    <li><strong>{% trans "Email" %}:</strong> {{ object.author_email }}</li>
                     {% if object.author_year_of_birth %}
                         <li><strong>{% trans "Author Date of Birth" %}:</strong> {{ object.author_year_of_birth }}</li>
                     {% endif %}
                     <li>
                         <strong>{% trans "Status" %}:</strong>
                         {% if object.is_active %}✅ {% trans "Active" %}{% else %}❌ {% trans "Inactive" %}{% endif %}
+                    </li>
+                    <li>
+                        <strong>{% trans "Comment" %}:</strong>
+		    	{% if play.internal_comment %} {{ play.internal_comment }} {% else %} - {% endif %}
                     </li>
                 {% endif %}
 
@@ -93,6 +113,9 @@
                 <p>{% trans "This play is active and visible." %}</p>
                 <button type="button" class="secondary" onclick="document.getElementById('deactivate-dialog').showModal()">{% trans "Deactivate Play" %}</button>
             {% endif %}
+	    	<div>
+		    <button type="button" onclick="document.getElementById('comment-dialog').showModal()">{% trans "Edit comment" %}</button>
+		</div>
         </article>
         {% endif %}
     </div>

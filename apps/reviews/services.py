@@ -15,7 +15,7 @@ from django.db.models import (
 from django.utils.translation import gettext_lazy as _
 from apps.users.models import User
 
-MAX_ACTIVE_REVIEWS_PER_READER = 3
+MAX_ACTIVE_REVIEWS_PER_READER = 5
 MAX_REVIEWS_PER_PLAY = 3
 VERDICTS_REQUIRED_FOR_FINAL_DECISION = 2
 

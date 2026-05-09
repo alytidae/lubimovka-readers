@@ -16,6 +16,8 @@ class Play(models.Model):
     author_last_name = models.CharField(max_length=255, null=True, blank=True)
     author_year_of_birth = models.PositiveSmallIntegerField(null=True, blank=True)
 
+    internal_comment = models.TextField(null=True, blank=True)
+
     is_active = models.BooleanField(default=False)
 
     @property

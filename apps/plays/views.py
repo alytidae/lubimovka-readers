@@ -1,4 +1,4 @@
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, UpdateView
 from django.views import View
 from .models import Play
 from django.shortcuts import get_object_or_404, redirect
@@ -190,3 +190,24 @@ class PlayDeactivateView(LoginRequiredMixin, UserPassesTestMixin, View):
             return True
 
         return False
+
+class PlayUpdateCommentView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Play
+    fields = ['internal_comment']
+    template_name = 'play_details.html' 
+    
+    def get_success_url(self):
+        return self.object.get_absolute_url()
+
+    def test_func(self):
+        competition = get_object_or_404(
+            Competition, slug=self.kwargs["competition_slug"]
+        )
+        if self.request.user.is_superuser:
+            return True
+
+        if self.request.user.get_role(competition) in ["admin", "moderator"]:
+            return True
+
+        return False
+    

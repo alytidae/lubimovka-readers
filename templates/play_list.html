@@ -51,6 +51,7 @@
                         {% if not is_reader %}
                             <th scope="col">{% trans "Author" %}</th>
                             <th scope="col">{% trans "Status" %}</th>
+                            <th scope="col">{% trans "Comment" %}</th>
                         {% else %}
                             <th scope="col">{% trans "Phase" %}</th>
                             <th scope="col">{% trans "Review Status" %}</th>
@@ -73,6 +74,9 @@
                                 </td>
                                 <td>
                                     {% if play.is_active %}✅ {% trans "Active" %}{% else %}❌ {% trans "Inactive" %}{% endif %}
+                                </td>
+                                <td class="comment-cell">
+			            {% if play.internal_comment %} {{ play.internal_comment|linebreaksbr }} {% else %} - {% endif %}
                                 </td>
                             {% else %}
                                 <td>
