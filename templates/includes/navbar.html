@@ -7,7 +7,7 @@
         {% if user.is_authenticated %}
             <li>
                 <details class="dropdown">
-                    <summary class="outline secondary">{{ user.email }}</summary>
+                    <summary class="outline secondary">{{ user.username }}</summary>
                     <ul dir="rtl">
                          <li>
                              <a href="#" id="theme-switcher" class="secondary">{% trans "Switch Theme" %}</a>

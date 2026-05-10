@@ -29,7 +29,7 @@ class CustomUserAddForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ("email", "telegram_username", "first_name", "last_name", "role")
+        fields = ("username", "telegram_username", "role")
 
     def __init__(self, *args, **kwargs):
         self.creator_role = kwargs.pop("creator_role", "reader")
@@ -40,15 +40,15 @@ class CustomUserAddForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        email = cleaned_data.get("email")
+        username = cleaned_data.get("username")
         password = cleaned_data.get("password")
         password_confirm = cleaned_data.get("password_confirm")
 
-        if email and User.objects.filter(email=email).exists():
+        if username and User.objects.filter(username=username).exists():
             self.add_error(
-                "email",
+                "username",
                 _(
-                    "A user with this email already exists. Use the invite form instead."
+                    "A user with this username already exists. Use the invite form instead."
                 ),
             )
 
@@ -62,8 +62,6 @@ class CustomUserAddForm(forms.ModelForm):
     def save(self, commit=True):
         user = super().save(commit=False)
         user.set_password(self.cleaned_data.get("password"))
-
-        user.email = User.objects.normalize_email(user.email).lower()
 
         if commit:
             user.save()
@@ -84,7 +82,7 @@ class CustomUserChangeForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ("email", "telegram_username", "first_name", "last_name", "role")
+        fields = ("username", "telegram_username", "role")
 
     def __init__(self, *args, **kwargs):
         self.editor_role = kwargs.pop("editor_role", "reader")

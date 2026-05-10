@@ -14,10 +14,10 @@ class TestUserManagementAndForms(TestCase):
         )
 
         cls.admin_user = User.objects.create_user(
-            email="admin@test.com", password="pwd", is_superuser=True
+            username="admin", password="pwd", is_superuser=True
         )
         cls.existing_reader = User.objects.create_user(
-            email="exists@test.com", password="pwd"
+            username="exists", password="pwd"
         )
 
     def setUp(self):
@@ -29,7 +29,7 @@ class TestUserManagementAndForms(TestCase):
             "users:invite", kwargs={"competition_slug": self.competition.slug}
         )
 
-        response = self.client.post(url, {"email": "exists@test.com", "role": "reader"})
+        response = self.client.post(url, {"username": "exists", "role": "reader"})
         self.assertRedirects(
             response,
             reverse("users:list", kwargs={"competition_slug": self.competition.slug}),
@@ -46,19 +46,18 @@ class TestUserManagementAndForms(TestCase):
             "users:invite", kwargs={"competition_slug": self.competition.slug}
         )
 
-        response = self.client.post(url, {"email": "new@test.com", "role": "reader"})
+        response = self.client.post(url, {"username": "new_user", "role": "reader"})
 
         expected_url = (
             reverse("users:create", kwargs={"competition_slug": self.competition.slug})
-            + "?email=new%40test.com&role=reader"
+            + "?username=new_user&role=reader"
         )
         self.assertRedirects(response, expected_url)
 
     def test_user_creation_form_passwords_must_match(self):
         form = CustomUserAddForm(
             data={
-                "email": "new@test.com",
-                "first_name": "Test",
+                "username": "new_user",
                 "role": "reader",
                 "password": "password123",
                 "password_confirm": "password456",
@@ -67,15 +66,14 @@ class TestUserManagementAndForms(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn("password_confirm", form.errors)
 
-    def test_user_creation_form_rejects_existing_email(self):
+    def test_user_creation_form_rejects_existing_username(self):
         form = CustomUserAddForm(
             data={
-                "email": "exists@test.com",
-                "first_name": "Test",
+                "username": "exists",
                 "role": "reader",
                 "password": "password123",
                 "password_confirm": "password123",
             }
         )
         self.assertFalse(form.is_valid())
-        self.assertIn("email", form.errors)
+        self.assertIn("username", form.errors)

@@ -15,7 +15,7 @@ class TestCompetitionIsolation(TestCase):
         cls.comp_a = Competition.objects.create(title="Comp A", date=date(2026, 1, 1))
         cls.comp_b = Competition.objects.create(title="Comp B", date=date(2026, 2, 1))
 
-        cls.user = User.objects.create_user(email="user@test.com", password="pwd")
+        cls.user = User.objects.create_user(username="user", password="pwd")
         # User is only reader in Comp A, no access to Comp B
         CompetitionRole.objects.create(
             user=cls.user, competition=cls.comp_a, role="reader"
@@ -94,7 +94,7 @@ class TestCompetitionStatusTransition(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.admin_user = User.objects.create_user(
-            email="trans_admin@test.com", password="pwd", is_superuser=True
+            username="trans_admin", password="pwd", is_superuser=True
         )
         cls.competition = Competition.objects.create(
             title="Trans Comp",
@@ -103,9 +103,7 @@ class TestCompetitionStatusTransition(TestCase):
         )
         cls.readers = []
         for i in range(2):
-            user = User.objects.create_user(
-                email=f"trans_r{i}@test.com", password="pwd"
-            )
+            user = User.objects.create_user(username=f"trans_r{i}", password="pwd")
             CompetitionRole.objects.create(
                 user=user, competition=cls.competition, role="reader"
             )
@@ -117,8 +115,8 @@ class TestCompetitionStatusTransition(TestCase):
             author_email="approved@test.com",
             is_active=True,
         )
-        extra1 = User.objects.create_user(email="trans_e1@test.com", password="pwd")
-        extra2 = User.objects.create_user(email="trans_e2@test.com", password="pwd")
+        extra1 = User.objects.create_user(username="trans_e1", password="pwd")
+        extra2 = User.objects.create_user(username="trans_e2", password="pwd")
         Review.objects.create(
             reader=extra1,
             play=cls.play_approved,

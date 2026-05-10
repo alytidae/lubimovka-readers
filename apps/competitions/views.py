@@ -421,7 +421,7 @@ class CompetitionExportExcelView(
             [
                 "Play ID",
                 "Play Title",
-                "Reader Email",
+                "Reader Username",
                 "Phase",
                 "Verdict",
                 "Comment",
@@ -438,7 +438,7 @@ class CompetitionExportExcelView(
                 [
                     review.play.id,
                     review.play.title,
-                    review.reader.email,
+                    review.reader.username,
                     review.get_phase_display(),
                     "Yes" if review.verdict else "No",
                     review.comment,
@@ -452,7 +452,7 @@ class CompetitionExportExcelView(
 
         ws_readers = wb.create_sheet(title="Readers")
         ws_readers.append(
-            ["Email", "Name", "Telegram", "Role", "Submitted (Yes)", "Submitted (No)"]
+            ["Username", "Telegram", "Role", "Submitted (Yes)", "Submitted (No)"]
         )
 
         users = (
@@ -485,8 +485,7 @@ class CompetitionExportExcelView(
             role = u.get_role(competition)
             ws_readers.append(
                 [
-                    u.email,
-                    u.get_full_name(),
+                    u.username,
                     u.telegram_username or "",
                     role,
                     u.yes_votes,

@@ -67,7 +67,7 @@
                     {% for review in pending_actions %}
                         <li>
                             <a href="{% url 'plays:detail' current_competition.slug review.play.pk %}">{{ review.play.title }}</a><br>
-                            <small>{% blocktrans with email=review.reader.email ago=review.created_at|timesince %}Assigned to <strong>{{ email }}</strong> ({{ ago }} ago){% endblocktrans %}</small>
+                            <small>{% blocktrans with username=review.reader.username ago=review.created_at|timesince %}Assigned to <strong>{{ username }}</strong> ({{ ago }} ago){% endblocktrans %}</small>
                         </li>
                     {% empty %}
                         <li>{% trans "No pending actions required." %}</li>
@@ -78,7 +78,7 @@
                 <ul>
                     {% for lagger in pending_actions %}
                         <li>
-                            <a href="{% url 'users:detail' current_competition.slug lagger.id %}">{{ lagger.email }}</a><br>
+                            <a href="{% url 'users:detail' current_competition.slug lagger.id %}">{{ lagger.username }}</a><br>
                             <small>{% blocktrans with count=lagger.submitted_reviews %}Submitted only <strong>{{ count }}</strong> reviews.{% endblocktrans %}</small>
                         </li>
                     {% empty %}
@@ -121,7 +121,7 @@
                 <tbody>
                     {% for reader in top_readers %}
                         <tr>
-                            <td><a href="{% url 'users:detail' current_competition.slug reader.id %}">{{ reader.get_full_name|default:reader.email }}</a></td>
+                            <td><a href="{% url 'users:detail' current_competition.slug reader.id %}">{{ reader.username }}</a></td>
                             <td>{{ reader.speed_str }}</td>
                             <td>
                                 <strong>{{ reader.submitted_reviews }}</strong>

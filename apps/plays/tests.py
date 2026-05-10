@@ -17,8 +17,8 @@ class TestPlayVisibilityAndActions(TestCase):
             are_phase1_reviews_visible=False,
         )
 
-        cls.reader = User.objects.create_user(email="reader@test.com", password="pwd")
-        cls.mod = User.objects.create_user(email="mod@test.com", password="pwd")
+        cls.reader = User.objects.create_user(username="reader", password="pwd")
+        cls.mod = User.objects.create_user(username="mod", password="pwd")
         CompetitionRole.objects.create(
             user=cls.reader, competition=cls.competition, role="reader"
         )

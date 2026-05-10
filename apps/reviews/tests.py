@@ -28,7 +28,7 @@ class TestPlayAssignmentAndPhases(TestCase):
 
         cls.readers = []
         for i in range(4):
-            user = User.objects.create_user(email=f"reader{i}@test.com", password="pwd")
+            user = User.objects.create_user(username=f"reader{i}", password="pwd")
             CompetitionRole.objects.create(
                 user=user, competition=cls.competition, role="reader"
             )
@@ -78,8 +78,8 @@ class TestReviewLifecycle(TestCase):
             date=date(2026, 1, 1),
             status=Competition.Status.PHASE_1,
         )
-        cls.reader = User.objects.create_user(email="reader@test.com", password="pwd")
-        cls.mod = User.objects.create_user(email="mod@test.com", password="pwd")
+        cls.reader = User.objects.create_user(username="reader", password="pwd")
+        cls.mod = User.objects.create_user(username="mod", password="pwd")
 
         CompetitionRole.objects.create(
             user=cls.reader, competition=cls.competition, role="reader"
@@ -135,7 +135,7 @@ class TestPhaseGuards(TestCase):
         cls.readers = []
         for i in range(3):
             cls.readers.append(
-                User.objects.create_user(email=f"pg_reader{i}@test.com", password="pwd")
+                User.objects.create_user(username=f"pg_reader{i}", password="pwd")
             )
 
     def _make_comp_and_play(self, status=Competition.Status.PHASE_1):
@@ -264,9 +264,7 @@ class TestPhase2AutoAssignment(TestCase):
         )
         cls.readers = []
         for i in range(3):
-            user = User.objects.create_user(
-                email=f"p2_reader{i}@test.com", password="pwd"
-            )
+            user = User.objects.create_user(username=f"p2_reader{i}", password="pwd")
             CompetitionRole.objects.create(
                 user=user, competition=cls.competition, role="reader"
             )
@@ -291,12 +289,8 @@ class TestPhase2AutoAssignment(TestCase):
             is_active=False,
         )
 
-        extra_reader_1 = User.objects.create_user(
-            email="extra1@test.com", password="pwd"
-        )
-        extra_reader_2 = User.objects.create_user(
-            email="extra2@test.com", password="pwd"
-        )
+        extra_reader_1 = User.objects.create_user(username="extra1", password="pwd")
+        extra_reader_2 = User.objects.create_user(username="extra2", password="pwd")
         Review.objects.create(
             reader=extra_reader_1,
             play=cls.play_yes,
@@ -378,7 +372,7 @@ class TestPhase2AutoAssignment(TestCase):
 
     def test_excludes_inactive_readers(self):
         inactive_reader = User.objects.create_user(
-            email="inactive_reader@test.com", password="pwd"
+            username="inactive_reader", password="pwd"
         )
         role = CompetitionRole.objects.create(
             user=inactive_reader,
@@ -398,7 +392,7 @@ class TestPhase2AutoAssignment(TestCase):
 
     def test_phase1_reviewers_still_get_phase2_assignment(self):
         reviewer_who_voted_yes = User.objects.create_user(
-            email="voted_yes@test.com", password="pwd"
+            username="voted_yes", password="pwd"
         )
         CompetitionRole.objects.create(
             user=reviewer_who_voted_yes,
@@ -435,7 +429,7 @@ class TestReviewSubmitViaView(TestCase):
             date=date(2026, 1, 1),
             status=Competition.Status.PHASE_1,
         )
-        cls.reader = User.objects.create_user(email="sub@test.com", password="pwd")
+        cls.reader = User.objects.create_user(username="sub", password="pwd")
         CompetitionRole.objects.create(
             user=cls.reader, competition=cls.competition, role="reader"
         )
@@ -546,10 +540,10 @@ class TestReviewModerationViaView(TestCase):
             date=date(2026, 1, 1),
             status=Competition.Status.PHASE_1,
         )
-        cls.reader = User.objects.create_user(email="mod_r@test.com", password="pwd")
-        cls.mod = User.objects.create_user(email="mod_m@test.com", password="pwd")
+        cls.reader = User.objects.create_user(username="mod_r", password="pwd")
+        cls.mod = User.objects.create_user(username="mod_m", password="pwd")
         cls.admin = User.objects.create_user(
-            email="mod_a@test.com", password="pwd", is_superuser=True
+            username="mod_a", password="pwd", is_superuser=True
         )
 
         CompetitionRole.objects.create(

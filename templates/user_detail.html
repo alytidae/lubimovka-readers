@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block title %}{{ object.get_full_name|default:object.email }} - {% trans "Profile" %} - {% trans "Lubimovka Readers" %}{% endblock title %}
+{% block title %}{{ object.username }} - {% trans "Profile" %} - {% trans "Lubimovka Readers" %}{% endblock title %}
 
 {% block content %}
     <nav aria-label="breadcrumb">
@@ -11,12 +11,12 @@
         {% if object.role != "reader"%}
         <li><a href="{% url 'users:list' current_competition.slug %}">{% trans "Team Management" %}</a></li>
         {% endif %}
-        <li>{{ object.first_name|default:_("User Profile") }}</li>
+        <li>{{ object.username }}</li>
       </ul>
     </nav>
 
     <hgroup>
-        <h1>{{ object.get_full_name|default:object.email }}</h1>
+        <h1>{{ object.username }}</h1>
         <p>{% trans "Profile & Statistics" %}</p>
     </hgroup>
 
@@ -33,7 +33,7 @@
         <article>
             <header>{% trans "Personal Information" %}</header>
             <ul>
-                <li><strong>{% trans "Email" %}:</strong> <a href="mailto:{{ object.email }}">{{ object.email }}</a></li>
+                <li><strong>{% trans "Username" %}:</strong> {{ object.username }}</li>
                 
                 <li>
                     <strong>{% trans "Telegram" %}:</strong> 
@@ -44,8 +44,7 @@
                     {% endif %}
                 </li>
                 
-                <li><strong>{% trans "First Name" %}:</strong> {{ object.first_name|default:"-" }}</li>
-                <li><strong>{% trans "Last Name" %}:</strong> {{ object.last_name|default:"-" }}</li>
+
             </ul>
         </article>
 

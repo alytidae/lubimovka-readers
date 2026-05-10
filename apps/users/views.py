@@ -28,7 +28,7 @@ class UserCreateView(
     template_name = "create_update.html"
 
     form_class = CustomUserAddForm
-    success_message = _("✅ %(email)s was processed successfully")
+    success_message = _("✅ %(username)s was processed successfully")
 
     def test_func(self):
         competition = self.get_competition()
@@ -42,7 +42,7 @@ class UserCreateView(
 
     def get_initial(self):
         initial = super().get_initial()
-        initial["email"] = self.request.GET.get("email", "")
+        initial["username"] = self.request.GET.get("username", "")
         initial["role"] = self.request.GET.get("role", "reader")
         return initial
 
@@ -93,7 +93,7 @@ class UserUpdateView(
     model = User
     template_name = "create_update.html"
     form_class = CustomUserChangeForm
-    success_message = _("✅ %(email)s was updated successfully")
+    success_message = _("✅ %(username)s was updated successfully")
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -301,16 +301,14 @@ class UserInviteView(
 ):
     def post(self, request, *args, **kwargs):
         competition = self.get_competition()
-        email = request.POST.get("email")
+        username = request.POST.get("username")
         role = request.POST.get("role")
 
-        if not email or not role:
-            messages.error(request, _("Email and role are required."))
+        if not username or not role:
+            messages.error(request, _("Username and role are required."))
             return redirect("users:list", competition_slug=competition.slug)
 
-        email = User.objects.normalize_email(email).lower()
-
-        user = User.objects.filter(email=email).first()
+        user = User.objects.filter(username=username).first()
 
         if user:
             CompetitionRole.objects.update_or_create(
@@ -320,15 +318,17 @@ class UserInviteView(
             )
             messages.success(
                 request,
-                _("✅ User %(email)s has been automatically added to this competition.")
-                % {"email": email},
+                _(
+                    "✅ User %(username)s has been automatically added to this competition."
+                )
+                % {"username": username},
             )
             return redirect("users:list", competition_slug=competition.slug)
         else:
             base_url = reverse(
                 "users:create", kwargs={"competition_slug": competition.slug}
             )
-            query_string = urlencode({"email": email, "role": role})
+            query_string = urlencode({"username": username, "role": role})
             return HttpResponseRedirect(f"{base_url}?{query_string}")
 
     def test_func(self):

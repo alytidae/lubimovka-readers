@@ -5,7 +5,7 @@
 
 {% block content %}
     <hgroup>
-        <h1>{% blocktrans with name=user.first_name|default:user.email %}Welcome, {{ name }}!{% endblocktrans %}</h1>
+        <h1>{% blocktrans with name=user.username %}Welcome, {{ name }}!{% endblocktrans %}</h1>
         <p>{% trans "Below are the competitions you have access to." %}</p>
     </hgroup>
 

@@ -9,15 +9,15 @@ from .models import User
 class CustomUserAdmin(UserAdmin):
     model = User
 
-    list_display = ("email", "first_name", "last_name", "is_superuser")
-    search_fields = ("email", "first_name", "last_name")
-    ordering = ("email",)
+    list_display = ("username", "is_superuser")
+    search_fields = ("username",)
+    ordering = ("username",)
 
     fieldsets = (
-        (None, {"fields": ("email", "password")}),
+        (None, {"fields": ("username", "password")}),
         (
             _("Personal Info"),
-            {"fields": ("first_name", "last_name", "telegram_username")},
+            {"fields": ("telegram_username",)},
         ),
         (
             _("Permissions"),
@@ -39,7 +39,7 @@ class CustomUserAdmin(UserAdmin):
             None,
             {
                 "classes": ("wide",),
-                "fields": ("email", "password1", "password2"),
+                "fields": ("username", "password1", "password2"),
             },
         ),
     )

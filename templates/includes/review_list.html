@@ -85,7 +85,7 @@
                 {% if show_play_title %}
                     <a href="{% url 'plays:detail' current_competition.slug review.play.pk %}">{{ review.play.title }}</a>
                 {% else %}
-                    {% if is_moderator %}{{ review.reader.get_full_name|default:review.reader.email }}{% else %}{% trans "Reader Review" %}{% endif %}
+                    {% if is_moderator %}{{ review.reader.username }}{% else %}{% trans "Reader Review" %}{% endif %}
                     {% if review.reader == user %}<mark>{% trans "You" %}</mark>{% endif %}
                 {% endif %}
             </strong> 

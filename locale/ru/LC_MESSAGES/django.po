@@ -283,9 +283,9 @@ msgid "Enter the same password as before, for verification."
 msgstr "Введите тот же пароль для подтверждения."
 
 #: apps/users/forms.py:51
-msgid "A user with this email already exists. Use the invite form instead."
+msgid "A user with this username already exists. Use the invite form instead."
 msgstr ""
-"Пользователь с таким email уже существует. Используйте форму приглашения."
+"Пользователь с таким именем уже существует. Используйте форму приглашения."
 
 #: apps/users/forms.py:57
 msgid "The two password fields didn't match."
@@ -296,21 +296,14 @@ msgid "Active in this competition"
 msgstr "Активен в этом конкурсе"
 
 #: apps/users/models.py:14
-msgid "Email is required"
-msgstr "Email обязателен"
+msgid "Username is required"
+msgstr "Имя пользователя обязательно"
 
 #: apps/users/models.py:28 templates/user_detail.html:36
-#: templates/user_list.html:35 templates/user_list.html:93
-msgid "Email"
-msgstr "Email"
+#: templates/user_list.html:128
+msgid "Username"
+msgstr "Имя пользователя"
 
-#: apps/users/models.py:29 templates/user_detail.html:47
-msgid "First Name"
-msgstr "Имя"
-
-#: apps/users/models.py:30 templates/user_detail.html:48
-msgid "Last Name"
-msgstr "Фамилия"
 
 #: apps/users/models.py:34 templates/user_detail.html:39
 #: templates/user_list.html:37 templates/user_list.html:95
@@ -319,22 +312,22 @@ msgstr "Telegram"
 
 #: apps/users/views.py:31
 #, python-format
-msgid "✅ %(email)s was processed successfully"
-msgstr "✅ %(email)s успешно обработан"
+msgid "✅ %(username)s was processed successfully"
+msgstr "✅ %(username)s успешно обработан"
 
 #: apps/users/views.py:96
 #, python-format
-msgid "✅ %(email)s was updated successfully"
-msgstr "✅ %(email)s успешно обновлён"
+msgid "✅ %(username)s was updated successfully"
+msgstr "✅ %(username)s успешно обновлён"
 
-#: apps/users/views.py:305
-msgid "Email and role are required."
-msgstr "Email и роль обязательны."
+#: apps/users/views.py:308
+msgid "Username and role are required."
+msgstr "Имя пользователя и роль обязательны."
 
-#: apps/users/views.py:320
+#: apps/users/views.py:321
 #, python-format
-msgid "✅ User %(email)s has been automatically added to this competition."
-msgstr "✅ Пользователь %(email)s автоматически добавлен в этот конкурс."
+msgid "✅ User %(username)s has been automatically added to this competition."
+msgstr "✅ Пользователь %(username)s автоматически добавлен в этот конкурс."
 
 #: templates/analytics_dashboard.html:4 templates/analytics_dashboard.html:11
 #: templates/analytics_dashboard.html:16
@@ -430,8 +423,8 @@ msgstr ""
 
 #: templates/analytics_dashboard.html:70
 #, python-format
-msgid "Assigned to <strong>%(email)s</strong> (%(ago)s ago)"
-msgstr "Назначена <strong>%(email)s</strong> (%(ago)s назад)"
+msgid "Assigned to <strong>%(username)s</strong> (%(ago)s ago)"
+msgstr "Назначена <strong>%(username)s</strong> (%(ago)s назад)"
 
 #: templates/analytics_dashboard.html:73
 msgid "No pending actions required."
@@ -1036,6 +1029,9 @@ msgid "Profile & Statistics"
 msgstr "Профиль и статистика"
 
 #: templates/user_detail.html:27
+msgid "Edit comment"
+msgstr "Редактировать комментарий"
+
 msgid "Edit Profile"
 msgstr "Редактировать профиль"
 
@@ -1129,18 +1125,14 @@ msgid "Invite Member"
 msgstr "Пригласить участника"
 
 #: templates/user_list.html:125
-msgid ""
-"Enter the email and role. If the user is already registered, they will be "
+msgid "Enter the username and role. If the user is already registered, they will be "
 "added automatically. Otherwise, you will be redirected to create their "
 "profile."
 msgstr ""
-"Введите email и роль. Если пользователь уже зарегистрирован, он будет "
+"Введите имя пользователя и роль. Если пользователь уже зарегистрирован, он будет "
 "добавлен автоматически. Иначе вы будете перенаправлены для создания его "
 "профиля."
 
-#: templates/user_list.html:128
-msgid "Email address"
-msgstr "Адрес электронной почты"
 
 #: templates/user_list.html:140
 msgid "Continue"

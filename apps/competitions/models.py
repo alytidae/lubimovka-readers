@@ -85,6 +85,4 @@ class CompetitionRole(models.Model):
         unique_together = ("competition", "user")
 
     def __str__(self):
-        return (
-            f"{self.user.email} - {self.get_role_display()} in {self.competition.title}"
-        )
+        return f"{self.user.username} - {self.get_role_display()} in {self.competition.title}"

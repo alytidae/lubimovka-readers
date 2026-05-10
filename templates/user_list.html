@@ -34,8 +34,7 @@
             <table class="striped">
                 <thead>
                     <tr>
-                        <th scope="col">{% trans "Email" %}</th>
-                        <th scope="col">{% trans "Name" %}</th>
+                        <th scope="col">{% trans "Username" %}</th>
                         <th scope="col">{% trans "Telegram" %}</th>
                         <th scope="col">{% trans "Role" %}</th>
                         <th scope="col">{% trans "Status" %}</th>
@@ -47,8 +46,7 @@
                 <tbody>
 			{% for user_obj in object_list %}
 			    <tr>
-				<td><a href="{% url 'users:detail' current_competition.slug user_obj.id %}">{{ user_obj.email }}</a></td>
-				<td>{{ user_obj.first_name }} {{ user_obj.last_name }}</td>
+				<td><a href="{% url 'users:detail' current_competition.slug user_obj.id %}">{{ user_obj.username }}</a></td>
 				<td>{{ user_obj.telegram_username }}</td>
 				<td>{{ user_obj.role|capfirst }}</td>
 				<td>
@@ -96,8 +94,7 @@
             <table class="striped">
                 <thead>
                     <tr>
-                        <th scope="col">{% trans "Email" %}</th>
-                        <th scope="col">{% trans "Name" %}</th>
+                        <th scope="col">{% trans "Username" %}</th>
                         <th scope="col">{% trans "Telegram" %}</th>
                         <th scope="col">{% trans "Role" %}</th>
                     </tr>
@@ -105,8 +102,7 @@
                 <tbody>
                     {% for user in object_list %}
                         <tr>
-                            <td>{{ user.email }}</td>
-                            <td>{{ user.first_name }} {{ user.last_name }}</td>
+                            <td>{{ user.username }}</td>
                             <td>{{ user.telegram_username }}</td>
                             <td>{{ user.role|capfirst }}</td>
                         </tr>
@@ -128,11 +124,11 @@
                 <button type="button" aria-label="Close" rel="prev" onclick="document.getElementById('invite-dialog').close()"></button>
                 <p><strong>{% trans "Invite Member" %}</strong></p>
             </header>
-            <p>{% trans "Enter the email and role. If the user is already registered, they will be added automatically. Otherwise, you will be redirected to create their profile." %}</p>
+            <p>{% trans "Enter the username and role. If the user is already registered, they will be added automatically. Otherwise, you will be redirected to create their profile." %}</p>
             <form method="post" action="{% url 'users:invite' current_competition.slug %}">
                 {% csrf_token %}
-                <label for="invite_email">{% trans "Email address" %}</label>
-                <input type="email" id="invite_email" name="email" required>
+                <label for="invite_username">{% trans "Username" %}</label>
+                <input type="text" id="invite_username" name="username" required>
             
                 <label for="invite_role">{% trans "Role" %}</label>
                 <select id="invite_role" name="role" required>
