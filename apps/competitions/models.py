@@ -3,6 +3,7 @@ from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from pytils.translit import slugify
 from django.urls import reverse
+from cryptography.fernet import Fernet
 
 
 class Competition(models.Model):
@@ -49,9 +50,16 @@ class Competition(models.Model):
         _("Phase 2 reviews visible"), default=False
     )
 
+    google_credentials = models.TextField()
+
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(f"{self.title}-{self.date.year}")
+
+        if not self.pk and self.google_credentials:
+            f = Fernet(settings.FERNET_KEY.encode('utf-8'))
+            encrypted_google_credentials = f.encrypt(self.google_credentials.encode('utf-8'))
+            self.google_credentials = encrypted_google_credentials.decode('utf-8')
         super().save(*args, **kwargs)
 
     def __str__(self):

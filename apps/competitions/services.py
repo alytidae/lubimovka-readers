@@ -1,7 +1,9 @@
 import gspread
 import re
 from apps.plays.models import Play
-
+from django.conf import settings
+from cryptography.fernet import Fernet
+import json
 
 def _normalize_row_keys(row):
     return {key.strip(): value for key, value in row.items()}
@@ -11,8 +13,14 @@ def sync_plays_from_google_sheet(competition):
     if not competition.google_sheet_url:
         return 0
 
-    gc = gspread.service_account(filename="/run/secrets/google_credentials.json")
+    f = Fernet(settings.FERNET_KEY.encode('utf-8'))
+    decrypted_google_credentials = f.decrypt(
+            competition.google_credentials.encode("utf-8")
+        ).decode('utf-8')
+    credentials_dict = json.loads(decrypted_google_credentials)
 
+    gc = gspread.service_account_from_dict(credentials_dict)
+    
     sh = gc.open_by_url(competition.google_sheet_url)
     worksheet = sh.get_worksheet(0)
     data = worksheet.get_all_records()

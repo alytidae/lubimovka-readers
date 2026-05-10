@@ -1032,6 +1032,12 @@ msgstr "Профиль и статистика"
 msgid "Edit comment"
 msgstr "Редактировать комментарий"
 
+msgid "Comment Play"
+msgstr "Комментарий к пьесе"
+
+msgid "Here you can add a comment about this play, its author, or the circumstances under which you activated or deactivated it."
+msgstr "Здесь вы можете добавить комментарий об этой пьесе, её авторе или обстоятельствах, при которых вы активировали или деактивировали её."
+
 msgid "Edit Profile"
 msgstr "Редактировать профиль"
 

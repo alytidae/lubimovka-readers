@@ -23,8 +23,6 @@ services:
       DB_PORT: 5432
     depends_on:
       - db
-    volumes:
-      - ${GOOGLE_CREDENTIALS_PATH}:/run/secrets/google_credentials.json:ro
 
 volumes:
   postgres_data:

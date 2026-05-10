@@ -354,6 +354,7 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "black" },
+    { name = "cryptography" },
     { name = "django" },
     { name = "django-environ" },
     { name = "gspread" },
@@ -367,6 +368,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "black", specifier = ">=26.3.1" },
+    { name = "cryptography", specifier = ">=48.0.0" },
     { name = "django", specifier = ">=6.0.4" },
     { name = "django-environ", specifier = ">=0.13.0" },
     { name = "gspread", specifier = ">=6.2.1" },
