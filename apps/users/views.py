@@ -190,7 +190,7 @@ class UserDetailView(
         context["object"].role = user_obj.get_role(competition)
 
         reviews_qs = Review.objects.filter(
-            reader=user_obj, play__competition=competition, is_obsolete=False
+            reader=user_obj, play__competition=competition
         ).select_related("play", "reader")
 
         submitted_qs = reviews_qs.filter(status=Review.Status.SUBMITTED)
