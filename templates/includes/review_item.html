@@ -1,0 +1,38 @@
+{% load i18n %}<details{% if review.is_obsolete %} class="obsolete-review"{% elif review.reader == user %} class="own-review"{% endif %}>
+    <summary>
+        <strong>
+            {% if show_play_title %}
+                <a href="{% url 'plays:detail' current_competition.slug review.play.pk %}">{{ review.play.title }}</a>
+            {% else %}
+                {% if is_moderator %}{{ review.reader.username }}{% else %}{% trans "Reader Review" %}{% endif %}
+                {% if review.reader == user %}<mark>{% trans "You" %}</mark>{% endif %}
+            {% endif %}
+        </strong>
+        - {{ review.get_phase_display }}
+        - {% trans "Verdict" %}: {% if review.verdict %}✅ {% trans "Yes" %}{% elif review.verdict is False %}❌ {% trans "No" %}{% else %}{% trans "Pending" %}{% endif %}
+        {% if review.is_hidden %} ({% trans "Not public" %}){% else %} ({% trans "Public" %}){% endif %}
+        {% if review.is_obsolete %} <mark>{% trans "Obsolete" %}</mark>{% endif %}
+    </summary>
+
+    <p>{{ review.comment|linebreaks|default:_("No comment provided.") }}</p>
+
+    <footer>
+        <div class="grid">
+            {% if is_admin %}
+                <button type="button" class="secondary outline" onclick="openEditModal('{% url 'reviews:edit' current_competition.slug review.id %}', {{ review.verdict|lower|default:'null' }}, '{{ review.comment|escapejs }}')">{% trans "Edit" %}</button>
+            {% endif %}
+
+            {% if is_admin or is_moderator %}
+                {% if review.is_obsolete %}
+                    <button type="button" onclick="openRestoreModal('{% url 'reviews:restore' current_competition.slug review.id %}')">{% trans "Restore" %}</button>
+                {% else %}
+                    <button type="button" class="secondary outline" onclick="openRevoteModal('{% url 'reviews:mark_obsolete' current_competition.slug review.id %}')">{% trans "Revote" %}</button>
+                {% endif %}
+            {% endif %}
+
+            <button type="button" class="secondary outline" onclick="openVisibilityModal('{% if review.is_hidden %}{% url 'reviews:mark_public' current_competition.slug review.id %}{% else %}{% url 'reviews:mark_hidden' current_competition.slug review.id %}{% endif %}')">
+                {% if review.is_hidden %}{% trans "Show Review" %}{% else %}{% trans "Hide Review" %}{% endif %}
+            </button>
+        </div>
+    </footer>
+</details>

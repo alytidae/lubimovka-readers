@@ -73,7 +73,7 @@
     {% if object.role == "reader" or is_moderator %}
     <article>
         <header>{% trans "User Reviews & Feedback" %}</header>
-        {% include "includes/review_list.html" with show_play_title=True reviews=reviews %}
+        {% include "includes/review_list.html" with show_play_title=True own_reviews=reviews %}
     </article>
     {% endif %}
 {% endblock content %}

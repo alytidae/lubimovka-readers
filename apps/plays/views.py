@@ -40,24 +40,37 @@ class PlayDetailView(
             play=play, status=Review.Status.SUBMITTED
         ).select_related("reader")
 
-        visible_reviews = []
+        is_admin_or_mod = user.is_superuser or user.get_role(competition) in [
+            "admin",
+            "moderator",
+        ]
 
-        if user.is_superuser or user.get_role(competition) in ["admin", "moderator"]:
-            visible_reviews = base_reviews_qs.all()
+        if is_admin_or_mod:
+            context["own_reviews"] = base_reviews_qs.all()
+            context["other_reviews"] = Review.objects.none()
         else:
-            filters = Q(reader=user)
+            context["own_reviews"] = base_reviews_qs.filter(
+                reader=user, is_obsolete=False
+            )
 
-            if competition.are_phase1_reviews_visible:
-                filters |= Q(phase=Review.Phase.PHASE_1, is_hidden=False)
+            has_visible_phases = (
+                competition.are_phase1_reviews_visible
+                or competition.are_phase2_reviews_visible
+            )
 
-            if competition.are_phase2_reviews_visible:
-                filters |= Q(phase=Review.Phase.PHASE_2, is_hidden=False)
-
-            visible_reviews = base_reviews_qs.filter(
-                filters, is_obsolete=False
-            ).distinct()
-
-        context["reviews"] = visible_reviews
+            if has_visible_phases:
+                other_filters = Q()
+                if competition.are_phase1_reviews_visible:
+                    other_filters |= Q(phase=Review.Phase.PHASE_1, is_hidden=False)
+                if competition.are_phase2_reviews_visible:
+                    other_filters |= Q(phase=Review.Phase.PHASE_2, is_hidden=False)
+                context["other_reviews"] = (
+                    base_reviews_qs.filter(other_filters, is_obsolete=False)
+                    .exclude(reader=user)
+                    .distinct()
+                )
+            else:
+                context["other_reviews"] = Review.objects.none()
 
         context["my_active_review"] = Review.objects.filter(
             play=play,
@@ -191,11 +204,12 @@ class PlayDeactivateView(LoginRequiredMixin, UserPassesTestMixin, View):
 
         return False
 
+
 class PlayUpdateCommentView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Play
-    fields = ['internal_comment']
-    template_name = 'play_details.html' 
-    
+    fields = ["internal_comment"]
+    template_name = "play_details.html"
+
     def get_success_url(self):
         return self.object.get_absolute_url()
 
@@ -210,4 +224,3 @@ class PlayUpdateCommentView(LoginRequiredMixin, UserPassesTestMixin, UpdateView)
             return True
 
         return False
-    
