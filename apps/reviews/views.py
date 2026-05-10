@@ -149,7 +149,7 @@ class ReviewMarkPublicView(
         if self.request.user.is_superuser:
             return True
 
-        if self.request.user.get_role(competition) in ["moderator", "admin"]:
+        if self.request.user.get_role(competition) in ["moderator", "admin", "reader"]:
             return True
         return False
 
@@ -175,7 +175,7 @@ class ReviewMarkHiddenView(
         if self.request.user.is_superuser:
             return True
 
-        if self.request.user.get_role(competition) in ["moderator", "admin"]:
+        if self.request.user.get_role(competition) in ["moderator", "admin", "reader"]:
             return True
         return False
 

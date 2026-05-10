@@ -745,11 +745,12 @@ msgstr "Изменение видимости"
 
 #: templates/includes/review_list.html:7
 msgid ""
-"Are you sure you want to change the visibility of this review? Hidden "
-"reviews will only be visible to moderators."
+"Are you sure you want to change the visibility of this review? If admins "
+"make the comments public, your comment will be displayed without your name."
 msgstr ""
-"Вы уверены, что хотите изменить видимость этой рецензии? Скрытые рецензии "
-"будут видны только модераторам."
+"Вы уверены, что хотите изменить видимость этой рецензии? Если "
+"администраторы опубликуют комментарии, ваш комментарий будет показан без "
+"вашего имени."
 
 #: templates/includes/review_list.html:12
 msgid "Confirm Visibility Change"
@@ -809,8 +810,12 @@ msgid "Pending"
 msgstr "Ожидает"
 
 #: templates/includes/review_list.html:65
-msgid "Hidden"
-msgstr "Скрыта"
+msgid "Not public"
+msgstr "Не публично"
+
+#: templates/includes/review_list.html:65
+msgid "Public"
+msgstr "Публично"
 
 #: templates/includes/review_list.html:66
 msgid "Obsolete"
@@ -1110,7 +1115,7 @@ msgstr "Отключён"
 
 #: templates/user_list.html:58
 msgid "Edit"
-msgstr "Ред."
+msgstr "Редактировать"
 
 #: templates/user_list.html:64 templates/user_list.html:110
 msgid "No team members found for this competition."

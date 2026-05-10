@@ -23,7 +23,7 @@ class Review(models.Model):
     verdict = models.BooleanField(null=True, blank=True)
     comment = models.TextField(blank=True)
 
-    is_hidden = models.BooleanField(default=False)
+    is_hidden = models.BooleanField(default=True)
     is_obsolete = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
