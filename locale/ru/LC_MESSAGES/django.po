@@ -1148,3 +1148,8 @@ msgstr ""
 #: templates/user_list.html:140
 msgid "Continue"
 msgstr "Продолжить"
+
+#: templates/play_list.html:46
+#, python-format
+msgid "You have used %(used)s of your 15 'yes' votes. This is your total limit for all remaining plays in this stage."
+msgstr "Вы использовали %(used)s из 15 голосов «за». Это ваш общий лимит для всех оставшихся пьес на этом этапе."

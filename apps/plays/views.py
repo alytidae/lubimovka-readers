@@ -114,7 +114,18 @@ class PlayListView(
         return False
 
     def get_context_data(self, **kwargs):
+        competition = self.get_competition()
+        user = self.request.user
         context = super().get_context_data(**kwargs)
+        
+        if user.get_role(competition) == "reader":
+            count = Review.objects.filter(
+                reader=user,
+                verdict=True,
+                play__competition=competition
+            ).count()
+            context["number_positive_votes"] = count
+
         return context
 
     def get_queryset(self):

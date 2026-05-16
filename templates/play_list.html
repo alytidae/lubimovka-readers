@@ -42,7 +42,10 @@
 
     <article>
         <header>{% trans "Play Database" %}</header>
-
+	
+	{% if is_reader %}
+	<p>{% blocktrans with used=number_positive_votes %}You have used {{ used }} of your 15 'yes' votes. This is your total limit for all remaining plays in this stage.{% endblocktrans %}</p>
+	{% endif %}
         <figure>
             <table class="striped">
                 <thead>
@@ -68,8 +71,8 @@
                             {% if not is_reader %}
                                 <td>
                                     {{ play.author_first_name }} {{ play.author_last_name }}
-                                    {% if play.is_author_over_35 %}
-                                        <mark style="font-size: 0.7em">35+</mark>
+                                    {% if play.is_author_over_45 %}
+                                        <mark style="font-size: 0.7em">45+</mark>
                                     {% endif %}
                                 </td>
                                 <td>

@@ -21,13 +21,13 @@ class Play(models.Model):
     is_active = models.BooleanField(default=False)
 
     @property
-    def is_author_over_35(self):
+    def is_author_over_45(self):
         if not self.author_year_of_birth:
             return False
 
         current_year = date.today().year
         age = current_year - self.author_year_of_birth
-        return age > 35
+        return age > 45
 
     def get_absolute_url(self):
         return reverse(
