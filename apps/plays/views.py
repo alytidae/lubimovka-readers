@@ -216,6 +216,76 @@ class PlayDeactivateView(LoginRequiredMixin, UserPassesTestMixin, View):
         return False
 
 
+class PlayForcePhase2View(LoginRequiredMixin, UserPassesTestMixin, View):
+    def post(self, request, *args, **kwargs):
+        play = get_object_or_404(
+            Play, pk=kwargs["pk"], competition__slug=kwargs["competition_slug"]
+        )
+        competition = play.competition
+
+        if competition.status != Competition.Status.PHASE_1:
+            messages.error(
+                request,
+                _(
+                    "Force Phase 2 can only be toggled during Phase 1 of the competition."
+                ),
+            )
+            return redirect(play.get_absolute_url())
+
+        play.force_phase_2 = True
+        play.save(update_fields=["force_phase_2"])
+        messages.success(
+            request,
+            _(
+                "✅ %(title)s has been flagged to advance to Phase 2 regardless of reviews."
+            )
+            % {"title": play.title},
+        )
+        return redirect(play.get_absolute_url())
+
+    def test_func(self):
+        competition = get_object_or_404(
+            Competition, slug=self.kwargs["competition_slug"]
+        )
+        if self.request.user.is_superuser:
+            return True
+        return self.request.user.get_role(competition) == "admin"
+
+
+class PlayUnforcePhase2View(LoginRequiredMixin, UserPassesTestMixin, View):
+    def post(self, request, *args, **kwargs):
+        play = get_object_or_404(
+            Play, pk=kwargs["pk"], competition__slug=kwargs["competition_slug"]
+        )
+        competition = play.competition
+
+        if competition.status != Competition.Status.PHASE_1:
+            messages.error(
+                request,
+                _(
+                    "Force Phase 2 can only be toggled during Phase 1 of the competition."
+                ),
+            )
+            return redirect(play.get_absolute_url())
+
+        play.force_phase_2 = False
+        play.save(update_fields=["force_phase_2"])
+        messages.success(
+            request,
+            _("✅ %(title)s Phase 2 force flag has been removed.")
+            % {"title": play.title},
+        )
+        return redirect(play.get_absolute_url())
+
+    def test_func(self):
+        competition = get_object_or_404(
+            Competition, slug=self.kwargs["competition_slug"]
+        )
+        if self.request.user.is_superuser:
+            return True
+        return self.request.user.get_role(competition) == "admin"
+
+
 class PlayUpdateCommentView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Play
     fields = ["internal_comment"]

@@ -273,6 +273,10 @@ class CompetitionAnalyticsView(
             .annotate(
                 current_status=Case(
                     When(
+                        force_phase_2=True,
+                        then=Value(str(_("Phase 2 (forced)"))),
+                    ),
+                    When(
                         phase_1_no__gte=2,
                         then=Value(str(_("Eliminated in Phase 1 ❌"))),
                     ),
@@ -284,12 +288,18 @@ class CompetitionAnalyticsView(
             .order_by("-total_submitted")
         )
 
-        qualifying_plays_count = plays_overview.filter(phase_1_yes__gte=2).count()
+        qualifying_plays_count = plays_overview.filter(
+            Q(phase_1_yes__gte=2) | Q(force_phase_2=True)
+        ).count()
 
         if selected_phase == "phase_1":
-            plays_overview = plays_overview.filter(phase_1_yes__lt=2)
+            plays_overview = plays_overview.filter(
+                phase_1_yes__lt=2, force_phase_2=False
+            )
         elif selected_phase == "phase_2":
-            plays_overview = plays_overview.filter(phase_1_yes__gte=2)
+            plays_overview = plays_overview.filter(
+                Q(phase_1_yes__gte=2) | Q(force_phase_2=True)
+            )
 
         yes_filters = play_review_filters & Q(reviews__verdict=True)
         no_filters = play_review_filters & Q(reviews__verdict=False)
@@ -389,6 +399,7 @@ class CompetitionExportExcelView(
                 "Author First Name",
                 "Author Last Name",
                 "Status",
+                "Force Phase 2",
                 "Total Reviews",
                 "Phase 1 Yes",
                 "Phase 1 No",
@@ -408,6 +419,7 @@ class CompetitionExportExcelView(
                     play.author_first_name,
                     play.author_last_name or "",
                     "Active" if play.is_active else "Inactive",
+                    "Yes" if play.force_phase_2 else "No",
                     reviews.count(),
                     reviews.filter(phase="phase_1", verdict=True).count(),
                     reviews.filter(phase="phase_1", verdict=False).count(),

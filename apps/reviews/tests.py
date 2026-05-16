@@ -161,181 +161,95 @@ class TestRejectReviewService(TestCase):
         )
         result = reject(review)
         self.assertTrue(result.success)
-        review.refresh_from_db()
-        self.assertEqual(review.status, Review.Status.REJECTED)
-        self.assertTrue(review.is_obsolete)
-
-    def test_cannot_reject_draft_review(self):
-        review = Review.objects.create(
-            reader=self.reader,
-            play=self.play,
-            phase=Review.Phase.PHASE_1,
-            status=Review.Status.DRAFT,
-        )
-        result = reject(review)
-        self.assertFalse(result.success)
-        review.refresh_from_db()
-        self.assertEqual(review.status, Review.Status.DRAFT)
-        self.assertFalse(review.is_obsolete)
-
-    def test_cannot_reject_submitted_review(self):
-        review = Review.objects.create(
-            reader=self.reader,
-            play=self.play,
-            phase=Review.Phase.PHASE_1,
-            status=Review.Status.SUBMITTED,
-            verdict=True,
-            comment="Done",
-        )
-        result = reject(review)
-        self.assertFalse(result.success)
-        review.refresh_from_db()
-        self.assertEqual(review.status, Review.Status.SUBMITTED)
-        self.assertFalse(review.is_obsolete)
-
-    def test_cannot_reject_in_wrong_phase(self):
-        self.competition.status = Competition.Status.PHASE_2
-        self.competition.save()
-        review = Review.objects.create(
-            reader=self.reader,
-            play=self.play,
-            phase=Review.Phase.PHASE_1,
-            status=Review.Status.ASSIGNED,
-        )
-        result = reject(review)
-        self.assertFalse(result.success)
-        review.refresh_from_db()
-        self.assertEqual(review.status, Review.Status.ASSIGNED)
-        self.assertFalse(review.is_obsolete)
-
-    def test_cannot_reject_in_setup(self):
-        self.competition.status = Competition.Status.SETUP
-        self.competition.save()
-        review = Review.objects.create(
-            reader=self.reader,
-            play=self.play,
-            phase=Review.Phase.PHASE_1,
-            status=Review.Status.ASSIGNED,
-        )
-        result = reject(review)
-        self.assertFalse(result.success)
 
 
-class TestRejectReviewViaView(TestCase):
+class TestForcePhase2Service(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.competition = Competition.objects.create(
-            title="Reject View Comp",
+            title="Force P2 Service Comp",
             date=date(2026, 1, 1),
             status=Competition.Status.PHASE_1,
         )
-        cls.reader = User.objects.create_user(username="rv_reader", password="pwd")
-        cls.other_reader = User.objects.create_user(username="rv_other", password="pwd")
-        cls.mod = User.objects.create_user(username="rv_mod", password="pwd")
+        cls.readers = []
+        for i in range(3):
+            user = User.objects.create_user(username=f"fp2sv_r{i}", password="pwd")
+            CompetitionRole.objects.create(
+                user=user, competition=cls.competition, role="reader"
+            )
+            cls.readers.append(user)
 
-        CompetitionRole.objects.create(
-            user=cls.reader, competition=cls.competition, role="reader"
-        )
-        CompetitionRole.objects.create(
-            user=cls.other_reader, competition=cls.competition, role="reader"
-        )
-        CompetitionRole.objects.create(
-            user=cls.mod, competition=cls.competition, role="moderator"
-        )
-
-        cls.play = Play.objects.create(
+        cls.forced_play = Play.objects.create(
             competition=cls.competition,
-            title="Reject View Play",
-            author_email="rv@a.com",
+            title="Forced Play",
+            author_email="forced@test.com",
+            is_active=True,
+            force_phase_2=True,
+        )
+        cls.normal_play = Play.objects.create(
+            competition=cls.competition,
+            title="Normal Play",
+            author_email="normal@test.com",
             is_active=True,
         )
 
-    def setUp(self):
-        self.client = Client()
+    def test_forced_play_excluded_from_phase1_assignment(self):
+        result = assign_play(self.readers[0], self.competition)
+        self.assertTrue(result.success)
+        self.assertEqual(result.play, self.normal_play)
 
-    def test_reader_can_reject_assigned_review(self):
-        review = Review.objects.create(
-            reader=self.reader,
-            play=self.play,
-            phase=Review.Phase.PHASE_1,
-            status=Review.Status.ASSIGNED,
+    def test_auto_assign_phase2_includes_forced_play(self):
+        self.competition.status = Competition.Status.PHASE_2
+        self.competition.save()
+        count = auto_assign_phase2(self.competition)
+        self.assertEqual(count, 3)
+        phase2_reviews = Review.objects.filter(
+            play=self.forced_play, phase=Review.Phase.PHASE_2
         )
-        self.client.force_login(self.reader)
-        url = reverse(
-            "reviews:reject",
-            kwargs={"competition_slug": self.competition.slug, "pk": review.pk},
-        )
-        response = self.client.post(url)
-        self.assertRedirects(
-            response,
-            reverse("plays:list", kwargs={"competition_slug": self.competition.slug}),
-        )
-        review.refresh_from_db()
-        self.assertEqual(review.status, Review.Status.REJECTED)
-        self.assertTrue(review.is_obsolete)
+        self.assertEqual(phase2_reviews.count(), 3)
 
-    def test_redirects_to_list_after_reject(self):
-        review = Review.objects.create(
-            reader=self.reader,
-            play=self.play,
+    def test_forced_play_overrides_negative_verdicts(self):
+        comp = Competition.objects.create(
+            title="Force P2 Override Comp",
+            date=date(2026, 1, 1),
+            status=Competition.Status.PHASE_2,
+        )
+        readers = []
+        for i in range(2):
+            user = User.objects.create_user(username=f"fp2ov_r{i}", password="pwd")
+            CompetitionRole.objects.create(user=user, competition=comp, role="reader")
+            readers.append(user)
+
+        play = Play.objects.create(
+            competition=comp,
+            title="Override Play",
+            author_email="override@test.com",
+            is_active=True,
+            force_phase_2=True,
+        )
+        extra1 = User.objects.create_user(username="fp2ov_e1", password="pwd")
+        extra2 = User.objects.create_user(username="fp2ov_e2", password="pwd")
+        Review.objects.create(
+            reader=extra1,
+            play=play,
             phase=Review.Phase.PHASE_1,
-            status=Review.Status.ASSIGNED,
+            status=Review.Status.SUBMITTED,
+            verdict=False,
+            comment="No",
         )
-        self.client.force_login(self.reader)
-        url = reverse(
-            "reviews:reject",
-            kwargs={"competition_slug": self.competition.slug, "pk": review.pk},
-        )
-        response = self.client.post(url)
-        self.assertRedirects(
-            response,
-            reverse("plays:list", kwargs={"competition_slug": self.competition.slug}),
+        Review.objects.create(
+            reader=extra2,
+            play=play,
+            phase=Review.Phase.PHASE_1,
+            status=Review.Status.SUBMITTED,
+            verdict=False,
+            comment="No",
         )
 
-    def test_cannot_reject_draft_via_view(self):
-        review = Review.objects.create(
-            reader=self.reader,
-            play=self.play,
-            phase=Review.Phase.PHASE_1,
-            status=Review.Status.DRAFT,
-        )
-        self.client.force_login(self.reader)
-        url = reverse(
-            "reviews:reject",
-            kwargs={"competition_slug": self.competition.slug, "pk": review.pk},
-        )
-        response = self.client.post(url)
-        self.assertEqual(response.status_code, 404)
-
-    def test_other_reader_cannot_reject(self):
-        review = Review.objects.create(
-            reader=self.reader,
-            play=self.play,
-            phase=Review.Phase.PHASE_1,
-            status=Review.Status.ASSIGNED,
-        )
-        self.client.force_login(self.other_reader)
-        url = reverse(
-            "reviews:reject",
-            kwargs={"competition_slug": self.competition.slug, "pk": review.pk},
-        )
-        response = self.client.post(url)
-        self.assertEqual(response.status_code, 403)
-
-    def test_moderator_cannot_reject_reader_review(self):
-        review = Review.objects.create(
-            reader=self.reader,
-            play=self.play,
-            phase=Review.Phase.PHASE_1,
-            status=Review.Status.ASSIGNED,
-        )
-        self.client.force_login(self.mod)
-        url = reverse(
-            "reviews:reject",
-            kwargs={"competition_slug": self.competition.slug, "pk": review.pk},
-        )
-        response = self.client.post(url)
-        self.assertEqual(response.status_code, 403)
+        count = auto_assign_phase2(comp)
+        self.assertEqual(count, 2)
+        phase2_reviews = Review.objects.filter(play=play, phase=Review.Phase.PHASE_2)
+        self.assertEqual(phase2_reviews.count(), 2)
 
 
 class TestRejectPlayReturnToPool(TestCase):

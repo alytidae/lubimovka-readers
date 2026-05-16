@@ -220,3 +220,56 @@ class TestCompetitionStatusTransition(TestCase):
         url = reverse("competitions:create")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)
+
+
+class TestForcePhase2Transition(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.admin_user = User.objects.create_user(
+            username="fp2t_admin", password="pwd", is_superuser=True
+        )
+        cls.competition = Competition.objects.create(
+            title="Force P2 Trans Comp",
+            date=date(2026, 1, 1),
+            status=Competition.Status.PHASE_1,
+        )
+        cls.readers = []
+        for i in range(2):
+            user = User.objects.create_user(username=f"fp2t_r{i}", password="pwd")
+            CompetitionRole.objects.create(
+                user=user, competition=cls.competition, role="reader"
+            )
+            cls.readers.append(user)
+
+        cls.forced_play = Play.objects.create(
+            competition=cls.competition,
+            title="Forced Play",
+            author_email="forced@test.com",
+            is_active=True,
+            force_phase_2=True,
+        )
+
+    def setUp(self):
+        self.client = Client()
+        self.client.force_login(self.admin_user)
+
+    def test_forced_play_gets_phase2_reviews_on_transition(self):
+        url = reverse("competitions:update", kwargs={"slug": self.competition.slug})
+        response = self.client.post(
+            url,
+            {
+                "title": self.competition.title,
+                "date": self.competition.date.strftime("%Y-%m-%d"),
+                "status": Competition.Status.PHASE_2,
+                "are_phase1_reviews_visible": False,
+                "are_phase2_reviews_visible": False,
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+
+        phase2_reviews = Review.objects.filter(
+            play=self.forced_play, phase=Review.Phase.PHASE_2
+        )
+        self.assertEqual(phase2_reviews.count(), 2)
+        for reader in self.readers:
+            self.assertTrue(phase2_reviews.filter(reader=reader).exists())

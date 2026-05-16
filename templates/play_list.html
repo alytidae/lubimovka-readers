@@ -78,6 +78,9 @@
                                 </td>
                                 <td>
                                     {% if play.is_active %}✅ {% trans "Active" %}{% else %}❌ {% trans "Inactive" %}{% endif %}
+                                    {% if is_admin and play.force_phase_2 %}
+                                        <mark style="font-size: 0.7em">{% trans "→ Phase 2" %}</mark>
+                                    {% endif %}
                                 </td>
                                 <td class="comment-cell">
 			            {% if play.internal_comment %} {{ play.internal_comment|linebreaksbr }} {% else %} - {% endif %}

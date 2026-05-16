@@ -47,6 +47,42 @@
         </article>
     </dialog>
 
+    {% if is_admin and current_competition.status == 'phase_1' %}
+    <dialog id="force-phase2-dialog">
+        <article>
+            <header>
+                <button type="button" aria-label="Close" rel="prev" onclick="document.getElementById('force-phase2-dialog').close()"></button>
+                <p><strong>{% trans "Force Phase 2" %}</strong></p>
+            </header>
+            <p>{% trans "This will flag the play to advance to Phase 2 <strong>regardless of review results</strong>, even if it receives enough negative verdicts to be eliminated. The play will be removed from the Phase 1 assignment pool immediately." %}</p>
+            <form method="post" action="{% url 'plays:force-phase-2' current_competition.slug object.pk %}">
+                {% csrf_token %}
+                <footer>
+                    <button type="button" class="secondary outline" onclick="document.getElementById('force-phase2-dialog').close()">{% trans "Cancel" %}</button>
+                    <button type="submit" class="contrast">{% trans "Yes, force Phase 2" %}</button>
+                </footer>
+            </form>
+        </article>
+    </dialog>
+
+    <dialog id="unforce-phase2-dialog">
+        <article>
+            <header>
+                <button type="button" aria-label="Close" rel="prev" onclick="document.getElementById('unforce-phase2-dialog').close()"></button>
+                <p><strong>{% trans "Remove Phase 2 Force Flag" %}</strong></p>
+            </header>
+            <p>{% trans "This will remove the Phase 2 force flag. The play's advancement will again depend on its review results as usual." %}</p>
+            <form method="post" action="{% url 'plays:unforce-phase-2' current_competition.slug object.pk %}">
+                {% csrf_token %}
+                <footer>
+                    <button type="button" class="secondary outline" onclick="document.getElementById('unforce-phase2-dialog').close()">{% trans "Cancel" %}</button>
+                    <button type="submit" class="secondary">{% trans "Yes, remove flag" %}</button>
+                </footer>
+            </form>
+        </article>
+    </dialog>
+    {% endif %}
+
     <dialog id="submit-review-confirmation">
         <article>
             <header>
@@ -105,6 +141,12 @@
                         <strong>{% trans "Status" %}:</strong>
                         {% if object.is_active %}✅ {% trans "Active" %}{% else %}❌ {% trans "Inactive" %}{% endif %}
                     </li>
+                    {% if is_admin and object.force_phase_2 %}
+                    <li>
+                        <strong>{% trans "Phase 2" %}:</strong>
+                        <mark>{% trans "Forced by admin" %}</mark>
+                    </li>
+                    {% endif %}
                     <li>
                         <strong>{% trans "Comment" %}:</strong>
 		    	{% if play.internal_comment %} {{ play.internal_comment }} {% else %} - {% endif %}
@@ -130,6 +172,15 @@
 	    	<div>
 		    <button type="button" onclick="document.getElementById('comment-dialog').showModal()">{% trans "Edit comment" %}</button>
 		</div>
+            {% if is_admin and current_competition.status == 'phase_1' %}
+            <div>
+                {% if object.force_phase_2 %}
+                    <button type="button" class="secondary" onclick="document.getElementById('unforce-phase2-dialog').showModal()">{% trans "Remove Phase 2 Force Flag" %}</button>
+                {% else %}
+                    <button type="button" class="contrast" onclick="document.getElementById('force-phase2-dialog').showModal()">{% trans "Force Phase 2" %}</button>
+                {% endif %}
+            </div>
+            {% endif %}
         </article>
         {% endif %}
     </div>

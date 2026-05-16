@@ -1175,3 +1175,53 @@ msgstr[3] "%(count)d часов"
 
 msgid "Remaining Time"
 msgstr "Оставшееся время"
+
+#: apps/plays/views.py:229 apps/plays/views.py:264
+msgid "Force Phase 2 can only be toggled during Phase 1 of the competition."
+msgstr "Принудительный переход на этап 2 возможен только на 1-м этапе конкурса."
+
+#: apps/plays/views.py:239
+#, python-format
+msgid "✅ %(title)s has been flagged to advance to Phase 2 regardless of reviews."
+msgstr "✅ %(title)s отмечена для перехода на этап 2 независимо от рецензий."
+
+#: apps/plays/views.py:275
+#, python-format
+msgid "✅ %(title)s Phase 2 force flag has been removed."
+msgstr "✅ У %(title)s снят флаг принудительного перехода на этап 2."
+
+#: apps/competitions/views.py:275
+msgid "Phase 2 (forced)"
+msgstr "Этап 2 (принудительно)"
+
+#: templates/play_detail.html:77
+msgid "Forced by admin"
+msgstr "Принудительно администратором"
+
+#: templates/play_detail.html:39
+msgid "Force Phase 2"
+msgstr "Принудительный этап 2"
+
+#: templates/play_detail.html:42
+msgid "This will flag the play to advance to Phase 2 <strong>regardless of review results</strong>, even if it receives enough negative verdicts to be eliminated. The play will be removed from the Phase 1 assignment pool immediately."
+msgstr "Пьеса будет отмечена для перехода на этап 2 <strong>независимо от результатов рецензий</strong>, даже если она получит достаточно отрицательных вердиктов для выбывания. Пьеса будет немедленно исключена из пула назначения на 1-м этапе."
+
+#: templates/play_detail.html:45
+msgid "Yes, force Phase 2"
+msgstr "Да, принудительно на этап 2"
+
+#: templates/play_detail.html:55
+msgid "Remove Phase 2 Force Flag"
+msgstr "Снять флаг принудительного этапа 2"
+
+#: templates/play_detail.html:57
+msgid "This will remove the Phase 2 force flag. The play's advancement will again depend on its review results as usual."
+msgstr "Флаг принудительного перехода на этап 2 будет снят. Переход пьесы снова будет зависеть от результатов рецензий как обычно."
+
+#: templates/play_detail.html:60
+msgid "Yes, remove flag"
+msgstr "Да, снять флаг"
+
+#: templates/play_list.html:81
+msgid "→ Phase 2"
+msgstr "→ Этап 2"

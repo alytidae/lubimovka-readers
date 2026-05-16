@@ -19,6 +19,7 @@ class Play(models.Model):
     internal_comment = models.TextField(null=True, blank=True)
 
     is_active = models.BooleanField(default=False)
+    force_phase_2 = models.BooleanField(default=False)
 
     @property
     def is_author_over_45(self):

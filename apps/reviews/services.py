@@ -11,6 +11,8 @@ from django.db.models import (
     Q,
     Exists,
     OuterRef,
+    BooleanField,
+    Value,
 )
 from django.utils.translation import gettext_lazy as _
 from apps.users.models import User
@@ -116,6 +118,7 @@ def assign_play(reader, competition):
         .filter(
             active_reviews_count__lt=MAX_REVIEWS_PER_PLAY,
             has_reviewed_by_current_reader=False,
+            force_phase_2=False,
         )
         .exclude(
             Q(approval_verdicts_count__gte=VERDICTS_REQUIRED_FOR_FINAL_DECISION)
@@ -283,7 +286,10 @@ def auto_assign_phase2(competition):
                 ),
             ),
         )
-        .filter(yes_count__gte=VERDICTS_REQUIRED_FOR_FINAL_DECISION)
+        .filter(
+            Q(yes_count__gte=VERDICTS_REQUIRED_FOR_FINAL_DECISION)
+            | Q(force_phase_2=True)
+        )
         .values_list("id", flat=True)
     )
 
