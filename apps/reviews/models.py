@@ -15,6 +15,7 @@ class Review(models.Model):
     class Status(models.TextChoices):
         ASSIGNED = "assigned", _("Assigned")
         DRAFT = "draft", _("Draft")
+        REJECTED = "rejected", _("Rejected")
         SUBMITTED = "submitted", _("Submitted")
 
     reader = models.ForeignKey(User, on_delete=models.CASCADE)

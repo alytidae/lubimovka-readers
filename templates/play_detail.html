@@ -61,6 +61,20 @@
         </article>
     </dialog>
 
+    <dialog id="reject-review-confirmation">
+        <article>
+            <header>
+                <button type="button" aria-label="Close" rel="prev" onclick="document.getElementById('reject-review-confirmation').close()"></button>
+                <p><strong>{% trans "Decline Assignment" %}</strong></p>
+            </header>
+            <p>{% trans "Are you sure you want to decline this assignment? You will <strong>not</strong> be able to review this play again." %}</p>
+            <footer>
+                <button type="button" class="secondary outline" onclick="document.getElementById('reject-review-confirmation').close()">{% trans "Cancel" %}</button>
+                <button type="button" onclick="document.getElementById('reject-review-form').submit()">{% trans "Yes, decline" %}</button>
+            </footer>
+        </article>
+    </dialog>
+
     <nav aria-label="breadcrumb">
       <ul>
         <li><a href="{% url 'competitions:list' %}">{% trans "Competitions" %}</a></li>
@@ -123,6 +137,12 @@
     {% if my_active_review %}
         <article>
             <header>{% blocktrans with phase=my_active_review.get_phase_display %}Your Review ({{ phase }}){% endblocktrans %}</header>
+
+            {% if my_active_review.status == 'assigned' %}
+                <form id="reject-review-form" method="post" action="{% url 'reviews:reject' current_competition.slug my_active_review.id %}">
+                    {% csrf_token %}
+                </form>
+            {% endif %}
             
             <form id="final-review-form" method="post" action="{% url 'reviews:submit' current_competition.slug my_active_review.id %}">
                 {% csrf_token %}
@@ -149,6 +169,11 @@
                     <button type="button" onclick="document.getElementById('submit-review-confirmation').showModal()">
                         {% trans "Submit Final Vote" %}
                     </button>
+                    {% if my_active_review.status == 'assigned' %}
+                        <button type="button" class="contrast outline" onclick="document.getElementById('reject-review-confirmation').showModal()">
+                            {% trans "Decline Assignment" %}
+                        </button>
+                    {% endif %}
                 </div>
             </form>
         </article>

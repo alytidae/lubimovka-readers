@@ -325,3 +325,22 @@ def auto_assign_phase2(competition):
     Review.objects.bulk_create(reviews_to_create, ignore_conflicts=True)
 
     return len(reviews_to_create)
+
+
+def reject(review):
+    if review.status != Review.Status.ASSIGNED:
+        return Result(
+            success=False,
+            message=_("Only assigned reviews can be rejected."),
+        )
+
+    phase_error = _validate_review_phase(review)
+    if phase_error:
+        return phase_error
+
+    review.status = Review.Status.REJECTED
+    review.is_obsolete = True
+
+    review.save(update_fields=["is_obsolete", "status"])
+
+    return Result(success=True, message=_("✅ Assignment successfully declined"))

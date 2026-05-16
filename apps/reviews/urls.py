@@ -9,6 +9,7 @@ urlpatterns = [
         "<int:pk>/save-draft/", views.ReviewSaveDraftView.as_view(), name="save_draft"
     ),
     path("<int:pk>/submit/", views.ReviewSubmitView.as_view(), name="submit"),
+    path("<int:pk>/reject/", views.ReviewRejectView.as_view(), name="reject"),
     path(
         "<int:pk>/mark-public/",
         views.ReviewMarkPublicView.as_view(),

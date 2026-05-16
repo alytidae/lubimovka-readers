@@ -46,7 +46,9 @@ class PlayDetailView(
         ]
 
         if is_admin_or_mod:
-            context["own_reviews"] = base_reviews_qs.all()
+            context["own_reviews"] = Review.objects.filter(play=play).select_related(
+                "reader"
+            )
             context["other_reviews"] = Review.objects.none()
         else:
             context["own_reviews"] = base_reviews_qs.filter(
@@ -117,12 +119,10 @@ class PlayListView(
         competition = self.get_competition()
         user = self.request.user
         context = super().get_context_data(**kwargs)
-        
+
         if user.get_role(competition) == "reader":
             count = Review.objects.filter(
-                reader=user,
-                verdict=True,
-                play__competition=competition
+                reader=user, verdict=True, play__competition=competition
             ).count()
             context["number_positive_votes"] = count
 

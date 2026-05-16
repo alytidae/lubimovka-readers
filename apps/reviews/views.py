@@ -14,6 +14,7 @@ from .services import (
     restore,
     save_draft,
     submit,
+    reject,
 )
 from django.contrib import messages
 
@@ -252,5 +253,41 @@ class ReviewUpdateView(
             return True
 
         if self.request.user.get_role(competition) in ["admin"]:
+            return True
+        return False
+
+
+class ReviewRejectView(
+    LoginRequiredMixin, UserPassesTestMixin, CompetitionContextMixin, View
+):
+    def post(self, request, *args, **kwargs):
+        competition = self.get_competition()
+
+        review = get_object_or_404(
+            Review.objects.filter(
+                pk=kwargs["pk"],
+                play__competition__slug=kwargs["competition_slug"],
+                reader=request.user,
+                status=Review.Status.ASSIGNED,
+            )
+        )
+
+        result = reject(review)
+
+        if result.success:
+            messages.success(request, result.message)
+        else:
+            messages.warning(request, result.message)
+
+        return redirect("plays:list", competition_slug=competition.slug)
+
+    def test_func(self):
+        competition = self.get_competition()
+
+        has_access = Review.objects.filter(
+            id=self.kwargs.get("pk"), reader=self.request.user
+        ).exists()
+
+        if has_access and self.request.user.get_role(competition) in ["reader"]:
             return True
         return False

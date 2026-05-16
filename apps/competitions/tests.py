@@ -1,3 +1,4 @@
+import json
 from datetime import date
 from django.test import TestCase, Client
 from django.urls import reverse
@@ -45,6 +46,7 @@ class TestGoogleSheetSync(TestCase):
             title="Sync Comp",
             date=date(2026, 1, 1),
             google_sheet_url="http://fake-url.com",
+            google_credentials=json.dumps({"type": "service_account"}),
             play_title_sheet_column_name="Title",
             play_url_sheet_column_name="Link",
             play_author_email_sheet_column_name="Email",
@@ -53,10 +55,11 @@ class TestGoogleSheetSync(TestCase):
             play_author_year_of_birth_sheet_column_name="Year",
         )
 
-    @patch("apps.competitions.services.gspread.service_account")
-    def test_sync_creates_new_plays_and_skips_invalid(self, mock_service_account):
-        # Mocking the Google Sheets API response
-        mock_gc = mock_service_account.return_value
+    @patch("apps.competitions.services.gspread.service_account_from_dict")
+    def test_sync_creates_new_plays_and_skips_invalid(
+        self, mock_service_account_from_dict
+    ):
+        mock_gc = mock_service_account_from_dict.return_value
         mock_sh = mock_gc.open_by_url.return_value
         mock_ws = mock_sh.get_worksheet.return_value
 

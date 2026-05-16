@@ -11,7 +11,7 @@
         - {{ review.get_phase_display }}
         - {% trans "Verdict" %}: {% if review.verdict %}✅ {% trans "Yes" %}{% elif review.verdict is False %}❌ {% trans "No" %}{% else %}{% trans "Pending" %}{% endif %}
         {% if review.is_hidden %} ({% trans "Not public" %}){% else %} ({% trans "Public" %}){% endif %}
-        {% if review.is_obsolete %} <mark>{% trans "Obsolete" %}</mark>{% endif %}
+        {% if review.is_obsolete %} <mark>{% if review.status == 'rejected' %}{% trans "Rejected by reader" %}{% else %}{% trans "Sent to revote" %}{% endif %}</mark>{% endif %}
     </summary>
 
     <p>{{ review.comment|linebreaks|default:_("No comment provided.") }}</p>
