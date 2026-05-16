@@ -1,4 +1,7 @@
+from datetime import timedelta
+
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from apps.users.models import User
 from apps.plays.models import Play
@@ -31,6 +34,24 @@ class Review(models.Model):
 
     class Meta:
         unique_together = ("play", "reader", "phase")
+
+    DEADLINE_DAYS = 14
+
+    @property
+    def remaining_time(self):
+        from django.utils.translation import ngettext, gettext as _
+
+        diff = self.created_at + timedelta(days=self.DEADLINE_DAYS) - timezone.now()
+        total_seconds = int(diff.total_seconds())
+        if total_seconds <= 0:
+            return _("Overdue")
+        days = total_seconds // 86400
+        hours = (total_seconds % 86400) // 3600
+        days_str = ngettext("%(count)d day", "%(count)d days", days) % {"count": days}
+        hours_str = ngettext("%(count)d hour", "%(count)d hours", hours) % {
+            "count": hours
+        }
+        return f"{days_str} {hours_str}"
 
     def __str__(self):
         return f"{self.play.title} - {self.reader.username} ({self.phase})"

@@ -1153,3 +1153,25 @@ msgstr "Продолжить"
 #, python-format
 msgid "You have used %(used)s of your 15 'yes' votes. This is your total limit for all remaining plays in this stage."
 msgstr "Вы использовали %(used)s из 15 голосов «за». Это ваш общий лимит для всех оставшихся пьес на этом этапе."
+
+msgid "Overdue"
+msgstr "Просрочено"
+
+#, python-format
+msgid "%(count)d day"
+msgid_plural "%(count)d days"
+msgstr[0] "%(count)d день"
+msgstr[1] "%(count)d дня"
+msgstr[2] "%(count)d дней"
+msgstr[3] "%(count)d дней"
+
+#, python-format
+msgid "%(count)d hour"
+msgid_plural "%(count)d hours"
+msgstr[0] "%(count)d час"
+msgstr[1] "%(count)d часа"
+msgstr[2] "%(count)d часов"
+msgstr[3] "%(count)d часов"
+
+msgid "Remaining Time"
+msgstr "Оставшееся время"

@@ -58,6 +58,7 @@
                         {% else %}
                             <th scope="col">{% trans "Phase" %}</th>
                             <th scope="col">{% trans "Review Status" %}</th>
+                            <th scope="col">{% trans "Remaining Time" %}</th>
                         {% endif %}
                     </tr>
                 </thead>
@@ -105,6 +106,19 @@
                                                     <mark>{% trans "Draft" %}</mark>
                                                 {% else %}
                                                     {{ review.get_status_display }}
+                                                {% endif %}
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% for review in play.reviews.all %}
+                                        {% if review.reader == user and not review.is_obsolete %}
+                                            <div{% if not forloop.last %} class="review-phase-row"{% endif %}>
+                                                {% if review.status == 'submitted' %}
+                                                    —
+                                                {% else %}
+                                                    {{ review.remaining_time }}
                                                 {% endif %}
                                             </div>
                                         {% endif %}
