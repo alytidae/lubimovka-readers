@@ -29,12 +29,6 @@
                 <p>{% trans "Track your reading statistics, completed tasks, and personal metrics." %}</p>
                 <a href="{% url 'users:detail' current_competition.slug user.id %}" role="button">{% trans "View Stats" %}</a>
             </article>
-        
-            <article>
-                <header>{% trans "Contact Moderators" %}</header>
-                <p>{% trans "If you feel stuck or need guidance during the reading process, our moderators are here to help." %}</p>
-                <a href="{% url 'users:list' current_competition.slug %}" role="button">{% trans "View Moderators" %}</a>
-            </article>
         </div>
     {% endif %}
 

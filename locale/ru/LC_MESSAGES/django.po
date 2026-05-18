@@ -681,8 +681,6 @@ msgid "Create"
 msgstr "Создание"
 
 #: templates/create_update.html:13
-#, fuzzy
-#| msgid "Switch Theme"
 msgid "Switch to Phase 2?"
 msgstr "Перейти ко 2-му этапу?"
 
@@ -774,8 +772,6 @@ msgid "Yes, mark for revote"
 msgstr "Да, пометить для переголосования"
 
 #: templates/includes/review_list.html:39
-#, fuzzy
-#| msgid "Reader Review"
 msgid "Restore Review"
 msgstr "Восстановить рецензию"
 
@@ -788,8 +784,6 @@ msgstr ""
 "активной, и её вердикт будет учитываться в итогах пьесы."
 
 #: templates/includes/review_list.html:46
-#, fuzzy
-#| msgid "Yes, mark for revote"
 msgid "Yes, restore review"
 msgstr "Да, восстановить рецензию"
 
@@ -1225,3 +1219,55 @@ msgstr "Да, снять флаг"
 #: templates/play_list.html:81
 msgid "→ Phase 2"
 msgstr "→ Этап 2"
+
+#: templates/play_detail.html:136
+msgid "Email"
+msgstr "Email"
+
+#: templates/play_detail.html:104 templates/play_detail.html:225
+msgid "Decline Assignment"
+msgstr "Отклонить назначение"
+
+#: templates/play_detail.html:106
+msgid ""
+"Are you sure you want to decline this assignment? You will <strong>not</"
+"strong> be able to review this play again."
+msgstr ""
+"Вы уверены, что хотите отклонить это назначение? Вы <strong>не</strong> "
+"сможете повторно рецензировать эту пьесу."
+
+#: templates/play_detail.html:109
+msgid "Yes, decline"
+msgstr "Да, отклонить"
+
+#: templates/includes/review_item.html:14
+msgid "Rejected by reader"
+msgstr "Отклонено читателем"
+
+#: templates/includes/review_item.html:14
+msgid "Sent to revote"
+msgstr "Отправлено на переголосование"
+
+#: templates/includes/review_list.html:22
+msgid "Sent to Revote"
+msgstr "Отправлено на переголосование"
+
+#: templates/includes/review_list.html:56
+msgid "Edit Review"
+msgstr "Редактировать рецензию"
+
+#: templates/includes/review_list.html:75
+msgid "Save Changes"
+msgstr "Сохранить изменения"
+
+#: templates/includes/review_list.html:87
+msgid "Other reviews"
+msgstr "Другие рецензии"
+
+#: apps/reviews/services.py:340
+msgid "Only assigned reviews can be rejected."
+msgstr "Только назначенные рецензии могут быть отклонены."
+
+#: apps/reviews/services.py:352
+msgid "✅ Assignment successfully declined"
+msgstr "✅ Назначение успешно отклонено"

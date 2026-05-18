@@ -259,9 +259,11 @@ class UserListView(
         if user.is_superuser:
             return True
 
-        return user.competition_roles.filter(
-            competition=competition, is_active=True
-        ).exists()
+        return (
+            user.competition_roles.filter(competition=competition, is_active=True)
+            .exclude(role="reader")
+            .exists()
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -269,20 +271,11 @@ class UserListView(
         competition = self.get_competition()
         current_user_role = self.request.user.get_role(competition)
 
-        visible_users = []
-
         for user in context["object_list"]:
             role_record = user.competition_roles.filter(competition=competition).first()
             user.role = user.get_role(competition)
             user.role_is_active = role_record.is_active if role_record else False
 
-            if current_user_role == "reader":
-                if user.role in ["moderator"] and user.is_active:
-                    visible_users.append(user)
-            else:
-                visible_users.append(user)
-
-        context["object_list"] = visible_users
         context["user"] = self.request.user
         context["user"].role = current_user_role
 

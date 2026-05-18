@@ -4,7 +4,6 @@
 {% block title %}{% trans "Team Management" %} - {{ current_competition.title }} - {% trans "Lubimovka Readers" %}{% endblock title %}
 
 {% block content %}
-    {% if user.role != "reader" %}
     <nav aria-label="breadcrumb">
       <ul>
         <li><a href="{% url 'competitions:list' %}">{% trans "Competitions" %}</a></li>
@@ -73,51 +72,6 @@
             </table>
         </figure>
     </article>
-    {% else %}
-    <nav aria-label="breadcrumb">
-      <ul>
-        <li><a href="{% url 'competitions:list' %}">{% trans "Competitions" %}</a></li>
-        <li><a href="{% url 'competitions:detail' current_competition.slug %}">{{ current_competition.title }}</a></li>
-        <li>{% trans "Contact Moderators" %}</li>
-      </ul>
-    </nav>
-
-    <hgroup>
-        <h1>{% trans "Contact Moderators" %}</h1>
-        <p>{% trans "If need guidance during the reading process, our moderators are here to help." %}</p>
-    </hgroup>
-
-    <article>
-        <header>{% trans "Moderators" %}</header>
-        
-        <figure>
-            <table class="striped">
-                <thead>
-                    <tr>
-                        <th scope="col">{% trans "Username" %}</th>
-                        <th scope="col">{% trans "Telegram" %}</th>
-                        <th scope="col">{% trans "Role" %}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for user in object_list %}
-                        <tr>
-                            <td>{{ user.username }}</td>
-                            <td>{{ user.telegram_username }}</td>
-                            <td>{{ user.role|capfirst }}</td>
-                        </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="5">
-                                {% trans "No team members found for this competition." %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </figure>
-    </article>
-    {% endif %}
     <dialog id="invite-dialog">
         <article>
             <header>
