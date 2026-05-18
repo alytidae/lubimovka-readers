@@ -1,0 +1,4 @@
+services:
+  web:
+    image: ghcr.io/alytidae/lubimovka-readers:latest
+    build: null
