@@ -11,6 +11,7 @@ For production deployment, you need to create a .env file:
 SECRET_KEY="<strong-random-key>"
 FERNET_KEY="<strong-random-key>" 
 ALLOWED_HOSTS=yourdomain1.com,yourdomain2.com,yourserverip
+CSRF_TRUSTED_ORIGINS=https://yourdomain1.com,https://yourdomain2.com
 DEBUG=False
 
 DB_NAME=
@@ -69,6 +70,7 @@ For local development, you need to clone the repo and create a .env file:
 SECRET_KEY="<strong-random-key>"
 FERNET_KEY="<strong-random-key>" 
 ALLOWED_HOSTS=localhost
+CSRF_TRUSTED_ORIGINS=http://localhost
 DEBUG=True
 
 DB_NAME=
