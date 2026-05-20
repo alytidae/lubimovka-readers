@@ -8,7 +8,9 @@ A platform for readers to vote and comment on plays for the Lubimovka project
 For production deployment, you need to create a .env file:
 
 ```
+# python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
 SECRET_KEY="<strong-random-key>"
+# from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())
 FERNET_KEY="<strong-random-key>" 
 ALLOWED_HOSTS=yourdomain1.com,yourdomain2.com,yourserverip
 CSRF_TRUSTED_ORIGINS=https://yourdomain1.com,https://yourdomain2.com
@@ -67,7 +69,9 @@ The app is served by Gunicorn on port 8000 and static files are served via White
 For local development, you need to clone the repo and create a .env file:
 
 ```
+# python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
 SECRET_KEY="<strong-random-key>"
+# from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())
 FERNET_KEY="<strong-random-key>" 
 ALLOWED_HOSTS=localhost
 CSRF_TRUSTED_ORIGINS=http://localhost
@@ -84,9 +88,7 @@ and then run:
 
 ```
 docker compose up --build
-
 docker compose exec web uv run python manage.py migrate
-
 docker compose exec web uv run python manage.py createsuperuser
 ```
 
