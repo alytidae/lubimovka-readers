@@ -18,6 +18,7 @@ from django.utils.translation import gettext_lazy as _
 from apps.users.models import User
 
 MAX_ACTIVE_REVIEWS_PER_READER = 5
+INITIAL_REVIEWS_PER_PLAY = 2
 MAX_REVIEWS_PER_PLAY = 3
 VERDICTS_REQUIRED_FOR_FINAL_DECISION = 2
 
@@ -116,7 +117,12 @@ def assign_play(reader, competition):
             ),
         )
         .filter(
-            active_reviews_count__lt=MAX_REVIEWS_PER_PLAY,
+            Q(active_reviews_count__lt=INITIAL_REVIEWS_PER_PLAY) | 
+            (
+                Q(active_reviews_count=INITIAL_REVIEWS_PER_PLAY)
+                & Q(approval_verdicts_count=1)
+                & Q(rejected_verdicts_count=1)
+            ),
             has_reviewed_by_current_reader=False,
             force_phase_2=False,
         )
@@ -147,12 +153,19 @@ def assign_play(reader, competition):
             current_active_reviews = play.reviews.filter(
                 is_obsolete=False, phase=current_phase
             ).count()
-
-            if current_active_reviews < MAX_REVIEWS_PER_PLAY:
+            current_approvals = play.reviews.filter(
+                is_obsolete=False, verdict=True, phase=current_phase
+            ).count()
+            current_rejections = play.reviews.filter(
+                is_obsolete=False, verdict=False, phase=current_phase
+            ).count()
+            if current_active_reviews < INITIAL_REVIEWS_PER_PLAY or (
+                current_active_reviews == INITIAL_REVIEWS_PER_PLAY
+                and current_approvals == 1
+                and current_rejections == 1
+            ):
                 selected_play = play
                 break
-            else:
-                continue
 
     if not selected_play:
         return AssignmentResult(
