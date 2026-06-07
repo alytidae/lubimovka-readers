@@ -57,11 +57,11 @@
         </article>
 
         <article>
-            <header>{% trans "Yes/No Funnel" %}</header>
-            <p>{% trans "Overall decision distribution for submitted reviews." %}</p>
+            <header>{% trans "Review Votes" %}</header>
+            <p><small>{% trans "Number of submitted reviews with a Yes or No verdict." %}</small></p>
             <ul>
-                <li>✅ <strong>{% trans "Pass to next stage" %}:</strong> {{ total_yes }}</li>
-                <li>❌ <strong>{% trans "Rejected" %}:</strong> {{ total_no }}</li>
+                <li>✅ <strong>{% trans "Yes" %}:</strong> {{ total_yes }}</li>
+                <li>❌ <strong>{% trans "No" %}:</strong> {{ total_no }}</li>
             </ul>
         </article>
     </div>
@@ -150,20 +150,20 @@
     <article>
         <header>{% trans "Plays Overview" %}</header>
         <figure>
-            <table class="striped">
+            <table class="striped" id="plays-table">
                 <thead>
                     <tr>
-                        <th scope="col">{% trans "Play Title" %}</th>
-                        <th scope="col">{% trans "Current Status" %}</th>
+                        <th scope="col" data-sort="string">{% trans "Play Title" %} ⇅</th>
+                        <th scope="col" data-sort="string">{% trans "Current Status" %} ⇅</th>
                         
                         {% if selected_phase == 'all' or selected_phase == 'phase_1' %}
-                            <th scope="col">{% trans "Phase 1 (Yes)" %}</th>
-                            <th scope="col">{% trans "Phase 1 (No)" %}</th>
+                            <th scope="col" data-sort="number">{% trans "Phase 1 (Yes)" %} ⇅</th>
+                            <th scope="col" data-sort="number">{% trans "Phase 1 (No)" %} ⇅</th>
                         {% endif %}
                         
                         {% if selected_phase == 'all' or selected_phase == 'phase_2' %}
-                            <th scope="col">{% trans "Phase 2 (Yes)" %}</th>
-                            <th scope="col">{% trans "Phase 2 (No)" %}</th>
+                            <th scope="col" data-sort="number">{% trans "Phase 2 (Yes)" %} ⇅</th>
+                            <th scope="col" data-sort="number">{% trans "Phase 2 (No)" %} ⇅</th>
                         {% endif %}
                     </tr>
                 </thead>
@@ -192,5 +192,39 @@
             </table>
         </figure>
     </article>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var table = document.getElementById('plays-table');
+        if (!table) return;
+        var headers = table.querySelectorAll('thead th[data-sort]');
+        headers.forEach(function(th, colIndex) {
+            th.style.cursor = 'pointer';
+            th.addEventListener('click', function() {
+                var tbody = table.querySelector('tbody');
+                var rows = Array.from(tbody.querySelectorAll('tr'));
+                var sortType = th.getAttribute('data-sort');
+                var asc = th.getAttribute('data-order') !== 'asc';
+                headers.forEach(function(h) { h.removeAttribute('data-order'); });
+                th.setAttribute('data-order', asc ? 'asc' : 'desc');
+                rows.sort(function(a, b) {
+                    var aVal = a.children[colIndex] ? a.children[colIndex].textContent.trim() : '';
+                    var bVal = b.children[colIndex] ? b.children[colIndex].textContent.trim() : '';
+                    if (sortType === 'number') {
+                        aVal = parseFloat(aVal) || 0;
+                        bVal = parseFloat(bVal) || 0;
+                    } else {
+                        aVal = aVal.toLowerCase();
+                        bVal = bVal.toLowerCase();
+                    }
+                    if (aVal < bVal) return asc ? -1 : 1;
+                    if (aVal > bVal) return asc ? 1 : -1;
+                    return 0;
+                });
+                rows.forEach(function(row) { tbody.appendChild(row); });
+            });
+        });
+    });
+    </script>
 
 {% endblock content %}

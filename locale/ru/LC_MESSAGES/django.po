@@ -425,19 +425,23 @@ msgstr "Осталось рецензий"
 msgid "Reviews needed to complete the current phase"
 msgstr "До завершения текущего этапа"
 
-#: templates/analytics_dashboard.html:52
-msgid "Yes/No Funnel"
-msgstr "Воронка решений"
+#: templates/analytics_dashboard.html:60
+msgid "Review Votes"
+msgstr "Голоса по рецензиям"
+
+#: templates/analytics_dashboard.html:61
+msgid "Number of submitted reviews with a Yes or No verdict."
+msgstr "Количество отправленных рецензий с вердиктом «Да» или «Нет»."
 
 #: templates/analytics_dashboard.html:53
 msgid "Overall decision distribution for submitted reviews."
 msgstr "Общее распределение решений по отправленным рецензиям."
 
-#: templates/analytics_dashboard.html:55
+#: templates/analytics_dashboard.html:63
 msgid "Pass to next stage"
 msgstr "Проходит на следующий этап"
 
-#: templates/analytics_dashboard.html:56
+#: templates/analytics_dashboard.html:64
 msgid "Rejected"
 msgstr "Отклонено"
 
