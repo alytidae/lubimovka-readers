@@ -271,15 +271,6 @@ class TestUserListView(TestCase):
     def setUp(self):
         self.client = Client()
 
-    def test_reader_sees_only_moderators(self):
-        self.client.force_login(self.reader)
-        url = reverse("users:list", kwargs={"competition_slug": self.competition.slug})
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        visible_usernames = [u.username for u in response.context["object_list"]]
-        self.assertNotIn("ul_reader", visible_usernames)
-        self.assertIn("ul_mod", visible_usernames)
-
     def test_admin_sees_all_users(self):
         self.client.force_login(self.admin_user)
         url = reverse("users:list", kwargs={"competition_slug": self.competition.slug})

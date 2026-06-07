@@ -53,12 +53,12 @@ class TestPlayAssignmentAndPhases(TestCase):
 
     def test_assign_play_respects_max_readers_per_play(self):
         self.competition.refresh_from_db()
-        for i in range(3):
+        for i in range(2):
             assign_play(self.readers[i], self.competition)
 
-        result_4 = assign_play(self.readers[3], self.competition)
-        self.assertFalse(result_4.success)
-        self.assertEqual(Review.objects.filter(play=self.play).count(), 3)
+        result_3 = assign_play(self.readers[2], self.competition)
+        self.assertFalse(result_3.success)
+        self.assertEqual(Review.objects.filter(play=self.play).count(), 2)
 
     def test_play_excluded_after_two_positive_verdicts(self):
         self.competition.refresh_from_db()

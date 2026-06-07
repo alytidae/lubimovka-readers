@@ -1,6 +1,7 @@
 import json
 from datetime import date
-from django.test import TestCase, Client
+from cryptography.fernet import Fernet
+from django.test import TestCase, Client, override_settings
 from django.urls import reverse
 from unittest.mock import patch
 from apps.users.models import User
@@ -42,6 +43,7 @@ class TestCompetitionIsolation(TestCase):
         self.assertEqual(response.status_code, 403)  # Forbidden
 
 
+@override_settings(FERNET_KEY=Fernet.generate_key().decode())
 class TestGoogleSheetSync(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -347,6 +349,7 @@ class TestCompetitionSlugGeneration(TestCase):
         self.assertIn("my-competition", comp.slug)
 
 
+@override_settings(FERNET_KEY=Fernet.generate_key().decode())
 class TestCompetitionSyncView(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -538,6 +541,7 @@ class TestCompetitionExportExcelView(TestCase):
         self.assertEqual(response.status_code, 403)
 
 
+@override_settings(FERNET_KEY=Fernet.generate_key().decode())
 class TestCompetitionGoogleCredentialsEncryption(TestCase):
     def test_credentials_encrypted_on_first_save(self):
         comp = Competition.objects.create(
@@ -611,6 +615,7 @@ class TestCompetitionDetailViewSuperuser(TestCase):
         self.assertEqual(response.status_code, 200)
 
 
+@override_settings(FERNET_KEY=Fernet.generate_key().decode())
 class TestCompetitionSyncViewModeratorAndAdmin(TestCase):
     @classmethod
     def setUpTestData(cls):
