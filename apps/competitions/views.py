@@ -8,7 +8,18 @@ from django.utils.translation import gettext_lazy as _
 from django.views import View
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
-from django.db.models import Count, Q, Avg, F, Case, When, Value, CharField
+from django.db.models import (
+    Count,
+    Q,
+    Avg,
+    F,
+    Sum,
+    Case,
+    When,
+    Value,
+    CharField,
+    IntegerField,
+)
 from django.utils import timezone
 from datetime import timedelta
 from django.views.generic import TemplateView
@@ -163,6 +174,7 @@ class CompetitionAnalyticsView(
         selected_phase = self.request.GET.get("phase", default_phase)
 
         plays_qs = Play.objects.filter(competition=competition, is_active=True)
+        total_plays_count = Play.objects.filter(competition=competition).count()
 
         users_qs = User.objects.filter(
             competition_roles__competition=competition,
@@ -292,6 +304,20 @@ class CompetitionAnalyticsView(
             Q(phase_1_yes__gte=2) | Q(force_phase_2=True)
         ).count()
 
+        plays_overview = plays_overview.annotate(
+            p1_remaining=Case(
+                When(force_phase_2=True, then=Value(0)),
+                When(Q(phase_1_yes__gte=2) | Q(phase_1_no__gte=2), then=Value(0)),
+                When(Q(phase_1_yes=1) & Q(phase_1_no=1), then=Value(1)),
+                When(Q(phase_1_yes=0) & Q(phase_1_no=0), then=Value(2)),
+                default=Value(1),
+                output_field=IntegerField(),
+            )
+        )
+        phase1_exact_remaining = (
+            plays_overview.aggregate(total=Sum("p1_remaining"))["total"] or 0
+        )
+
         if selected_phase == "phase_1":
             plays_overview = plays_overview.filter(
                 phase_1_yes__lt=2, force_phase_2=False
@@ -339,7 +365,27 @@ class CompetitionAnalyticsView(
 
         eta_days = None
         total_done = reviews_qs.filter(status=Review.Status.SUBMITTED).count()
-        total_target = 0
+        active_plays_count = plays_qs.count()
+
+        if selected_phase == "phase_1":
+            remaining_reviews = phase1_exact_remaining
+        elif selected_phase == "phase_2":
+            phase2_submitted = reviews_qs.filter(
+                phase="phase_2", status=Review.Status.SUBMITTED
+            ).count()
+            remaining_reviews = max(
+                0, qualifying_plays_count * reader_count - phase2_submitted
+            )
+        else:
+            phase2_submitted = reviews_qs.filter(
+                phase="phase_2", status=Review.Status.SUBMITTED
+            ).count()
+            phase2_remaining = max(
+                0, qualifying_plays_count * reader_count - phase2_submitted
+            )
+            remaining_reviews = phase1_exact_remaining + phase2_remaining
+
+        exact_target = total_done + remaining_reviews
 
         seven_days_ago = timezone.now() - timedelta(days=7)
         recent_submissions = reviews_qs.filter(
@@ -347,19 +393,8 @@ class CompetitionAnalyticsView(
         ).count()
         velocity_per_day = recent_submissions / 7.0
 
-        active_plays_count = plays_qs.count()
-        if selected_phase == "phase_1":
-            total_target = active_plays_count * 2
-        elif selected_phase == "phase_2":
-            total_target = qualifying_plays_count * reader_count
-        else:
-            total_target = (active_plays_count * 2) + (
-                qualifying_plays_count * reader_count
-            )
-
-        remaining_tasks = max(0, total_target - total_done)
-        if velocity_per_day > 0 and remaining_tasks > 0:
-            eta_days = round(remaining_tasks / velocity_per_day)
+        if velocity_per_day > 0 and remaining_reviews > 0:
+            eta_days = round(remaining_reviews / velocity_per_day)
 
         context.update(
             {
@@ -372,8 +407,12 @@ class CompetitionAnalyticsView(
                 "pending_actions": pending_actions,
                 "eta_days": eta_days,
                 "velocity_per_day": round(velocity_per_day, 1),
+                "total_plays_count": total_plays_count,
+                "active_plays_count": active_plays_count,
+                "read_plays_count": total_done,
+                "remaining_reviews": remaining_reviews,
                 "progress_percent": (
-                    int((total_done / total_target * 100)) if total_target > 0 else 0
+                    int((total_done / exact_target * 100)) if exact_target > 0 else 0
                 ),
             }
         )

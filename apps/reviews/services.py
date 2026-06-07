@@ -117,8 +117,8 @@ def assign_play(reader, competition):
             ),
         )
         .filter(
-            Q(active_reviews_count__lt=INITIAL_REVIEWS_PER_PLAY) | 
-            (
+            Q(active_reviews_count__lt=INITIAL_REVIEWS_PER_PLAY)
+            | (
                 Q(active_reviews_count=INITIAL_REVIEWS_PER_PLAY)
                 & Q(approval_verdicts_count=1)
                 & Q(rejected_verdicts_count=1)

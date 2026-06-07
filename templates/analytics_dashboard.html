@@ -43,6 +43,14 @@
             <label for="progress-bar">{% blocktrans with percent=progress_percent %}Completion: {{ percent }}%{% endblocktrans %}</label>
             <progress id="progress-bar" value="{{ progress_percent }}" max="100"></progress>
             <ul>
+                <li><strong>{% trans "Total plays" %}:</strong> {{ total_plays_count }}
+                    <br><small>{% trans "Including inactive" %}</small></li>
+                <li><strong>{% trans "Activated plays" %}:</strong> {{ active_plays_count }}
+                    <br><small>{% trans "Available for review" %}</small></li>
+                <li><strong>{% trans "Reviews submitted" %}:</strong> {{ read_plays_count }}
+                    <br><small>{% trans "Completed reviews from all readers" %}</small></li>
+                <li><strong>{% trans "Reviews remaining" %}:</strong> {{ remaining_reviews }}
+                    <br><small>{% trans "Reviews needed to complete the current phase" %}</small></li>
                 <li><strong>{% trans "Current Velocity" %}:</strong> {% blocktrans with velocity=velocity_per_day %}{{ velocity }} reviews/day (last 7 days){% endblocktrans %}</li>
                 <li><strong>{% trans "Estimated Time Left" %}:</strong> {% if eta_days %}{% blocktrans with days=eta_days %}{{ days }} days{% endblocktrans %}{% else %}<mark>{% trans "N/A" %}</mark> ({% trans "Need more data" %}){% endif %}</li>
             </ul>

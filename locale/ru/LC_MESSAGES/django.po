@@ -24,8 +24,8 @@ msgid "Setup and Team Formation"
 msgstr "Настройка и формирование команды"
 
 #: apps/competitions/models.py:11
-msgid "Phase 1: Distribution (3 readers)"
-msgstr "Этап 1: Распределение (3 читателя)"
+msgid "Phase 1: Distribution (2 readers)"
+msgstr "Этап 1: Распределение (2 читателя)"
 
 #: apps/competitions/models.py:12
 msgid "Phase 2: Open Reading"
@@ -392,6 +392,38 @@ msgstr "Н/Д"
 #: templates/analytics_dashboard.html:47
 msgid "Need more data"
 msgstr "Нужно больше данных"
+
+#: templates/analytics_dashboard.html:47
+msgid "Total plays"
+msgstr "Всего пьес"
+
+#: templates/analytics_dashboard.html:47
+msgid "Including inactive"
+msgstr "Включая неактивные"
+
+#: templates/analytics_dashboard.html:47
+msgid "Activated plays"
+msgstr "Активированных"
+
+#: templates/analytics_dashboard.html:47
+msgid "Available for review"
+msgstr "Доступны для рецензирования"
+
+#: templates/analytics_dashboard.html:47
+msgid "Reviews submitted"
+msgstr "Отправлено рецензий"
+
+#: templates/analytics_dashboard.html:47
+msgid "Completed reviews from all readers"
+msgstr "Выполненные рецензии от всех читателей"
+
+#: templates/analytics_dashboard.html:47
+msgid "Reviews remaining"
+msgstr "Осталось рецензий"
+
+#: templates/analytics_dashboard.html:47
+msgid "Reviews needed to complete the current phase"
+msgstr "До завершения текущего этапа"
 
 #: templates/analytics_dashboard.html:52
 msgid "Yes/No Funnel"

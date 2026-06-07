@@ -9,7 +9,7 @@ from cryptography.fernet import Fernet
 class Competition(models.Model):
     class Status(models.TextChoices):
         SETUP = "setup", _("Setup and Team Formation")
-        PHASE_1 = "phase_1", _("Phase 1: Distribution (3 readers)")
+        PHASE_1 = "phase_1", _("Phase 1: Distribution (2 readers)")
         PHASE_2 = "phase_2", _("Phase 2: Open Reading")
         FINISHED = "finished", _("Finished")
 
@@ -57,9 +57,11 @@ class Competition(models.Model):
             self.slug = slugify(f"{self.title}-{self.date.year}")
 
         if not self.pk and self.google_credentials:
-            f = Fernet(settings.FERNET_KEY.encode('utf-8'))
-            encrypted_google_credentials = f.encrypt(self.google_credentials.encode('utf-8'))
-            self.google_credentials = encrypted_google_credentials.decode('utf-8')
+            f = Fernet(settings.FERNET_KEY.encode("utf-8"))
+            encrypted_google_credentials = f.encrypt(
+                self.google_credentials.encode("utf-8")
+            )
+            self.google_credentials = encrypted_google_credentials.decode("utf-8")
         super().save(*args, **kwargs)
 
     def __str__(self):

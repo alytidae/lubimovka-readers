@@ -441,6 +441,10 @@ class TestCompetitionAnalyticsView(TestCase):
         self.assertIn("velocity_per_day", response.context)
         self.assertIn("progress_percent", response.context)
         self.assertIn("selected_phase", response.context)
+        self.assertIn("total_plays_count", response.context)
+        self.assertIn("active_plays_count", response.context)
+        self.assertIn("read_plays_count", response.context)
+        self.assertIn("remaining_reviews", response.context)
 
     def test_moderator_can_access_analytics(self):
         self.client.force_login(self.mod)
