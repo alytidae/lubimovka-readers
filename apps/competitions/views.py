@@ -318,6 +318,37 @@ class CompetitionAnalyticsView(
             plays_overview.aggregate(total=Sum("p1_remaining"))["total"] or 0
         )
 
+        plays_read_count = 0
+        plays_1_vote_count = 0
+        plays_0_votes_count = 0
+        plays_need_1_vote_count = 0
+
+        if selected_phase == "phase_2":
+            counting_plays = plays_overview.filter(
+                Q(phase_1_yes__gte=2) | Q(force_phase_2=True)
+            )
+            for play in counting_plays:
+                votes = play.phase_2_yes + play.phase_2_no
+                if reader_count > 0 and votes >= reader_count:
+                    plays_read_count += 1
+                elif votes == 1:
+                    plays_1_vote_count += 1
+                elif votes == 0:
+                    plays_0_votes_count += 1
+                if reader_count > 0 and votes == reader_count - 1:
+                    plays_need_1_vote_count += 1
+        else:
+            for play in plays_overview.filter(force_phase_2=False):
+                votes = play.phase_1_yes + play.phase_1_no
+                if play.p1_remaining == 0:
+                    plays_read_count += 1
+                elif votes == 1:
+                    plays_1_vote_count += 1
+                elif votes == 0:
+                    plays_0_votes_count += 1
+                if play.p1_remaining == 1:
+                    plays_need_1_vote_count += 1
+
         if selected_phase == "phase_1":
             plays_overview = plays_overview.filter(
                 phase_1_yes__lt=2, force_phase_2=False
@@ -409,6 +440,10 @@ class CompetitionAnalyticsView(
                 "velocity_per_day": round(velocity_per_day, 1),
                 "total_plays_count": total_plays_count,
                 "active_plays_count": active_plays_count,
+                "plays_read_count": plays_read_count,
+                "plays_1_vote_count": plays_1_vote_count,
+                "plays_0_votes_count": plays_0_votes_count,
+                "plays_need_1_vote_count": plays_need_1_vote_count,
                 "read_plays_count": total_done,
                 "remaining_reviews": remaining_reviews,
                 "progress_percent": (

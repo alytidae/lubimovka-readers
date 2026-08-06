@@ -47,6 +47,14 @@
                     <br><small>{% trans "Including inactive" %}</small></li>
                 <li><strong>{% trans "Activated plays" %}:</strong> {{ active_plays_count }}
                     <br><small>{% trans "Available for review" %}</small></li>
+                <li><strong>{% trans "Fully read plays" %}:</strong> {{ plays_read_count }}
+                    <br><small>{% trans "Decision reached" %}</small></li>
+                <li><strong>{% trans "Plays with 1 vote" %}:</strong> {{ plays_1_vote_count }}
+                    <br><small>{% trans "One more vote needed" %}</small></li>
+                <li><strong>{% trans "Plays with 0 votes" %}:</strong> {{ plays_0_votes_count }}
+                    <br><small>{% trans "Not started yet" %}</small></li>
+                <li><strong>{% trans "Plays needing 1 vote" %}:</strong> {{ plays_need_1_vote_count }}
+                    <br><small>{% trans "Exactly one vote away from a decision" %}</small></li>
                 <li><strong>{% trans "Reviews submitted" %}:</strong> {{ read_plays_count }}
                     <br><small>{% trans "Completed reviews from all readers" %}</small></li>
                 <li><strong>{% trans "Reviews remaining" %}:</strong> {{ remaining_reviews }}

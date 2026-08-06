@@ -445,6 +445,10 @@ class TestCompetitionAnalyticsView(TestCase):
         self.assertIn("active_plays_count", response.context)
         self.assertIn("read_plays_count", response.context)
         self.assertIn("remaining_reviews", response.context)
+        self.assertIn("plays_read_count", response.context)
+        self.assertIn("plays_1_vote_count", response.context)
+        self.assertIn("plays_0_votes_count", response.context)
+        self.assertIn("plays_need_1_vote_count", response.context)
 
     def test_moderator_can_access_analytics(self):
         self.client.force_login(self.mod)
@@ -469,6 +473,85 @@ class TestCompetitionAnalyticsView(TestCase):
         url = reverse("competitions:analytics", kwargs={"slug": self.competition.slug})
         response = self.client.get(url + "?phase=phase_2")
         self.assertEqual(response.context["selected_phase"], "phase_2")
+
+
+class TestCompetitionPlayReadinessBreakdown(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.competition = Competition.objects.create(
+            title="Breakdown Comp",
+            date=date(2026, 1, 1),
+            status=Competition.Status.PHASE_1,
+        )
+        cls.admin_user = User.objects.create_user(
+            username="br_admin", password="pwd", is_superuser=True
+        )
+        cls.readers = []
+        for i in range(2):
+            user = User.objects.create_user(username=f"br_r{i}", password="pwd")
+            CompetitionRole.objects.create(
+                user=user, competition=cls.competition, role="reader"
+            )
+            cls.readers.append(user)
+
+        def make_play(title):
+            return Play.objects.create(
+                competition=cls.competition,
+                title=title,
+                author_email=f"{title.lower()}@test.com",
+                is_active=True,
+            )
+
+        def submit_review(play, reader, verdict):
+            Review.objects.create(
+                reader=reader,
+                play=play,
+                phase=Review.Phase.PHASE_1,
+                status=Review.Status.SUBMITTED,
+                verdict=verdict,
+                comment="ok",
+            )
+
+        cls.play_read = make_play("ReadPlay")  # 2 yes -> fully read
+        submit_review(cls.play_read, cls.readers[0], True)
+        submit_review(cls.play_read, cls.readers[1], True)
+
+        cls.play_tie = make_play("TiePlay")  # 1 yes + 1 no -> read + needs 1
+        submit_review(cls.play_tie, cls.readers[0], True)
+        submit_review(cls.play_tie, cls.readers[1], False)
+
+        cls.play_single = make_play("SinglePlay")  # 1 vote -> 1 vote + needs 1
+        submit_review(cls.play_single, cls.readers[0], False)
+
+        cls.play_empty = make_play("EmptyPlay")  # 0 votes
+
+        cls.play_forced = Play.objects.create(
+            competition=cls.competition,
+            title="ForcedPlay",
+            author_email="forced@test.com",
+            is_active=True,
+            force_phase_2=True,
+        )
+
+    def setUp(self):
+        self.client = Client()
+        self.client.force_login(self.admin_user)
+
+    def test_phase1_breakdown_counts(self):
+        url = reverse("competitions:analytics", kwargs={"slug": self.competition.slug})
+        response = self.client.get(url + "?phase=phase_1")
+        self.assertEqual(response.context["plays_read_count"], 1)
+        self.assertEqual(response.context["plays_1_vote_count"], 1)
+        self.assertEqual(response.context["plays_0_votes_count"], 1)
+        self.assertEqual(response.context["plays_need_1_vote_count"], 2)
+
+    def test_phase2_breakdown_counts(self):
+        url = reverse("competitions:analytics", kwargs={"slug": self.competition.slug})
+        response = self.client.get(url + "?phase=phase_2")
+        self.assertEqual(response.context["plays_read_count"], 0)
+        self.assertEqual(response.context["plays_1_vote_count"], 0)
+        self.assertEqual(response.context["plays_0_votes_count"], 2)
+        self.assertEqual(response.context["plays_need_1_vote_count"], 0)
 
 
 class TestCompetitionExportExcelView(TestCase):
