@@ -83,7 +83,7 @@
                     {% for review in pending_actions %}
                         <li>
                             <a href="{% url 'plays:detail' current_competition.slug review.play.pk %}">{{ review.play.title }}</a><br>
-                            <small>{% blocktrans with username=review.reader.username ago=review.created_at|timesince %}Assigned to <strong>{{ username }}</strong> ({{ ago }} ago){% endblocktrans %}</small>
+                            <small>{% blocktrans with username=review.reader.username ago=review.created_at|timesince %}Assigned to <strong>{{ username }}</strong> ({{ ago }} ago){% endblocktrans %}{% if review.status == 'draft' %} <mark>{% trans "Draft" %}</mark>{% endif %}</small>
                         </li>
                     {% empty %}
                         <li>{% trans "No pending actions required." %}</li>
