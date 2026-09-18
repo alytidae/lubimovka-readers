@@ -1,4 +1,5 @@
 from datetime import date
+from html.parser import HTMLParser
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.db import IntegrityError
@@ -1151,3 +1152,182 @@ class TestUnexcludePhase2Views(TestCase):
                     self.assertNotContains(
                         response, ">Cancel Phase 2 exclusion</button>"
                     )
+
+
+class TestPlayDetailPhase2Transition(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.competition = Competition.objects.create(
+            title="Reader form after Phase 2 transition",
+            date=date(2026, 1, 1),
+            status=Competition.Status.PHASE_1,
+        )
+        cls.admin = User.objects.create_user(
+            username="reader_transition_admin", password="pwd"
+        )
+        cls.reader = User.objects.create_user(
+            username="reader_transition_reader", password="pwd"
+        )
+        CompetitionRole.objects.create(
+            user=cls.admin, competition=cls.competition, role="admin"
+        )
+        CompetitionRole.objects.create(
+            user=cls.reader, competition=cls.competition, role="reader"
+        )
+        # Forced advancement is allowed before the reader finishes Phase 1.
+        cls.play = Play.objects.create(
+            competition=cls.competition,
+            title="Forced play with an unfinished Phase 1 review",
+            author_email="reader-transition@test.com",
+            is_active=True,
+            force_phase_2=True,
+        )
+        cls.phase1_review = Review.objects.create(
+            play=cls.play,
+            reader=cls.reader,
+            phase=Review.Phase.PHASE_1,
+            status=Review.Status.DRAFT,
+            verdict=False,
+            comment="Original Phase 1 draft",
+        )
+
+    def change_competition_status(self, status):
+        self.client.force_login(self.admin)
+        response = self.client.post(
+            reverse("competitions:update", kwargs={"slug": self.competition.slug}),
+            {
+                "title": self.competition.title,
+                "date": self.competition.date.isoformat(),
+                "status": status,
+            },
+        )
+        self.assertRedirects(response, self.competition.get_absolute_url())
+        self.competition.refresh_from_db()
+        self.assertEqual(self.competition.status, status)
+
+    def open_play_as_reader(self):
+        self.client.force_login(self.reader)
+        response = self.client.get(self.play.get_absolute_url())
+        self.assertEqual(response.status_code, 200)
+        return response
+
+    def submit_rendered_review_form(self, response):
+        class ReviewFormParser(HTMLParser):
+            action = None
+
+            def handle_starttag(self, tag, attrs):
+                attrs = dict(attrs)
+                if tag == "form" and attrs.get("id") == "final-review-form":
+                    self.action = attrs.get("action")
+
+        parser = ReviewFormParser()
+        parser.feed(response.content.decode())
+        self.assertIsNotNone(parser.action, "The reader needs a review form.")
+        result = self.client.post(
+            parser.action,
+            {"verdict": "True", "comment": "Final Phase 2 assessment"},
+        )
+        self.assertRedirects(result, self.play.get_absolute_url())
+
+    def assert_no_review_form(self, response):
+        self.assertIsNone(
+            response.context["my_active_review"],
+            "A review from an inactive phase must not be offered for editing.",
+        )
+        self.assertNotContains(response, 'id="final-review-form"')
+
+    def assert_phase2_submission_preserves_phase1(self, phase1_status):
+        self.phase1_review.status = phase1_status
+        self.phase1_review.save(update_fields=["status"])
+        original_phase1 = Review.objects.filter(pk=self.phase1_review.pk).values().get()
+
+        self.change_competition_status(Competition.Status.PHASE_2)
+        phase2_review = self.play.reviews.get(
+            reader=self.reader, phase=Review.Phase.PHASE_2
+        )
+        self.assertEqual(phase2_review.status, Review.Status.ASSIGNED)
+
+        # Submit the form the page actually renders, rather than calling the
+        # correct Phase 2 endpoint directly and bypassing the selection bug.
+        response = self.open_play_as_reader()
+        self.submit_rendered_review_form(response)
+
+        phase2_review.refresh_from_db()
+        self.assertEqual(
+            phase2_review.status,
+            Review.Status.SUBMITTED,
+            "The displayed form must submit the current Phase 2 review.",
+        )
+        self.assertTrue(phase2_review.verdict)
+        self.assertEqual(phase2_review.comment, "Final Phase 2 assessment")
+        self.assertIsNotNone(phase2_review.submitted_at)
+        self.assertEqual(
+            Review.objects.filter(pk=self.phase1_review.pk).values().get(),
+            original_phase1,
+        )
+        self.assert_no_review_form(self.client.get(self.play.get_absolute_url()))
+
+    def test_phase2_form_submits_phase2_when_phase1_is_draft(self):
+        self.assert_phase2_submission_preserves_phase1(Review.Status.DRAFT)
+
+    def test_phase2_form_submits_phase2_when_phase1_is_assigned(self):
+        self.assert_phase2_submission_preserves_phase1(Review.Status.ASSIGNED)
+
+    def test_phase2_form_submits_phase2_when_phase1_is_submitted(self):
+        self.assert_phase2_submission_preserves_phase1(Review.Status.SUBMITTED)
+
+    def test_obsolete_phase1_draft_does_not_block_phase2_submission(self):
+        self.phase1_review.is_obsolete = True
+        self.phase1_review.save(update_fields=["is_obsolete"])
+        self.assert_phase2_submission_preserves_phase1(Review.Status.DRAFT)
+
+    def test_submitted_phase2_does_not_reopen_phase1_draft_form(self):
+        self.change_competition_status(Competition.Status.PHASE_2)
+        phase2_review = self.play.reviews.get(
+            reader=self.reader, phase=Review.Phase.PHASE_2
+        )
+        self.client.force_login(self.reader)
+        response = self.client.post(
+            reverse(
+                "reviews:submit",
+                kwargs={
+                    "competition_slug": self.competition.slug,
+                    "pk": phase2_review.pk,
+                },
+            ),
+            {"verdict": "True", "comment": "Submitted Phase 2 assessment"},
+        )
+        self.assertRedirects(response, self.play.get_absolute_url())
+        phase2_review.refresh_from_db()
+        self.assertEqual(phase2_review.status, Review.Status.SUBMITTED)
+        self.assert_no_review_form(self.open_play_as_reader())
+
+    def test_excluded_play_has_no_phase1_review_form_during_phase2(self):
+        self.client.force_login(self.admin)
+        response = self.client.post(
+            reverse(
+                "plays:exclude-phase-2",
+                kwargs={
+                    "competition_slug": self.competition.slug,
+                    "pk": self.play.pk,
+                },
+            ),
+            {"comment": "Do not advance this forced play."},
+        )
+        self.assertRedirects(response, self.play.get_absolute_url())
+        self.change_competition_status(Competition.Status.PHASE_2)
+        self.assertFalse(self.play.reviews.filter(phase=Review.Phase.PHASE_2).exists())
+        self.assert_no_review_form(self.open_play_as_reader())
+
+    def test_finished_competition_has_no_unfinished_review_form(self):
+        self.change_competition_status(Competition.Status.PHASE_2)
+        self.change_competition_status(Competition.Status.FINISHED)
+        self.assert_no_review_form(self.open_play_as_reader())
+
+    def test_phase1_draft_form_remains_editable_during_phase1(self):
+        response = self.open_play_as_reader()
+        self.submit_rendered_review_form(response)
+        self.phase1_review.refresh_from_db()
+        self.assertEqual(self.phase1_review.status, Review.Status.SUBMITTED)
+        self.assertTrue(self.phase1_review.verdict)
+        self.assertFalse(self.play.reviews.filter(phase=Review.Phase.PHASE_2).exists())

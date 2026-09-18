@@ -74,12 +74,20 @@ class PlayDetailView(
             else:
                 context["other_reviews"] = Review.objects.none()
 
-        context["my_active_review"] = Review.objects.filter(
-            play=play,
-            reader=user,
-            status__in=[Review.Status.ASSIGNED, Review.Status.DRAFT],
-            is_obsolete=False,
-        ).first()
+        current_review_phase = {
+            Competition.Status.PHASE_1: Review.Phase.PHASE_1,
+            Competition.Status.PHASE_2: Review.Phase.PHASE_2,
+        }.get(competition.status)
+
+        context["my_active_review"] = None
+        if current_review_phase is not None:
+            context["my_active_review"] = Review.objects.filter(
+                play=play,
+                reader=user,
+                phase=current_review_phase,
+                status__in=[Review.Status.ASSIGNED, Review.Status.DRAFT],
+                is_obsolete=False,
+            ).first()
 
         return context
 
