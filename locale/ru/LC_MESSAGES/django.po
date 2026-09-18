@@ -1359,3 +1359,39 @@ msgstr "Продолжить"
 
 #~ msgid "Moderators"
 #~ msgstr "Модераторы"
+
+msgid "Exclude from Phase 2"
+msgstr "Принудительно исключить из второго этапа"
+
+msgid "Excluded from Phase 2"
+msgstr "Исключена из второго этапа"
+
+msgid "Exclusion reason"
+msgstr "Причина исключения"
+
+msgid "The play will not advance to Phase 2 regardless of votes or forced advancement. The play and reader reviews will be preserved."
+msgstr "Пьеса не пройдёт во второй этап независимо от голосов и принудительного прохода. Пьеса и оценки ридеров сохранятся."
+
+msgid "Plays can only be excluded during Phase 1."
+msgstr "Исключить пьесу можно только во время первого этапа."
+
+msgid "An exclusion reason is required."
+msgstr "Необходимо указать причину исключения."
+
+msgid "This play has already been excluded from Phase 2."
+msgstr "Эта пьеса уже исключена из второго этапа."
+
+msgid "The play has been excluded from Phase 2."
+msgstr "Пьеса исключена из второго этапа."
+
+msgid "Cancel Phase 2 exclusion"
+msgstr "Отменить исключение из второго этапа"
+
+msgid "Exclusion can only be cancelled during Phase 1."
+msgstr "Отменить исключение можно только во время первого этапа."
+
+msgid "Phase 2 exclusion has been cancelled."
+msgstr "Исключение из второго этапа отменено."
+
+msgid "Cancelling exclusion restores the usual advancement rules and clears the exclusion reason."
+msgstr "После отмены исключения снова действуют обычные правила прохода. Причина исключения удаляется."

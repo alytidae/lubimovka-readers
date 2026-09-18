@@ -20,6 +20,8 @@ class Play(models.Model):
 
     is_active = models.BooleanField(default=False)
     force_phase_2 = models.BooleanField(default=False)
+    exclude_phase_2 = models.BooleanField(default=False)
+    phase_2_exclusion_comment = models.TextField(blank=True)
 
     @property
     def is_author_over_45(self):

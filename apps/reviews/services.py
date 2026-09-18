@@ -125,6 +125,7 @@ def assign_play(reader, competition):
             ),
             has_reviewed_by_current_reader=False,
             force_phase_2=False,
+            exclude_phase_2=False,
         )
         .exclude(
             Q(approval_verdicts_count__gte=VERDICTS_REQUIRED_FOR_FINAL_DECISION)
@@ -149,7 +150,12 @@ def assign_play(reader, competition):
             Play.objects.select_for_update(skip_locked=True).filter(id=play_id).first()
         )
 
-        if play:
+        if (
+            play
+            and play.is_active
+            and not play.exclude_phase_2
+            and not play.force_phase_2
+        ):
             current_active_reviews = play.reviews.filter(
                 is_obsolete=False, phase=current_phase
             ).count()
@@ -287,6 +293,7 @@ def auto_assign_phase2(competition):
         Play.objects.filter(
             competition=competition,
             is_active=True,
+            exclude_phase_2=False,
         )
         .annotate(
             yes_count=Count(

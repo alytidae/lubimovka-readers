@@ -78,7 +78,9 @@
                                 </td>
                                 <td>
                                     {% if play.is_active %}✅ {% trans "Active" %}{% else %}❌ {% trans "Inactive" %}{% endif %}
-                                    {% if is_admin and play.force_phase_2 %}
+                                    {% if play.exclude_phase_2 %}
+                                        <br><mark style="font-size: 0.7em">{% trans "Excluded from Phase 2" %}</mark>
+                                    {% elif is_admin and play.force_phase_2 %}
                                         <mark style="font-size: 0.7em">{% trans "→ Phase 2" %}</mark>
                                     {% endif %}
                                 </td>

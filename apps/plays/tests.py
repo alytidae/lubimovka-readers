@@ -816,6 +816,37 @@ class TestExcludePhase2Views(TestCase):
         self.play.refresh_from_db()
         self.assertFalse(self.play.exclude_phase_2)
 
+    def test_admin_sees_exclusion_form_but_reader_and_moderator_do_not(self):
+        for user, visible in [
+            (self.admin, True),
+            (self.reader, False),
+            (self.moderator, False),
+        ]:
+            with self.subTest(user=user.username):
+                self.client.force_login(user)
+                response = self.client.get(self.play.get_absolute_url())
+                if visible:
+                    self.assertContains(response, 'id="exclude-phase2-dialog"')
+                    self.assertContains(response, 'name="comment" rows="6" required')
+                else:
+                    self.assertNotContains(response, 'id="exclude-phase2-dialog"')
+
+    def test_excluded_play_shows_reason_and_hides_advancement_actions(self):
+        self.exclude(self.admin, self.reason)
+        response = self.client.get(self.play.get_absolute_url())
+        self.assertContains(response, self.reason)
+        self.assertNotContains(response, 'id="exclude-phase2-dialog"')
+        self.assertNotContains(
+            response, "document.getElementById('force-phase2-dialog').showModal()"
+        )
+
+    def test_repeated_exclusion_preserves_original_reason(self):
+        self.exclude(self.admin, self.reason)
+        self.exclude(self.admin, "A replacement reason")
+        self.play.refresh_from_db()
+        self.assertTrue(self.play.exclude_phase_2)
+        self.assertEqual(self.play.phase_2_exclusion_comment, self.reason)
+
 
 class TestExcludePhase2Selection(TestCase):
     @classmethod
@@ -914,3 +945,209 @@ class TestExcludePhase2Selection(TestCase):
         )
         self.assertEqual(response.context["remaining_reviews"], 0)
         self.assertEqual(response.context["plays_0_votes_count"], 0)
+
+
+class TestUnexcludePhase2Views(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.competition = Competition.objects.create(
+            title="Cancel Phase 2 exclusion",
+            date=date(2026, 1, 1),
+            status=Competition.Status.PHASE_1,
+        )
+        cls.admin = User.objects.create_user(username="restore_admin", password="pwd")
+        cls.superuser = User.objects.create_user(
+            username="restore_superuser",
+            password="pwd",
+            is_superuser=True,
+        )
+        cls.moderator = User.objects.create_user(username="restore_mod", password="pwd")
+        cls.readers = []
+        CompetitionRole.objects.create(
+            user=cls.admin, competition=cls.competition, role="admin"
+        )
+        CompetitionRole.objects.create(
+            user=cls.moderator, competition=cls.competition, role="moderator"
+        )
+        for i in range(3):
+            reader = User.objects.create_user(
+                username=f"restore_reader{i}", password="pwd"
+            )
+            CompetitionRole.objects.create(
+                user=reader, competition=cls.competition, role="reader"
+            )
+            cls.readers.append(reader)
+        cls.reason = "Both readers withdrew their yes after rereading."
+        cls.play = Play.objects.create(
+            competition=cls.competition,
+            title="Excluded play to restore",
+            author_email="restore@test.com",
+            is_active=True,
+            exclude_phase_2=True,
+            phase_2_exclusion_comment=cls.reason,
+            internal_comment="Original comment",
+        )
+        for reader in cls.readers[:2]:
+            Review.objects.create(
+                play=cls.play,
+                reader=reader,
+                phase=Review.Phase.PHASE_1,
+                status=Review.Status.SUBMITTED,
+                verdict=True,
+                comment="Original yes",
+            )
+
+    def unexclude_url(self):
+        return reverse(
+            "plays:unexclude-phase-2",
+            kwargs={
+                "competition_slug": self.competition.slug,
+                "pk": self.play.pk,
+            },
+        )
+
+    def unexclude(self, user=None):
+        self.client.force_login(user or self.admin)
+        return self.client.post(self.unexclude_url())
+
+    def test_cancel_clears_reason_but_preserves_reviews_and_other_play_data(self):
+        original_reviews = list(self.play.reviews.order_by("pk").values())
+        for user in [self.admin, self.superuser]:
+            with self.subTest(user=user.username):
+                self.play.exclude_phase_2 = True
+                self.play.phase_2_exclusion_comment = self.reason
+                self.play.save(
+                    update_fields=["exclude_phase_2", "phase_2_exclusion_comment"]
+                )
+                response = self.unexclude(user)
+                self.assertRedirects(response, self.play.get_absolute_url())
+                self.play.refresh_from_db()
+                self.assertFalse(self.play.exclude_phase_2)
+                self.assertEqual(self.play.phase_2_exclusion_comment, "")
+                self.assertNotContains(
+                    self.client.get(self.play.get_absolute_url()), self.reason
+                )
+                self.assertEqual(self.play.internal_comment, "Original comment")
+                self.assertTrue(self.play.is_active)
+                self.assertFalse(self.play.force_phase_2)
+                self.assertEqual(
+                    list(self.play.reviews.order_by("pk").values()), original_reviews
+                )
+
+    def test_unauthorized_users_cannot_cancel(self):
+        other = Competition.objects.create(title="Other restore", date=date(2026, 1, 1))
+        other_admin = User.objects.create_user(
+            username="other_restore_admin", password="pwd"
+        )
+        CompetitionRole.objects.create(
+            user=other_admin, competition=other, role="admin"
+        )
+        for user in [self.readers[0], self.moderator, other_admin, None]:
+            with self.subTest(user=str(user)):
+                self.client.logout()
+                if user:
+                    self.client.force_login(user)
+                response = self.client.post(self.unexclude_url())
+                self.assertEqual(response.status_code, 403 if user else 302)
+                if not user:
+                    self.assertTrue(response.url.startswith(reverse("login")))
+                self.play.refresh_from_db()
+                self.assertTrue(self.play.exclude_phase_2)
+                self.assertEqual(self.play.phase_2_exclusion_comment, self.reason)
+
+    def test_cancel_requires_post_and_phase_1(self):
+        self.client.force_login(self.admin)
+        with self.subTest(method="GET"):
+            response = self.client.get(self.unexclude_url())
+            self.assertEqual(response.status_code, 405)
+            self.play.refresh_from_db()
+            self.assertTrue(self.play.exclude_phase_2)
+        for status in [
+            Competition.Status.SETUP,
+            Competition.Status.PHASE_2,
+            Competition.Status.FINISHED,
+        ]:
+            with self.subTest(status=status):
+                self.competition.status = status
+                self.competition.save()
+                self.unexclude()
+                self.play.refresh_from_db()
+                self.assertTrue(self.play.exclude_phase_2)
+                self.assertEqual(self.play.phase_2_exclusion_comment, self.reason)
+
+    def test_cancel_restores_advancement_rules_and_analytics(self):
+        from django.db import transaction
+        from apps.reviews.services import auto_assign_phase2
+
+        for verdict, forced, qualifies in [
+            (True, False, True),
+            (False, True, True),
+            (False, False, False),
+        ]:
+            with self.subTest(verdict=verdict, forced=forced), transaction.atomic():
+                self.play.force_phase_2 = forced
+                self.play.save(update_fields=["force_phase_2"])
+                self.play.reviews.update(verdict=verdict)
+                self.unexclude()
+                self.play.refresh_from_db()
+                self.assertFalse(self.play.exclude_phase_2)
+                self.assertEqual(self.play.force_phase_2, forced)
+                response = self.client.get(
+                    reverse(
+                        "competitions:analytics", kwargs={"slug": self.competition.slug}
+                    ),
+                    {"phase": "phase_2"},
+                )
+                self.assertEqual(response.status_code, 200)
+                ids = [play.pk for play in response.context["plays_overview"]]
+                self.assertEqual(self.play.pk in ids, qualifies)
+                self.assertEqual(
+                    response.context["remaining_reviews"], 3 if qualifies else 0
+                )
+                self.assertEqual(
+                    response.context["plays_0_votes_count"], 1 if qualifies else 0
+                )
+                self.competition.status = Competition.Status.PHASE_2
+                self.competition.save()
+                self.assertEqual(
+                    auto_assign_phase2(self.competition), 3 if qualifies else 0
+                )
+                self.assertEqual(
+                    self.play.reviews.filter(phase=Review.Phase.PHASE_2).count(),
+                    3 if qualifies else 0,
+                )
+                transaction.set_rollback(True)
+
+    def test_cancel_returns_tie_to_phase_1_pool(self):
+        from apps.reviews.services import assign_play
+
+        self.play.reviews.filter(reader=self.readers[0]).update(verdict=False)
+        self.unexclude()
+        result = assign_play(self.readers[2], self.competition)
+        self.assertTrue(result.success)
+        self.assertEqual(result.play, self.play)
+
+    def test_cancel_button_is_only_visible_to_admins_for_excluded_play_in_phase_1(self):
+        for user, excluded, status, visible in [
+            (self.admin, True, Competition.Status.PHASE_1, True),
+            (self.superuser, True, Competition.Status.PHASE_1, True),
+            (self.moderator, True, Competition.Status.PHASE_1, False),
+            (self.readers[0], True, Competition.Status.PHASE_1, False),
+            (self.admin, False, Competition.Status.PHASE_1, False),
+            (self.admin, True, Competition.Status.PHASE_2, False),
+        ]:
+            with self.subTest(user=user.username, excluded=excluded, status=status):
+                self.play.exclude_phase_2 = excluded
+                self.play.save(update_fields=["exclude_phase_2"])
+                self.competition.status = status
+                self.competition.save()
+                self.client.force_login(user)
+                response = self.client.get(
+                    self.play.get_absolute_url(), HTTP_ACCEPT_LANGUAGE="en"
+                )
+                if visible:
+                    self.assertContains(response, ">Cancel Phase 2 exclusion</button>")
+                else:
+                    self.assertNotContains(
+                        response, ">Cancel Phase 2 exclusion</button>"
+                    )

@@ -216,6 +216,60 @@ class PlayDeactivateView(LoginRequiredMixin, UserPassesTestMixin, View):
         return False
 
 
+class PlayExcludePhase2View(LoginRequiredMixin, UserPassesTestMixin, View):
+    def post(self, request, *args, **kwargs):
+        play = get_object_or_404(
+            Play, pk=kwargs["pk"], competition__slug=kwargs["competition_slug"]
+        )
+        if play.competition.status != Competition.Status.PHASE_1:
+            messages.error(request, _("Plays can only be excluded during Phase 1."))
+            return redirect(play.get_absolute_url())
+
+        comment = request.POST.get("comment", "").strip()
+        if not comment:
+            messages.error(request, _("An exclusion reason is required."))
+            return redirect(play.get_absolute_url())
+
+        if play.exclude_phase_2:
+            messages.info(
+                request, _("This play has already been excluded from Phase 2.")
+            )
+            return redirect(play.get_absolute_url())
+
+        play.exclude_phase_2 = True
+        play.phase_2_exclusion_comment = comment
+        play.save(update_fields=["exclude_phase_2", "phase_2_exclusion_comment"])
+        messages.success(request, _("The play has been excluded from Phase 2."))
+        return redirect(play.get_absolute_url())
+
+    def test_func(self):
+        competition = get_object_or_404(
+            Competition, slug=self.kwargs["competition_slug"]
+        )
+        return (
+            self.request.user.is_superuser
+            or self.request.user.get_role(competition) == "admin"
+        )
+
+
+class PlayUnexcludePhase2View(PlayExcludePhase2View):
+    def post(self, request, *args, **kwargs):
+        play = get_object_or_404(
+            Play, pk=kwargs["pk"], competition__slug=kwargs["competition_slug"]
+        )
+        if play.competition.status != Competition.Status.PHASE_1:
+            messages.error(
+                request, _("Exclusion can only be cancelled during Phase 1.")
+            )
+            return redirect(play.get_absolute_url())
+
+        play.exclude_phase_2 = False
+        play.phase_2_exclusion_comment = ""
+        play.save(update_fields=["exclude_phase_2", "phase_2_exclusion_comment"])
+        messages.success(request, _("Phase 2 exclusion has been cancelled."))
+        return redirect(play.get_absolute_url())
+
+
 class PlayForcePhase2View(LoginRequiredMixin, UserPassesTestMixin, View):
     def post(self, request, *args, **kwargs):
         play = get_object_or_404(

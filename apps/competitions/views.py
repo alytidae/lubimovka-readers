@@ -285,6 +285,10 @@ class CompetitionAnalyticsView(
             .annotate(
                 current_status=Case(
                     When(
+                        exclude_phase_2=True,
+                        then=Value(str(_("Excluded from Phase 2"))),
+                    ),
+                    When(
                         force_phase_2=True,
                         then=Value(str(_("Phase 2 (forced)"))),
                     ),
@@ -301,11 +305,13 @@ class CompetitionAnalyticsView(
         )
 
         qualifying_plays_count = plays_overview.filter(
-            Q(phase_1_yes__gte=2) | Q(force_phase_2=True)
+            Q(phase_1_yes__gte=2) | Q(force_phase_2=True),
+            exclude_phase_2=False,
         ).count()
 
         plays_overview = plays_overview.annotate(
             p1_remaining=Case(
+                When(exclude_phase_2=True, then=Value(0)),
                 When(force_phase_2=True, then=Value(0)),
                 When(Q(phase_1_yes__gte=2) | Q(phase_1_no__gte=2), then=Value(0)),
                 When(Q(phase_1_yes=1) & Q(phase_1_no=1), then=Value(1)),
@@ -325,7 +331,8 @@ class CompetitionAnalyticsView(
 
         if selected_phase == "phase_2":
             counting_plays = plays_overview.filter(
-                Q(phase_1_yes__gte=2) | Q(force_phase_2=True)
+                Q(phase_1_yes__gte=2) | Q(force_phase_2=True),
+                exclude_phase_2=False,
             )
             for play in counting_plays:
                 votes = play.phase_2_yes + play.phase_2_no
@@ -338,7 +345,9 @@ class CompetitionAnalyticsView(
                 if reader_count > 0 and votes == reader_count - 1:
                     plays_need_1_vote_count += 1
         else:
-            for play in plays_overview.filter(force_phase_2=False):
+            for play in plays_overview.filter(
+                force_phase_2=False, exclude_phase_2=False
+            ):
                 votes = play.phase_1_yes + play.phase_1_no
                 if play.p1_remaining == 0:
                     plays_read_count += 1
@@ -351,11 +360,12 @@ class CompetitionAnalyticsView(
 
         if selected_phase == "phase_1":
             plays_overview = plays_overview.filter(
-                phase_1_yes__lt=2, force_phase_2=False
+                phase_1_yes__lt=2, force_phase_2=False, exclude_phase_2=False
             )
         elif selected_phase == "phase_2":
             plays_overview = plays_overview.filter(
-                Q(phase_1_yes__gte=2) | Q(force_phase_2=True)
+                Q(phase_1_yes__gte=2) | Q(force_phase_2=True),
+                exclude_phase_2=False,
             )
 
         yes_filters = play_review_filters & Q(reviews__verdict=True)
@@ -474,6 +484,8 @@ class CompetitionExportExcelView(
                 "Author Last Name",
                 "Status",
                 "Force Phase 2",
+                "Excluded from Phase 2",
+                "Phase 2 Exclusion Reason",
                 "Total Reviews",
                 "Phase 1 Yes",
                 "Phase 1 No",
@@ -494,6 +506,8 @@ class CompetitionExportExcelView(
                     play.author_last_name or "",
                     "Active" if play.is_active else "Inactive",
                     "Yes" if play.force_phase_2 else "No",
+                    "Yes" if play.exclude_phase_2 else "No",
+                    play.phase_2_exclusion_comment,
                     reviews.count(),
                     reviews.filter(phase="phase_1", verdict=True).count(),
                     reviews.filter(phase="phase_1", verdict=False).count(),
