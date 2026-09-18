@@ -666,3 +666,251 @@ class TestPlayListPositiveVotes(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context["number_positive_votes"], 1)
+
+
+class TestExcludePhase2Views(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.competition = Competition.objects.create(
+            title="Exclude Phase 2",
+            date=date(2026, 1, 1),
+            status=Competition.Status.PHASE_1,
+        )
+        cls.admin = User.objects.create_user(username="exclude_admin", password="pwd")
+        cls.superuser = User.objects.create_user(
+            username="exclude_superuser",
+            password="pwd",
+            is_superuser=True,
+        )
+        cls.moderator = User.objects.create_user(username="exclude_mod", password="pwd")
+        cls.reader = User.objects.create_user(username="exclude_reader", password="pwd")
+        cls.second_reader = User.objects.create_user(
+            username="exclude_reader2", password="pwd"
+        )
+        for user, role in [
+            (cls.admin, "admin"),
+            (cls.moderator, "moderator"),
+            (cls.reader, "reader"),
+            (cls.second_reader, "reader"),
+        ]:
+            CompetitionRole.objects.create(
+                user=user, competition=cls.competition, role=role
+            )
+        cls.play = Play.objects.create(
+            competition=cls.competition,
+            title="Approved play",
+            author_email="exclude@test.com",
+            is_active=True,
+            internal_comment="Existing organiser comment",
+        )
+        for reader in [cls.reader, cls.second_reader]:
+            Review.objects.create(
+                play=cls.play,
+                reader=reader,
+                phase=Review.Phase.PHASE_1,
+                status=Review.Status.SUBMITTED,
+                verdict=True,
+                comment="Original yes",
+            )
+        cls.reason = "Both readers withdrew their yes after rereading."
+
+    def exclude(self, user, comment):
+        self.client.force_login(user)
+        return self.client.post(
+            reverse(
+                "plays:exclude-phase-2",
+                kwargs={
+                    "competition_slug": self.competition.slug,
+                    "pk": self.play.pk,
+                },
+            ),
+            {"comment": comment},
+        )
+
+    def test_admin_can_exclude_with_reason_without_changing_reviews(self):
+        original_reviews = list(self.play.reviews.order_by("pk").values())
+        response = self.exclude(self.admin, self.reason)
+        self.assertRedirects(response, self.play.get_absolute_url())
+        self.play.refresh_from_db()
+        self.assertTrue(self.play.exclude_phase_2)
+        self.assertEqual(self.play.phase_2_exclusion_comment, self.reason)
+        self.assertTrue(self.play.is_active)
+        self.assertEqual(self.play.internal_comment, "Existing organiser comment")
+        self.assertEqual(
+            list(self.play.reviews.order_by("pk").values()), original_reviews
+        )
+
+    def test_superuser_can_exclude(self):
+        response = self.exclude(self.superuser, self.reason)
+        self.assertRedirects(response, self.play.get_absolute_url())
+        self.play.refresh_from_db()
+        self.assertTrue(self.play.exclude_phase_2)
+
+    def test_empty_or_whitespace_reason_does_not_exclude(self):
+        for comment in ["", "   \n\t"]:
+            with self.subTest(comment=comment):
+                self.exclude(self.admin, comment)
+                self.play.refresh_from_db()
+                self.assertFalse(self.play.exclude_phase_2)
+                self.assertFalse(self.play.phase_2_exclusion_comment)
+
+    def test_missing_reason_does_not_exclude(self):
+        self.client.force_login(self.admin)
+        self.client.post(
+            reverse(
+                "plays:exclude-phase-2",
+                kwargs={
+                    "competition_slug": self.competition.slug,
+                    "pk": self.play.pk,
+                },
+            )
+        )
+        self.play.refresh_from_db()
+        self.assertFalse(self.play.exclude_phase_2)
+
+    def test_reader_and_moderator_cannot_exclude(self):
+        for user in [self.reader, self.moderator]:
+            with self.subTest(user=user.username):
+                response = self.exclude(user, self.reason)
+                self.assertEqual(response.status_code, 403)
+                self.play.refresh_from_db()
+                self.assertFalse(self.play.exclude_phase_2)
+
+    def test_admin_of_another_competition_cannot_exclude(self):
+        other = Competition.objects.create(
+            title="Other exclusion", date=date(2026, 1, 1)
+        )
+        user = User.objects.create_user(username="other_exclude_admin", password="pwd")
+        CompetitionRole.objects.create(user=user, competition=other, role="admin")
+        response = self.exclude(user, self.reason)
+        self.assertEqual(response.status_code, 403)
+        self.play.refresh_from_db()
+        self.assertFalse(self.play.exclude_phase_2)
+
+    def test_cannot_exclude_outside_phase_1(self):
+        for status in [
+            Competition.Status.SETUP,
+            Competition.Status.PHASE_2,
+            Competition.Status.FINISHED,
+        ]:
+            with self.subTest(status=status):
+                self.competition.status = status
+                self.competition.save()
+                self.exclude(self.admin, self.reason)
+                self.play.refresh_from_db()
+                self.assertFalse(self.play.exclude_phase_2)
+                self.assertFalse(self.play.phase_2_exclusion_comment)
+
+    def test_get_does_not_exclude(self):
+        self.client.force_login(self.admin)
+        response = self.client.get(
+            reverse(
+                "plays:exclude-phase-2",
+                kwargs={
+                    "competition_slug": self.competition.slug,
+                    "pk": self.play.pk,
+                },
+            )
+        )
+        self.assertEqual(response.status_code, 405)
+        self.play.refresh_from_db()
+        self.assertFalse(self.play.exclude_phase_2)
+
+
+class TestExcludePhase2Selection(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.competition = Competition.objects.create(
+            title="Excluded selection",
+            date=date(2026, 1, 1),
+            status=Competition.Status.PHASE_1,
+        )
+        cls.admin = User.objects.create_user(
+            username="selection_admin",
+            password="pwd",
+            is_superuser=True,
+        )
+        cls.readers = []
+        for i in range(3):
+            reader = User.objects.create_user(
+                username=f"selection_reader{i}", password="pwd"
+            )
+            CompetitionRole.objects.create(
+                user=reader, competition=cls.competition, role="reader"
+            )
+            cls.readers.append(reader)
+        cls.play = Play.objects.create(
+            competition=cls.competition,
+            title="Excluded approved play",
+            author_email="selection@test.com",
+            is_active=True,
+        )
+        for reader in cls.readers[:2]:
+            Review.objects.create(
+                play=cls.play,
+                reader=reader,
+                phase=Review.Phase.PHASE_1,
+                status=Review.Status.SUBMITTED,
+                verdict=True,
+                comment="Yes",
+            )
+
+    def mark_excluded(self):
+        # Persist the future model contract: an in-memory attribute would not
+        # exercise the database queries that select plays for either phase.
+        self.play.exclude_phase_2 = True
+        self.play.phase_2_exclusion_comment = "Both readers withdrew their yes."
+        self.play.save(update_fields=["exclude_phase_2", "phase_2_exclusion_comment"])
+
+    def test_exclusion_overrides_two_yes_votes(self):
+        from apps.reviews.services import auto_assign_phase2
+
+        self.mark_excluded()
+        self.competition.status = Competition.Status.PHASE_2
+        self.competition.save()
+        self.assertEqual(auto_assign_phase2(self.competition), 0)
+        self.assertFalse(self.play.reviews.filter(phase=Review.Phase.PHASE_2).exists())
+
+    def test_exclusion_overrides_forced_phase_2(self):
+        from apps.reviews.services import auto_assign_phase2
+
+        self.play.force_phase_2 = True
+        self.play.save(update_fields=["force_phase_2"])
+        self.mark_excluded()
+        self.competition.status = Competition.Status.PHASE_2
+        self.competition.save()
+        self.assertEqual(auto_assign_phase2(self.competition), 0)
+        self.assertFalse(self.play.reviews.filter(phase=Review.Phase.PHASE_2).exists())
+
+    def test_excluded_tie_does_not_return_to_phase_1_pool(self):
+        from apps.reviews.services import assign_play
+
+        self.play.reviews.filter(reader=self.readers[0]).update(verdict=False)
+        self.mark_excluded()
+        result = assign_play(self.readers[2], self.competition)
+        self.assertFalse(result.success)
+        self.assertFalse(self.play.reviews.filter(reader=self.readers[2]).exists())
+
+    def test_non_excluded_approved_play_still_gets_phase_2_assignments(self):
+        from apps.reviews.services import auto_assign_phase2
+
+        self.competition.status = Competition.Status.PHASE_2
+        self.competition.save()
+        self.assertEqual(auto_assign_phase2(self.competition), 3)
+        self.assertEqual(
+            self.play.reviews.filter(phase=Review.Phase.PHASE_2).count(), 3
+        )
+
+    def test_excluded_play_is_absent_from_phase_2_analytics(self):
+        self.mark_excluded()
+        self.client.force_login(self.admin)
+        response = self.client.get(
+            reverse("competitions:analytics", kwargs={"slug": self.competition.slug}),
+            {"phase": "phase_2"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn(
+            self.play.pk, [play.pk for play in response.context["plays_overview"]]
+        )
+        self.assertEqual(response.context["remaining_reviews"], 0)
+        self.assertEqual(response.context["plays_0_votes_count"], 0)
