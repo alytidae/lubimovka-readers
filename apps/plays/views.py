@@ -6,7 +6,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.utils.translation import gettext_lazy as _
 from apps.competitions.mixins import CompetitionContextMixin
 from apps.competitions.models import CompetitionRole, Competition
-from django.db.models import Q
+from django.db.models import Prefetch, Q
 from apps.reviews.models import Review
 from django.contrib import messages
 
@@ -140,20 +140,34 @@ class PlayListView(
         competition = self.get_competition()
         user = self.request.user
 
-        qs = (
-            super()
-            .get_queryset()
-            .filter(competition=competition)
-            .prefetch_related("reviews")
-            .distinct()
-        )
+        qs = super().get_queryset().filter(competition=competition).distinct()
 
         if user.is_superuser or user.get_role(competition) in ["admin", "moderator"]:
-            return qs
+            return qs.prefetch_related("reviews")
+
+        current_phase = {
+            Competition.Status.PHASE_1: Review.Phase.PHASE_1,
+            Competition.Status.PHASE_2: Review.Phase.PHASE_2,
+        }.get(competition.status)
+
+        if current_phase is None:
+            return qs.none()
+
+        current_reviews = Review.objects.filter(
+            reader=user,
+            phase=current_phase,
+            is_obsolete=False,
+        )
 
         return (
-            qs.filter(reviews__reader=user, reviews__is_obsolete=False)
-            .prefetch_related("reviews")
+            qs.filter(reviews__in=current_reviews)
+            .prefetch_related(
+                Prefetch(
+                    "reviews",
+                    queryset=current_reviews,
+                    to_attr="current_user_reviews",
+                )
+            )
             .distinct()
         )
 

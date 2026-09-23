@@ -70,6 +70,94 @@ class TestPlayVisibilityAndActions(TestCase):
         self.assertFalse(self.play.is_active)
 
 
+class TestReaderPlayListCurrentPhase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.competition = Competition.objects.create(
+            title="Current Phase Queue",
+            date=date(2026, 1, 1),
+            status=Competition.Status.PHASE_2,
+        )
+        cls.reader = User.objects.create_user(
+            username="current_phase_reader", password="pwd"
+        )
+        CompetitionRole.objects.create(
+            user=cls.reader, competition=cls.competition, role="reader"
+        )
+        cls.phase_1_play = Play.objects.create(
+            competition=cls.competition,
+            title="Phase 1 only",
+            author_email="phase1@example.com",
+        )
+        cls.phase_2_play = Play.objects.create(
+            competition=cls.competition,
+            title="Phase 2 only",
+            author_email="phase2@example.com",
+        )
+        cls.both_phases_play = Play.objects.create(
+            competition=cls.competition,
+            title="Both phases",
+            author_email="both@example.com",
+        )
+
+        for play in [cls.phase_1_play, cls.both_phases_play]:
+            Review.objects.create(
+                reader=cls.reader,
+                play=play,
+                phase=Review.Phase.PHASE_1,
+                status=Review.Status.SUBMITTED,
+                verdict=True,
+                comment="Phase 1 review",
+            )
+        for play in [cls.phase_2_play, cls.both_phases_play]:
+            Review.objects.create(
+                reader=cls.reader,
+                play=play,
+                phase=Review.Phase.PHASE_2,
+                status=Review.Status.ASSIGNED,
+            )
+
+    def setUp(self):
+        self.client.force_login(self.reader)
+
+    def test_reader_queue_only_contains_current_phase_plays(self):
+        response = self.client.get(
+            reverse("plays:list", kwargs={"competition_slug": self.competition.slug})
+        )
+
+        plays = list(response.context["object_list"])
+        self.assertNotIn(self.phase_1_play, plays)
+        self.assertIn(self.phase_2_play, plays)
+        self.assertIn(self.both_phases_play, plays)
+
+    def test_play_present_in_both_phases_only_shows_current_review(self):
+        response = self.client.get(
+            reverse("plays:list", kwargs={"competition_slug": self.competition.slug})
+        )
+
+        play = next(
+            item
+            for item in response.context["object_list"]
+            if item == self.both_phases_play
+        )
+        self.assertEqual(len(play.current_user_reviews), 1)
+        self.assertEqual(play.current_user_reviews[0].phase, Review.Phase.PHASE_2)
+
+    def test_reader_profile_keeps_reviews_from_both_phases(self):
+        response = self.client.get(
+            reverse(
+                "users:detail",
+                kwargs={
+                    "competition_slug": self.competition.slug,
+                    "pk": self.reader.pk,
+                },
+            )
+        )
+
+        phases = {review.phase for review in response.context["reviews"]}
+        self.assertEqual(phases, {Review.Phase.PHASE_1, Review.Phase.PHASE_2})
+
+
 class TestForcePhase2Views(TestCase):
     @classmethod
     def setUpTestData(cls):

@@ -43,7 +43,7 @@
     <article>
         <header>{% trans "Play Database" %}</header>
 	
-	{% if is_reader %}
+	{% if is_reader and current_competition.status == 'phase_1' %}
 	<p>{% blocktrans with used=number_positive_votes %}You have used {{ used }} of your 15 'yes' votes. This is your total limit for all remaining plays in this stage.{% endblocktrans %}</p>
 	{% endif %}
         <figure>
@@ -89,44 +89,38 @@
                                 </td>
                             {% else %}
                                 <td>
-                                    {% for review in play.reviews.all %}
-                                        {% if review.reader == user and not review.is_obsolete %}
-                                            <div{% if not forloop.last %} class="review-phase-row"{% endif %}>
-                                                {{ review.get_phase_display }}
-                                            </div>
-                                        {% endif %}
+                                    {% for review in play.current_user_reviews %}
+                                        <div{% if not forloop.last %} class="review-phase-row"{% endif %}>
+                                            {{ review.get_phase_display }}
+                                        </div>
                                     {% endfor %}
                                 </td>
                                 <td>
-                                    {% for review in play.reviews.all %}
-                                        {% if review.reader == user and not review.is_obsolete %}
-                                            <div{% if not forloop.last %} class="review-phase-row"{% endif %}>
-                                                {% if review.status == 'submitted' %}
-                                                    {% if review.verdict %}
-                                                        ✅ {% trans "Yes" %} - {% trans "Submitted" %}
-                                                    {% else %}
-                                                        ❌ {% trans "No" %} - {% trans "Submitted" %}
-                                                    {% endif %}
-                                                {% elif review.status == 'draft' %}
-                                                    <mark>{% trans "Draft" %}</mark>
+                                    {% for review in play.current_user_reviews %}
+                                        <div{% if not forloop.last %} class="review-phase-row"{% endif %}>
+                                            {% if review.status == 'submitted' %}
+                                                {% if review.verdict %}
+                                                    ✅ {% trans "Yes" %} - {% trans "Submitted" %}
                                                 {% else %}
-                                                    {{ review.get_status_display }}
+                                                    ❌ {% trans "No" %} - {% trans "Submitted" %}
                                                 {% endif %}
-                                            </div>
-                                        {% endif %}
+                                            {% elif review.status == 'draft' %}
+                                                <mark>{% trans "Draft" %}</mark>
+                                            {% else %}
+                                                {{ review.get_status_display }}
+                                            {% endif %}
+                                        </div>
                                     {% endfor %}
                                 </td>
                                 <td>
-                                    {% for review in play.reviews.all %}
-                                        {% if review.reader == user and not review.is_obsolete %}
-                                            <div{% if not forloop.last %} class="review-phase-row"{% endif %}>
-                                                {% if review.status == 'submitted' %}
-                                                    —
-                                                {% else %}
-                                                    {{ review.remaining_time }}
-                                                {% endif %}
-                                            </div>
-                                        {% endif %}
+                                    {% for review in play.current_user_reviews %}
+                                        <div{% if not forloop.last %} class="review-phase-row"{% endif %}>
+                                            {% if review.status == 'submitted' %}
+                                                —
+                                            {% else %}
+                                                {{ review.remaining_time }}
+                                            {% endif %}
+                                        </div>
                                     {% endfor %}
                                 </td>
                             {% endif %}
