@@ -1395,3 +1395,7 @@ msgstr "Исключение из второго этапа отменено."
 
 msgid "Cancelling exclusion restores the usual advancement rules and clears the exclusion reason."
 msgstr "После отмены исключения снова действуют обычные правила прохода. Причина исключения удаляется."
+
+#: templates/login.html
+msgid "Version"
+msgstr "Версия"

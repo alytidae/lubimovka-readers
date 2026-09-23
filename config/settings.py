@@ -82,6 +82,7 @@ TEMPLATES = [
                 "django.template.context_processors.i18n",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "config.context_processors.app_version",
             ],
         },
     },
@@ -171,3 +172,6 @@ STORAGES = {
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "login"
+
+APP_COMMIT_SHA = env("APP_COMMIT_SHA", default="")
+APP_COMMIT_DATE = env("APP_COMMIT_DATE", default="")

@@ -2,6 +2,11 @@ FROM astral/uv:python3.12-bookworm-slim
 
 ENV PYTHONUNBUFFERED=1
 
+ARG APP_COMMIT_SHA=""
+ARG APP_COMMIT_DATE=""
+ENV APP_COMMIT_SHA=${APP_COMMIT_SHA}
+ENV APP_COMMIT_DATE=${APP_COMMIT_DATE}
+
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \

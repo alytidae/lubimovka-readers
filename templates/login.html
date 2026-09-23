@@ -14,5 +14,14 @@
             {{ form.as_p }}
             <button type="submit">{% trans "Login" %}</button>
         </form>
+
+        {% if app_commit_date %}
+            <footer style="text-align: center;">
+                <small class="app-version">
+                    <span>{% trans "Version" %}: {{ app_commit_date }}</span>
+                    {% if app_commit_sha %}<span aria-hidden="true">·</span><code>{{ app_commit_sha }}</code>{% endif %}
+                </small>
+            </footer>
+        {% endif %}
     </article>
 {% endblock content %}
