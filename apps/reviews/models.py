@@ -36,13 +36,20 @@ class Review(models.Model):
     class Meta:
         unique_together = ("play", "reader", "phase")
 
-    DEADLINE_DAYS = 14
+    PHASE_1_DEADLINE_DAYS = 14
+    PHASE_2_DEADLINE_DAYS = 30
+
+    @property
+    def deadline_days(self):
+        if self.phase == self.Phase.PHASE_2:
+            return self.PHASE_2_DEADLINE_DAYS
+        return self.PHASE_1_DEADLINE_DAYS
 
     @property
     def remaining_time(self):
         from django.utils.translation import ngettext, gettext as _
 
-        diff = self.created_at + timedelta(days=self.DEADLINE_DAYS) - timezone.now()
+        diff = self.created_at + timedelta(days=self.deadline_days) - timezone.now()
         total_seconds = int(diff.total_seconds())
         if total_seconds <= 0:
             return _("Overdue")
