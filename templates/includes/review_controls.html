@@ -59,14 +59,8 @@
             {% csrf_token %}
             <fieldset>
                 <legend>{% trans "Verdict" %}</legend>
-                <label>
-                    <input type="radio" name="verdict" value="True">
-                    {% trans "Yes, pass to next stage" %}
-                </label>
-                <label>
-                    <input type="radio" name="verdict" value="False">
-                    {% trans "No, reject" %}
-                </label>
+                <label><input type="radio" name="verdict" value="True"> {% trans "Yes, pass to next stage" %}</label>
+                <label><input type="radio" name="verdict" value="False"> {% trans "No, reject" %}</label>
             </fieldset>
             <label for="edit-review-comment">{% trans "Comment" %}</label>
             <textarea id="edit-review-comment" name="comment" rows="6"></textarea>
@@ -77,23 +71,6 @@
         </form>
     </article>
 </dialog>
-
-{% for review in own_reviews %}
-    {% include "includes/review_item.html" %}
-{% endfor %}
-
-{% if other_reviews %}
-    <details>
-        <summary>{% trans "Other reviews" %} ({{ other_reviews|length }})</summary>
-        {% for review in other_reviews %}
-            {% include "includes/review_item.html" %}
-        {% endfor %}
-    </details>
-{% endif %}
-
-{% if not own_reviews and not other_reviews %}
-    <p>{% trans "No reviews available yet." %}</p>
-{% endif %}
 
 <script>
     function openVisibilityModal(url) {
@@ -111,7 +88,7 @@
     function openEditModal(url, verdict, comment) {
         document.getElementById('edit-review-form').action = url;
         var radios = document.querySelectorAll('#edit-review-form input[name="verdict"]');
-        radios.forEach(function(r) { r.checked = (r.value === String(verdict)); });
+        radios.forEach(function(radio) { radio.checked = (radio.value.toLowerCase() === String(verdict).toLowerCase()); });
         document.getElementById('edit-review-comment').value = comment || '';
         document.getElementById('edit-review-dialog').showModal();
     }

@@ -1,0 +1,241 @@
+{% load i18n %}
+{% if table_reviews %}
+    {% include "includes/review_controls.html" %}
+    <div class="review-filters" aria-label="{% trans 'Review filters' %}">
+        <label for="review-phase-filter">{% trans "Phase" %}
+            <select id="review-phase-filter">
+                <option value="">{% trans "All phases" %}</option>
+                <option value="phase_1">{% trans "Phase 1" %}</option>
+                <option value="phase_2">{% trans "Phase 2" %}</option>
+            </select>
+        </label>
+        <label for="review-status-filter">{% trans "Status" %}
+            <select id="review-status-filter">
+                <option value="">{% trans "All statuses" %}</option>
+                <option value="assigned">{% trans "Assigned" %}</option>
+                <option value="draft">{% trans "Draft" %}</option>
+                <option value="submitted">{% trans "Submitted" %}</option>
+                <option value="rejected">{% trans "Rejected" %}</option>
+                <option value="obsolete">{% trans "Sent to revote" %}</option>
+            </select>
+        </label>
+        <label for="review-verdict-filter">{% trans "Verdict" %}
+            <select id="review-verdict-filter">
+                <option value="">{% trans "All verdicts" %}</option>
+                <option value="yes">{% trans "Yes" %}</option>
+                <option value="no">{% trans "No" %}</option>
+                <option value="pending">{% trans "Pending" %}</option>
+            </select>
+        </label>
+    </div>
+
+    <figure class="review-table-wrap">
+        <table class="striped" id="reviews-table">
+            <thead>
+                <tr>
+                    <th scope="col" data-sort="string"><button type="button" class="review-sort">{% if table_mode == "play" %}{% trans "Reader" %}{% else %}{% trans "Play" %}{% endif %} ↕</button></th>
+                    <th scope="col" data-sort="string"><button type="button" class="review-sort">{% trans "Phase" %} ↕</button></th>
+                    <th scope="col" data-sort="string"><button type="button" class="review-sort">{% trans "Status" %} ↕</button></th>
+                    <th scope="col" data-sort="string"><button type="button" class="review-sort">{% trans "Verdict" %} ↕</button></th>
+                    <th scope="col">{% trans "Comment" %}</th>
+                    <th scope="col"><span class="visually-hidden">{% trans "Actions" %}</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for review in table_reviews %}
+                    <tr data-phase="{{ review.phase }}"
+                        data-status="{{ review.status }}"
+                        data-obsolete="{{ review.is_obsolete|yesno:'true,false' }}"
+                        data-verdict="{% if review.verdict is True %}yes{% elif review.verdict is False %}no{% else %}pending{% endif %}"
+                        {% if review.is_obsolete %}class="obsolete-review-row"{% endif %}>
+                        <td data-sort-value="{% if table_mode == 'play' %}{% if is_moderator %}{{ review.reader.username|lower }}{% elif review.reader == user %}{% trans 'You' %}{% else %}{% trans 'Reader Review' %}{% endif %}{% else %}{{ review.play.title|lower }}{% endif %}">
+                            {% if table_mode == "play" %}
+                                {% if is_moderator %}{{ review.reader.username }}{% else %}{% trans "Reader Review" %}{% endif %}
+                                {% if review.reader == user %}<mark>{% trans "You" %}</mark>{% endif %}
+                            {% else %}
+                                <a href="{% url 'plays:detail' current_competition.slug review.play.pk %}">{{ review.play.title }}</a>
+                            {% endif %}
+                        </td>
+                        <td data-sort-value="{{ review.phase }}">{{ review.get_phase_display }}</td>
+                        <td data-sort-value="{% if review.is_obsolete %}obsolete{% else %}{{ review.status }}{% endif %}">
+                            {{ review.get_status_display }}
+                            {% if review.is_obsolete %}<mark>{% if review.status == 'rejected' %}{% trans "Rejected by reader" %}{% else %}{% trans "Sent to revote" %}{% endif %}</mark>{% endif %}
+                            <small>{% if review.is_hidden %}{% trans "Not public" %}{% else %}{% trans "Public" %}{% endif %}</small>
+                        </td>
+                        <td data-sort-value="{% if review.verdict is True %}yes{% elif review.verdict is False %}no{% else %}pending{% endif %}">
+                            {% if review.verdict is True %}✅ {% trans "Yes" %}{% elif review.verdict is False %}❌ {% trans "No" %}{% else %}{% trans "Pending" %}{% endif %}
+                        </td>
+                        <td>
+                            {% if review.comment.strip %}
+                                {% if review.comment.strip|length > 80 %}
+                                    <span class="review-comment-preview">{{ review.comment.strip|truncatechars:80 }}</span>
+                                    <span class="review-comment-full" id="review-comment-{{ review.pk }}" hidden>{{ review.comment.strip|linebreaksbr }}</span>
+                                    <button type="button" class="review-comment-toggle" aria-expanded="false" aria-controls="review-comment-{{ review.pk }}" data-show-more="{% trans 'Show more' %}" data-show-less="{% trans 'Show less' %}">{% trans "Show more" %}</button>
+                                {% else %}
+                                    <span class="review-comment-full">{{ review.comment.strip|linebreaksbr }}</span>
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                        <td class="review-actions-cell">
+                            <button type="button" class="review-actions-trigger secondary outline" popovertarget="review-actions-{{ review.pk }}" aria-label="{% trans 'Review actions' %}" title="{% trans 'Review actions' %}">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
+                            </button>
+                            <div id="review-actions-{{ review.pk }}" class="review-actions-menu" popover="auto">
+                                    {% if is_admin %}
+                                        <button type="button" class="secondary outline" data-review-action="edit" data-url="{% url 'reviews:edit' current_competition.slug review.id %}" data-verdict="{{ review.verdict|yesno:'true,false,null' }}" data-comment="{{ review.comment }}">{% trans "Edit" %}</button>
+                                    {% endif %}
+                                    {% if is_admin or is_moderator %}
+                                        {% if review.is_obsolete %}
+                                            <button type="button" data-review-action="restore" data-url="{% url 'reviews:restore' current_competition.slug review.id %}">{% trans "Restore" %}</button>
+                                        {% else %}
+                                            <button type="button" class="secondary outline" data-review-action="revote" data-url="{% url 'reviews:mark_obsolete' current_competition.slug review.id %}">{% trans "Revote" %}</button>
+                                        {% endif %}
+                                    {% endif %}
+                                    <button type="button" class="secondary outline" data-review-action="visibility" data-url="{% if review.is_hidden %}{% url 'reviews:mark_public' current_competition.slug review.id %}{% else %}{% url 'reviews:mark_hidden' current_competition.slug review.id %}{% endif %}">
+                                        {% if review.is_hidden %}{% trans "Show Review" %}{% else %}{% trans "Hide Review" %}{% endif %}
+                                    </button>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                <tr id="reviews-empty-filtered" hidden>
+                    <td colspan="6">{% trans "No reviews match these filters." %}</td>
+                </tr>
+            </tbody>
+        </table>
+    </figure>
+
+    <style>
+        .review-filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 0 1rem; }
+        .review-table-wrap { overflow-x: auto; }
+        .review-sort { all: unset; cursor: pointer; font-weight: 600; }
+        .review-sort:focus-visible { outline: 2px solid var(--pico-primary); outline-offset: 3px; }
+        .review-comment-preview, .review-comment-full { display: block; max-width: 32rem; white-space: normal; overflow-wrap: anywhere; }
+        .review-comment-toggle { width: auto; margin: .3rem 0 0; padding: 0; border: 0; background: none; color: var(--pico-primary); font-size: .85rem; text-decoration: underline; }
+        .review-comment-toggle:hover, .review-comment-toggle:focus { background: none; color: var(--pico-primary-hover); }
+        .review-actions-cell { width: 1%; white-space: nowrap; }
+        .review-actions-trigger { display: inline-flex; align-items: center; justify-content: center; width: 2.4rem; height: 2.4rem; margin: 0; padding: 0; }
+        .review-actions-trigger svg { display: block; flex: none; }
+        .review-actions-menu { position: fixed; inset: auto; width: max-content; min-width: 10rem; max-width: calc(100vw - 1rem); max-height: calc(100vh - 1rem); overflow-y: auto; margin: 0; padding: .6rem; background: var(--pico-card-background-color); border: 1px solid var(--pico-muted-border-color); border-radius: var(--pico-border-radius); box-shadow: var(--pico-box-shadow); }
+        .review-actions-menu:popover-open { display: grid; gap: .35rem; }
+        .review-actions-menu button { width: 100%; margin: 0; padding: .45rem .6rem; font-size: .85rem; }
+        #reviews-table [hidden] { display: none; }
+        .obsolete-review-row > td:not(.review-actions-cell) { opacity: .65; }
+        .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var table = document.getElementById('reviews-table');
+            if (!table) return;
+
+            var rows = Array.from(table.tBodies[0].querySelectorAll('tr[data-phase]'));
+            var phase = document.getElementById('review-phase-filter');
+            var status = document.getElementById('review-status-filter');
+            var verdict = document.getElementById('review-verdict-filter');
+            var noResults = document.getElementById('reviews-empty-filtered');
+
+            function closeOpenMenu() {
+                var menu = table.querySelector('.review-actions-menu:popover-open');
+                if (menu) menu.hidePopover();
+            }
+
+            function applyFilters() {
+                var visibleCount = 0;
+                rows.forEach(function(row) {
+                    var statusMatches = !status.value || (status.value === 'obsolete'
+                        ? row.dataset.obsolete === 'true'
+                        : row.dataset.status === status.value);
+                    var matches = (!phase.value || row.dataset.phase === phase.value)
+                        && statusMatches
+                        && (!verdict.value || row.dataset.verdict === verdict.value);
+                    row.hidden = !matches;
+                    if (matches) visibleCount += 1;
+                });
+                noResults.hidden = visibleCount !== 0;
+                closeOpenMenu();
+            }
+
+            [phase, status, verdict].forEach(function(control) {
+                control.addEventListener('change', applyFilters);
+            });
+
+            var sortHeaders = Array.from(table.querySelectorAll('thead th[data-sort]'));
+            sortHeaders.forEach(function(header, columnIndex) {
+                var button = header.querySelector('button');
+                header.setAttribute('aria-sort', 'none');
+                button.addEventListener('click', function() {
+                    var ascending = header.getAttribute('aria-sort') !== 'ascending';
+                    var collator = new Intl.Collator(document.documentElement.lang || undefined, { numeric: true, sensitivity: 'base' });
+                    rows.sort(function(a, b) {
+                        var aCell = a.cells[columnIndex];
+                        var bCell = b.cells[columnIndex];
+                        var aValue = aCell.dataset.sortValue || aCell.textContent.trim();
+                        var bValue = bCell.dataset.sortValue || bCell.textContent.trim();
+                        return collator.compare(aValue, bValue) * (ascending ? 1 : -1);
+                    });
+                    rows.forEach(function(row) { table.tBodies[0].insertBefore(row, noResults); });
+                    sortHeaders.forEach(function(otherHeader) {
+                        otherHeader.setAttribute('aria-sort', 'none');
+                        var otherButton = otherHeader.querySelector('button');
+                        otherButton.textContent = otherButton.textContent.replace(/[↑↓↕]/g, '').trim() + ' ↕';
+                    });
+                    header.setAttribute('aria-sort', ascending ? 'ascending' : 'descending');
+                    button.textContent = button.textContent.replace(/[↑↓↕]/g, '').trim() + (ascending ? ' ↑' : ' ↓');
+                    applyFilters();
+                });
+            });
+
+            table.querySelectorAll('.review-comment-toggle').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    var full = document.getElementById(button.getAttribute('aria-controls'));
+                    var preview = button.parentElement.querySelector('.review-comment-preview');
+                    var expanded = button.getAttribute('aria-expanded') === 'true';
+                    full.hidden = expanded;
+                    preview.hidden = !expanded;
+                    button.setAttribute('aria-expanded', String(!expanded));
+                    button.textContent = expanded ? button.dataset.showMore : button.dataset.showLess;
+                });
+            });
+
+            function positionMenu(menu) {
+                var buttonRect = menu.previousElementSibling.getBoundingClientRect();
+                var menuRect = menu.getBoundingClientRect();
+                var left = Math.max(8, Math.min(buttonRect.right - menuRect.width, window.innerWidth - menuRect.width - 8));
+                var top = buttonRect.bottom + 4;
+                if (top + menuRect.height > window.innerHeight - 8) top = buttonRect.top - menuRect.height - 4;
+                menu.style.left = left + 'px';
+                menu.style.top = Math.max(8, top) + 'px';
+            }
+
+            table.querySelectorAll('.review-actions-menu').forEach(function(menu) {
+                menu.addEventListener('toggle', function() {
+                    if (menu.matches(':popover-open')) positionMenu(menu);
+                });
+                menu.addEventListener('click', function(event) {
+                    var button = event.target.closest('button[data-review-action]');
+                    if (!button) return;
+                    menu.hidePopover();
+                    if (button.dataset.reviewAction === 'edit') {
+                        openEditModal(button.dataset.url, button.dataset.verdict, button.dataset.comment);
+                    } else if (button.dataset.reviewAction === 'restore') {
+                        openRestoreModal(button.dataset.url);
+                    } else if (button.dataset.reviewAction === 'revote') {
+                        openRevoteModal(button.dataset.url);
+                    } else if (button.dataset.reviewAction === 'visibility') {
+                        openVisibilityModal(button.dataset.url);
+                    }
+                });
+            });
+
+            function repositionOpenMenu() {
+                var menu = table.querySelector('.review-actions-menu:popover-open');
+                if (menu) positionMenu(menu);
+            }
+            window.addEventListener('scroll', repositionOpenMenu, true);
+            window.addEventListener('resize', repositionOpenMenu);
+        });
+    </script>
+{% else %}
+    <p>{% trans "No reviews available yet." %}</p>
+{% endif %}

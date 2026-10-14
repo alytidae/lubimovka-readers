@@ -74,6 +74,10 @@ class PlayDetailView(
             else:
                 context["other_reviews"] = Review.objects.none()
 
+        context["table_reviews"] = list(context["own_reviews"]) + list(
+            context["other_reviews"]
+        )
+
         current_review_phase = {
             Competition.Status.PHASE_1: Review.Phase.PHASE_1,
             Competition.Status.PHASE_2: Review.Phase.PHASE_2,

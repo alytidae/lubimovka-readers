@@ -967,6 +967,34 @@ msgstr "Другие рецензии"
 msgid "No reviews available yet."
 msgstr "Рецензий пока нет."
 
+#: templates/includes/review_table.html
+msgid "Review filters"
+msgstr "Фильтры рецензий"
+
+msgid "All phases"
+msgstr "Все этапы"
+
+msgid "All statuses"
+msgstr "Все статусы"
+
+msgid "All verdicts"
+msgstr "Все вердикты"
+
+msgid "Play"
+msgstr "Пьеса"
+
+msgid "Show more"
+msgstr "Показать полностью"
+
+msgid "Show less"
+msgstr "Свернуть"
+
+msgid "Review actions"
+msgstr "Действия с рецензией"
+
+msgid "No reviews match these filters."
+msgstr "Нет рецензий, соответствующих фильтрам."
+
 #: templates/login.html:9
 msgid "Sign In"
 msgstr "Вход"
