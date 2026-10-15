@@ -106,20 +106,22 @@
             {% endif %}
         </article>
 
-        <article>
-            <header>{% trans "Controversial Plays" %}</header>
-            <p><small>{% trans "Lists plays that have received a mix of both 'Yes' and 'No' verdicts." %}</small></p>
-            <ul>
-                {% for play in controversial_plays|slice:":10" %}
-                    <li>
-                        <a href="{% url 'plays:detail' current_competition.slug play.pk %}">{{ play.title }}</a><br>
-                        <small>✅ {% trans "Yes" %}: {{ play.yes_votes }} | ❌ {% trans "No" %}: {{ play.no_votes }}</small>
-                    </li>
-                {% empty %}
-                    <li>{% trans "No controversial plays yet." %}</li>
-                {% endfor %}
-            </ul>
-        </article>
+        {% if selected_phase == 'phase_1' %}
+            <article>
+                <header>{% trans "Controversial Plays" %}</header>
+                <p><small>{% trans "Lists plays that have received a mix of both 'Yes' and 'No' verdicts." %}</small></p>
+                <ul>
+                    {% for play in controversial_plays|slice:":10" %}
+                        <li>
+                            <a href="{% url 'plays:detail' current_competition.slug play.pk %}">{{ play.title }}</a><br>
+                            <small>✅ {% trans "Yes" %}: {{ play.yes_votes }} | ❌ {% trans "No" %}: {{ play.no_votes }}</small>
+                        </li>
+                    {% empty %}
+                        <li>{% trans "No controversial plays yet." %}</li>
+                    {% endfor %}
+                </ul>
+            </article>
+        {% endif %}
     </div>
 
     <article>
