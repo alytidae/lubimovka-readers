@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n l10n %}
 
 {% block title %}{% trans "Analytics Dashboard" %} - {{ current_competition.title }} - {% trans "Lubimovka Readers" %}{% endblock title %}
 
@@ -126,26 +126,26 @@
 
     <article>
         <header>{% trans "Reader Leaderboard" %}</header>
-        <figure>
-            <table class="striped">
+        <figure class="analytics-table-wrap">
+            <table class="striped" id="readers-table">
                 <thead>
                     <tr>
-                        <th scope="col">{% trans "Reader" %}</th>
-                        <th scope="col">{% trans "Avg Reading Speed" %}</th>
-                        <th scope="col">{% trans "Submitted Reviews" %}</th>
-                        <th scope="col">{% trans "Pending (Drafts/Assigned)" %}</th>
+                        <th scope="col" data-sort="text"><button type="button" class="analytics-sort">{% trans "Reader" %} <span aria-hidden="true">↕</span></button></th>
+                        <th scope="col" data-sort="number"><button type="button" class="analytics-sort">{% trans "Avg Reading Speed" %} <span aria-hidden="true">↕</span></button></th>
+                        <th scope="col" data-sort="number"><button type="button" class="analytics-sort">{% trans "Submitted Reviews" %} <span aria-hidden="true">↕</span></button></th>
+                        <th scope="col" data-sort="number"><button type="button" class="analytics-sort">{% trans "Pending (Drafts/Assigned)" %} <span aria-hidden="true">↕</span></button></th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for reader in top_readers %}
-                        <tr>
-                            <td><a href="{% url 'users:detail' current_competition.slug reader.id %}">{{ reader.username }}</a></td>
-                            <td>{{ reader.speed_str }}</td>
-                            <td>
+                        <tr data-sort-row>
+                            <td data-sort-value="{{ reader.username }}"><a href="{% url 'users:detail' current_competition.slug reader.id %}">{{ reader.username }}</a></td>
+                            <td data-sort-value="{{ reader.speed_sort|default_if_none:''|unlocalize }}">{{ reader.speed_str }}</td>
+                            <td data-sort-value="{{ reader.submitted_reviews }}">
                                 <strong>{{ reader.submitted_reviews }}</strong>
                                 <small>({{ reader.submitted_yes }} ✅ / {{ reader.submitted_no }} ❌)</small>
                             </td>
-                            <td>{{ reader.active_reviews }}</td>
+                            <td data-sort-value="{{ reader.active_reviews }}">{{ reader.active_reviews }}</td>
                         </tr>
                     {% empty %}
                         <tr>
@@ -159,43 +159,43 @@
 
     <article>
         <header>{% trans "Plays Overview" %}</header>
-        <figure>
+        <figure class="analytics-table-wrap">
             <table class="striped" id="plays-table">
                 <thead>
                     <tr>
-                        <th scope="col" data-sort="string">{% trans "Play Title" %} ⇅</th>
-                        <th scope="col" data-sort="string">{% trans "Current Status" %} ⇅</th>
+                        <th scope="col" data-sort="text"><button type="button" class="analytics-sort">{% trans "Play Title" %} <span aria-hidden="true">↕</span></button></th>
+                        <th scope="col" data-sort="text"><button type="button" class="analytics-sort">{% trans "Current Status" %} <span aria-hidden="true">↕</span></button></th>
                         
                         {% if selected_phase == 'all' or selected_phase == 'phase_1' %}
-                            <th scope="col" data-sort="number">{% trans "Phase 1 (Yes)" %} ⇅</th>
-                            <th scope="col" data-sort="number">{% trans "Phase 1 (No)" %} ⇅</th>
+                            <th scope="col" data-sort="number"><button type="button" class="analytics-sort">{% trans "Phase 1 (Yes)" %} <span aria-hidden="true">↕</span></button></th>
+                            <th scope="col" data-sort="number"><button type="button" class="analytics-sort">{% trans "Phase 1 (No)" %} <span aria-hidden="true">↕</span></button></th>
                         {% endif %}
                         
                         {% if selected_phase == 'all' or selected_phase == 'phase_2' %}
-                            <th scope="col" data-sort="number">{% trans "Phase 2 (Yes)" %} ⇅</th>
-                            <th scope="col" data-sort="number">{% trans "Phase 2 (No)" %} ⇅</th>
+                            <th scope="col" data-sort="number"><button type="button" class="analytics-sort">{% trans "Phase 2 (Yes)" %} <span aria-hidden="true">↕</span></button></th>
+                            <th scope="col" data-sort="number"><button type="button" class="analytics-sort">{% trans "Phase 2 (No)" %} <span aria-hidden="true">↕</span></button></th>
                         {% endif %}
                     </tr>
                 </thead>
                 <tbody>
                     {% for play in plays_overview %}
-                        <tr>
-                            <td><a href="{% url 'plays:detail' current_competition.slug play.pk %}">{{ play.title }}</a></td>
-                            <td>{{ play.current_status }}</td>
+                        <tr data-sort-row>
+                            <td data-sort-value="{{ play.title }}"><a href="{% url 'plays:detail' current_competition.slug play.pk %}">{{ play.title }}</a></td>
+                            <td data-sort-value="{{ play.current_status }}">{{ play.current_status }}</td>
                             
                             {% if selected_phase == 'all' or selected_phase == 'phase_1' %}
-                                <td>{{ play.phase_1_yes }}</td>
-                                <td>{{ play.phase_1_no }}</td>
+                                <td data-sort-value="{{ play.phase_1_yes }}">{{ play.phase_1_yes }}</td>
+                                <td data-sort-value="{{ play.phase_1_no }}">{{ play.phase_1_no }}</td>
                             {% endif %}
 
                             {% if selected_phase == 'all' or selected_phase == 'phase_2' %}
-                                <td>{{ play.phase_2_yes }}</td>
-                                <td>{{ play.phase_2_no }}</td>
+                                <td data-sort-value="{{ play.phase_2_yes }}">{{ play.phase_2_yes }}</td>
+                                <td data-sort-value="{{ play.phase_2_no }}">{{ play.phase_2_no }}</td>
                             {% endif %}
                         </tr>
                     {% empty %}
                         <tr>
-                            <td colspan="6">{% trans "No plays active." %}</td>
+                            <td colspan="{% if selected_phase == 'all' %}6{% else %}4{% endif %}">{% trans "No plays active." %}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -203,37 +203,56 @@
         </figure>
     </article>
 
+    <style>
+        .analytics-table-wrap { overflow-x: auto; }
+        .analytics-sort { all: unset; cursor: pointer; font-weight: 600; }
+        .analytics-sort:focus-visible { outline: 2px solid var(--pico-primary); outline-offset: 3px; }
+    </style>
+
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        var table = document.getElementById('plays-table');
-        if (!table) return;
-        var headers = table.querySelectorAll('thead th[data-sort]');
-        headers.forEach(function(th, colIndex) {
-            th.style.cursor = 'pointer';
-            th.addEventListener('click', function() {
-                var tbody = table.querySelector('tbody');
-                var rows = Array.from(tbody.querySelectorAll('tr'));
-                var sortType = th.getAttribute('data-sort');
-                var asc = th.getAttribute('data-order') !== 'asc';
-                headers.forEach(function(h) { h.removeAttribute('data-order'); });
-                th.setAttribute('data-order', asc ? 'asc' : 'desc');
-                rows.sort(function(a, b) {
-                    var aVal = a.children[colIndex] ? a.children[colIndex].textContent.trim() : '';
-                    var bVal = b.children[colIndex] ? b.children[colIndex].textContent.trim() : '';
-                    if (sortType === 'number') {
-                        aVal = parseFloat(aVal) || 0;
-                        bVal = parseFloat(bVal) || 0;
-                    } else {
-                        aVal = aVal.toLowerCase();
-                        bVal = bVal.toLowerCase();
-                    }
-                    if (aVal < bVal) return asc ? -1 : 1;
-                    if (aVal > bVal) return asc ? 1 : -1;
-                    return 0;
-                });
-                rows.forEach(function(row) { tbody.appendChild(row); });
-            });
+        var collator = new Intl.Collator(document.documentElement.lang || undefined, {
+            numeric: true,
+            sensitivity: 'base'
         });
+
+        function setupTable(tableId) {
+            var table = document.getElementById(tableId);
+            var tbody = table.tBodies[0];
+            var rows = Array.from(tbody.querySelectorAll('tr[data-sort-row]'));
+            var headers = Array.from(table.querySelectorAll('thead th[data-sort]'));
+
+            headers.forEach(function(header, columnIndex) {
+                var button = header.querySelector('button');
+                var indicator = button.querySelector('span');
+                header.setAttribute('aria-sort', 'none');
+                button.addEventListener('click', function() {
+                    var ascending = header.getAttribute('aria-sort') !== 'ascending';
+                    var direction = ascending ? 1 : -1;
+                    rows.sort(function(a, b) {
+                        var aValue = a.cells[columnIndex].dataset.sortValue;
+                        var bValue = b.cells[columnIndex].dataset.sortValue;
+                        if (aValue === '' || bValue === '') {
+                            return aValue === bValue ? 0 : aValue === '' ? 1 : -1;
+                        }
+                        return (header.dataset.sort === 'number'
+                            ? Number(aValue) - Number(bValue)
+                            : collator.compare(aValue, bValue)) * direction;
+                    });
+                    rows.forEach(function(row) { tbody.appendChild(row); });
+                    headers.forEach(function(other) {
+                        other.setAttribute('aria-sort', 'none');
+                        other.querySelector('span').textContent = '↕';
+                    });
+                    header.setAttribute('aria-sort', ascending ? 'ascending' : 'descending');
+                    indicator.textContent = ascending ? '↑' : '↓';
+                });
+            });
+
+        }
+
+        setupTable('readers-table');
+        setupTable('plays-table');
     });
     </script>
 

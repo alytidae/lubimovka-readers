@@ -224,6 +224,11 @@ class CompetitionAnalyticsView(
 
         top_readers = list(top_readers_qs)
         for reader in top_readers:
+            reader.speed_sort = (
+                reader.avg_reading_time.total_seconds()
+                if reader.avg_reading_time is not None
+                else None
+            )
             if reader.avg_reading_time:
                 days = reader.avg_reading_time.days
                 hours = reader.avg_reading_time.seconds // 3600
