@@ -41,8 +41,12 @@ msgid "Title"
 msgstr "Название"
 
 #: apps/competitions/models.py:17
-msgid "Date"
-msgstr "Дата"
+msgid "Competition start date"
+msgstr "Дата начала конкурса"
+
+#: apps/competitions/models.py
+msgid "Current phase end date"
+msgstr "Дата окончания текущего этапа"
 
 #: apps/competitions/models.py:22
 msgid "Google Sheet URL"
@@ -415,6 +419,27 @@ msgstr "Общее"
 #: templates/analytics_dashboard.html:42
 msgid "Progress & ETA"
 msgstr "Прогресс и сроки"
+
+#: templates/analytics_dashboard.html
+msgid "Current phase ends"
+msgstr "Окончание текущего этапа"
+
+#: templates/analytics_dashboard.html
+#, python-format
+msgid "%(days)s days remaining"
+msgstr "Осталось дней: %(days)s"
+
+#: templates/analytics_dashboard.html
+msgid "Ends today"
+msgstr "Заканчивается сегодня"
+
+#: templates/analytics_dashboard.html
+msgid "Deadline passed"
+msgstr "Срок истёк"
+
+#: templates/analytics_dashboard.html
+msgid "Not set"
+msgstr "Не указана"
 
 #: templates/analytics_dashboard.html:43
 #, python-format

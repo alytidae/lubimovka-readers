@@ -452,6 +452,12 @@ class CompetitionAnalyticsView(
                 "total_no": total_no,
                 "pending_actions": pending_actions,
                 "eta_days": eta_days,
+                "phase_end_date": competition.phase_end_date,
+                "phase_days_remaining": (
+                    (competition.phase_end_date - timezone.localdate()).days
+                    if competition.phase_end_date
+                    else None
+                ),
                 "velocity_per_day": round(velocity_per_day, 1),
                 "total_plays_count": total_plays_count,
                 "active_plays_count": active_plays_count,

@@ -43,6 +43,13 @@
             <label for="progress-bar">{% blocktrans with percent=progress_percent %}Completion: {{ percent }}%{% endblocktrans %}</label>
             <progress id="progress-bar" value="{{ progress_percent }}" max="100"></progress>
             <ul>
+                <li><strong>{% trans "Current phase ends" %}:</strong>
+                    {% if phase_end_date %}{{ phase_end_date|date:"DATE_FORMAT" }}
+                        {% if phase_days_remaining > 0 %}<br><small>{% blocktrans with days=phase_days_remaining %}{{ days }} days remaining{% endblocktrans %}</small>
+                        {% elif phase_days_remaining == 0 %}<br><small>{% trans "Ends today" %}</small>
+                        {% else %}<br><small><mark>{% trans "Deadline passed" %}</mark></small>{% endif %}
+                    {% else %}<mark>{% trans "Not set" %}</mark>{% endif %}
+                </li>
                 <li><strong>{% trans "Total plays" %}:</strong> {{ total_plays_count }}
                     <br><small>{% trans "Including inactive" %}</small></li>
                 <li><strong>{% trans "Activated plays" %}:</strong> {{ active_plays_count }}

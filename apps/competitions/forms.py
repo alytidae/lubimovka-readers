@@ -30,10 +30,12 @@ class CompetitionChangeForm(forms.ModelForm):
         fields = (
             "title",
             "date",
+            "phase_end_date",
             "status",
             "are_phase1_reviews_visible",
             "are_phase2_reviews_visible",
         )
         widgets = {
             "date": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
+            "phase_end_date": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
         }

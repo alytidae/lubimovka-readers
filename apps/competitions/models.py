@@ -14,7 +14,8 @@ class Competition(models.Model):
         FINISHED = "finished", _("Finished")
 
     title = models.CharField(_("Title"), max_length=255)
-    date = models.DateField(_("Date"))
+    date = models.DateField(_("Competition start date"))
+    phase_end_date = models.DateField(_("Current phase end date"), null=True, blank=True)
 
     slug = models.SlugField(max_length=255, unique=True, blank=True)
 
